@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 
 function ChooseRole() {
   const navigate = useNavigate();
+  const [selectedRole, setSelectedRole] = useState(null);
 
   const roles = {
     user: {
@@ -10,33 +12,40 @@ function ChooseRole() {
       desc: "Report lost and found items, search posts, help others, receive rewards, and connect with the community.",
       icon: (
         <svg width="36" height="36" viewBox="0 0 47 47" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 sm:w-9 sm:h-9">
-          <rect x="9.73" y="29.19" width="27.25" height="11.68" stroke="#155DFC" strokeWidth="3.5" />
-          <rect x="15.57" y="5.84" width="15.57" height="15.57" stroke="#155DFC" strokeWidth="3.5" />
+          <rect x="9.73" y="29.19" width="27.25" height="11.68" stroke="#3B82F6" strokeWidth="3.5" />
+          <rect x="15.57" y="5.84" width="15.57" height="15.57" stroke="#3B82F6" strokeWidth="3.5" />
         </svg>
       ),
-      gradient: "from-blue-100 to-indigo-100",
-      bg: "bg-[rgba(187,212,254,0.7)]",
-      btnBg: "bg-[#2B7FFF]",
     },
     shop: {
       title: "Shop Owner",
       desc: "Register your business and help connect users with found items and recovery support.",
       icon: (
         <svg width="36" height="36" viewBox="0 0 47 47" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 sm:w-9 sm:h-9">
-          <rect x="3.89" y="3.89" width="38.92" height="9.73" stroke="#7F22FE" strokeWidth="3.5" />
-          <rect x="7.78" y="23.35" width="31.14" height="19.46" stroke="#7F22FE" strokeWidth="3.5" />
-          <rect x="17.52" y="31.14" width="11.68" height="11.68" stroke="#7F22FE" strokeWidth="3.5" />
-          <rect x="3.89" y="13.62" width="38.92" height="9.73" stroke="#7F22FE" strokeWidth="3.5" />
+          <rect x="3.89" y="3.89" width="38.92" height="9.73" stroke="#8B5CF6" strokeWidth="3.5" />
+          <rect x="7.78" y="23.35" width="31.14" height="19.46" stroke="#8B5CF6" strokeWidth="3.5" />
+          <rect x="17.52" y="31.14" width="11.68" height="11.68" stroke="#8B5CF6" strokeWidth="3.5" />
+          <rect x="3.89" y="13.62" width="38.92" height="9.73" stroke="#8B5CF6" strokeWidth="3.5" />
         </svg>
       ),
-      gradient: "from-purple-100 to-pink-100",
-      bg: "bg-white/70",
-      btnBg: "bg-[#8E51FF]",
+    },
+  };
+
+  const selectedStyles = {
+    user: {
+      card: "bg-blue-100 border-blue-400 ring-2 ring-blue-400",
+      icon: "bg-blue-200",
+      btn: "bg-blue-500",
+    },
+    shop: {
+      card: "bg-purple-100 border-purple-400 ring-2 ring-purple-400",
+      icon: "bg-purple-200",
+      btn: "bg-purple-600",
     },
   };
 
   return (
-    <div className="min-h-screen bg-[#F0F4FF] flex flex-col font-[Outfit]">
+    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-500 flex flex-col font-[Outfit]">
       <Navbar hideAuth />
 
       <div className="relative flex-1 overflow-hidden">
@@ -55,35 +64,41 @@ function ChooseRole() {
           </div>
 
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 w-full max-w-[900px]">
-            {Object.entries(roles).map(([key, role]) => (
-              <div
-                key={key}
-                onClick={() => navigate(`/register?role=${key}`)}
-                className={`flex-1 backdrop-blur rounded-2xl sm:rounded-[20px] border border-white/60 p-4 sm:p-7 flex flex-col justify-center gap-3 sm:gap-5 cursor-pointer transition-all duration-300 ${role.bg} hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]`}
-              >
-                <div className={`w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br ${role.gradient} rounded-2xl sm:rounded-[24px] flex items-center justify-center`}>
-                  {role.icon}
-                </div>
-                <div>
-                  <h2 className="text-[#0F1523] text-base sm:text-2xl font-semibold leading-snug sm:leading-[32px]">
-                    {role.title}
-                  </h2>
-                  <p className="text-[#6B7A9F] text-xs sm:text-base font-medium leading-relaxed sm:leading-[24px] max-w-[400px] pt-1">
-                    {role.desc}
-                  </p>
-                </div>
-                <button
-                  onClick={(e) => { e.stopPropagation(); navigate(`/register?role=${key}`); }}
-                  className={`w-full px-4 sm:px-6 py-2 sm:py-3.5 ${role.btnBg} rounded-full sm:rounded-[26px] flex items-center justify-center gap-2 sm:gap-3 text-white text-xs sm:text-base font-semibold hover:opacity-90 transition cursor-pointer`}
+            {Object.entries(roles).map(([key, role]) => {
+              const isSelected = selectedRole === key;
+              const sel = selectedStyles[key];
+              return (
+                <div
+                  key={key}
+                  onClick={() => setSelectedRole(key)}
+                  className={`flex-1 backdrop-blur rounded-2xl sm:rounded-[20px] border p-4 sm:p-7 flex flex-col justify-center gap-3 sm:gap-5 cursor-pointer transition-all duration-300
+                    ${isSelected ? `${sel.card} scale-[1.02] shadow-xl` : "bg-white/70 border-white/60 hover:scale-[1.02] hover:shadow-lg hover:bg-gray-50"}`}
                 >
-                  Continue as {role.title === "Normal User" ? "User" : "Shop Owner"}
-                  <svg width="18" height="18" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 sm:w-5 sm:h-5">
-                    <path d="M13.34 5.56L21.12 13.34L13.34 21.12" stroke="white" strokeWidth="2.45" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M5.56 13.34H21.12" stroke="white" strokeWidth="2.45" strokeLinecap="round"/>
-                  </svg>
-                </button>
-              </div>
-            ))}
+                  <div className={`w-10 h-10 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[24px] flex items-center justify-center transition-all duration-300 ${isSelected ? sel.icon : "bg-gray-100"}`}>
+                    {role.icon}
+                  </div>
+                  <div>
+                    <h2 className="text-[#0F1523] text-base sm:text-2xl font-semibold leading-snug sm:leading-[32px]">
+                      {role.title}
+                    </h2>
+                    <p className="text-[#6B7A9F] text-xs sm:text-base font-medium leading-relaxed sm:leading-[24px] max-w-[400px] pt-1">
+                      {role.desc}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); navigate(`/register?role=${key}`); }}
+                    className={`w-full px-4 sm:px-6 py-2 sm:py-3.5 rounded-full sm:rounded-[26px] flex items-center justify-center gap-2 sm:gap-3 text-white text-xs sm:text-base font-semibold transition-all duration-300
+                      ${isSelected ? `${sel.btn} hover:opacity-90` : "bg-blue-400 hover:bg-blue-500"}`}
+                  >
+                    Continue as {role.title === "Normal User" ? "User" : "Shop Owner"}
+                    <svg width="18" height="18" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 sm:w-5 sm:h-5">
+                      <path d="M13.34 5.56L21.12 13.34L13.34 21.12" stroke="white" strokeWidth="2.45" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M5.56 13.34H21.12" stroke="white" strokeWidth="2.45" strokeLinecap="round"/>
+                    </svg>
+                  </button>
+                </div>
+              );
+            })}
           </div>
 
           <div className="flex flex-col items-center gap-1 sm:gap-1.5">
@@ -93,7 +108,7 @@ function ChooseRole() {
                 Login
               </Link>
             </p>
-            <p className="text-[rgba(107,122,159,0.6)] text-[10px] sm:text-sm font-normal text-center">
+            <p className="text-[rgba(38, 43, 56, 0.6)] text-[10px] sm:text-sm font-normal text-center">
               You can change certain account settings later.
             </p>
           </div>

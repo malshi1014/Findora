@@ -116,7 +116,7 @@ function Register() {
 
               <div className="grid grid-cols-2 gap-3">
                 <input
-                  placeholder="First Name"
+                  placeholder={role === "shop" ? "Name" : "First Name"}
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
@@ -124,7 +124,7 @@ function Register() {
                 />
 
                 <input
-                  placeholder="Last Name"
+                  placeholder={role === "shop" ? "Shop Name" : "Last Name"}
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
