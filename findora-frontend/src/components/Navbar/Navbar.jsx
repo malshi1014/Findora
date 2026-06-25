@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo/favicon.ico";
 
-function Navbar() {
+function Navbar({ hideAuth }) {
   
   const isLoggedIn = !!localStorage.getItem('auth_token');
 
@@ -37,7 +37,7 @@ function Navbar() {
         </div>
 
         {/* Right Side */}
-        <div className="flex items-center gap-3">
+        {!hideAuth && <div className="flex items-center gap-3">
 
           {!isLoggedIn ? (
             <>
@@ -49,7 +49,7 @@ function Navbar() {
               </Link>
 
               <Link
-                to="/register"
+                to="/choose-role"
                 className="bg-blue-600 text-white px-5 py-2 rounded-full font-medium hover:bg-blue-700"
               >
                 Register
@@ -90,7 +90,7 @@ function Navbar() {
             </>
           )}
 
-        </div>
+        </div>}
 
       </div>
     </nav>

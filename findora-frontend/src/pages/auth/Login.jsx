@@ -123,7 +123,7 @@ function Login() {
               </button>
 
 
-              <p className="text-center text-sm text-slate-500">Don't have an account? <Link to="/register" className="text-blue-600">Sign up now</Link></p>
+              <p className="text-center text-sm text-slate-500">Don't have an account? <Link to="/choose-role" className="text-blue-600">Sign up now</Link></p>
             </form>
           </div>
         </div>

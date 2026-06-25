@@ -6,6 +6,7 @@ import Contact from "../pages/public/Contact";
 
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
+import ChooseRole from "../pages/auth/ChooseRole";
 
 import UserDashboard from "../pages/dashboard/UserDashboard";
 import Notifications from "../pages/dashboard/Notifications";
@@ -45,6 +46,7 @@ function AppRoutes() {
         {/* Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/choose-role" element={<ChooseRole />} />
 
         {/* Dashboard */}
         <Route path="/dashboard" element={<UserDashboard />} />
