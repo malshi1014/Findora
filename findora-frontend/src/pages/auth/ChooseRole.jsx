@@ -11,9 +11,9 @@ function ChooseRole() {
       title: "Normal User",
       desc: "Report lost and found items, search posts, help others, receive rewards, and connect with the community.",
       icon: (
-        <svg width="36" height="36" viewBox="0 0 47 47" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 sm:w-9 sm:h-9">
-          <rect x="9.73" y="29.19" width="27.25" height="11.68" stroke="#3B82F6" strokeWidth="3.5" />
-          <rect x="15.57" y="5.84" width="15.57" height="15.57" stroke="#3B82F6" strokeWidth="3.5" />
+        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 sm:w-9 sm:h-9">
+          <circle cx="24" cy="14" r="8" stroke="#3B82F6" strokeWidth="3" />
+          <path d="M8 42C8 33.1634 15.1634 26 24 26C32.8366 26 40 33.1634 40 42" stroke="#3B82F6" strokeWidth="3" strokeLinecap="round" />
         </svg>
       ),
     },
@@ -21,11 +21,12 @@ function ChooseRole() {
       title: "Shop Owner",
       desc: "Register your business and help connect users with found items and recovery support.",
       icon: (
-        <svg width="36" height="36" viewBox="0 0 47 47" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 sm:w-9 sm:h-9">
-          <rect x="3.89" y="3.89" width="38.92" height="9.73" stroke="#8B5CF6" strokeWidth="3.5" />
-          <rect x="7.78" y="23.35" width="31.14" height="19.46" stroke="#8B5CF6" strokeWidth="3.5" />
-          <rect x="17.52" y="31.14" width="11.68" height="11.68" stroke="#8B5CF6" strokeWidth="3.5" />
-          <rect x="3.89" y="13.62" width="38.92" height="9.73" stroke="#8B5CF6" strokeWidth="3.5" />
+        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 sm:w-9 sm:h-9">
+          <path d="M6 14L10 6H38L42 14" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="8" y="14" width="32" height="28" rx="2" stroke="#8B5CF6" strokeWidth="3" />
+          <path d="M18 14V22H30V14" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M18 28H30" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" />
+          <path d="M18 34H26" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" />
         </svg>
       ),
     },
