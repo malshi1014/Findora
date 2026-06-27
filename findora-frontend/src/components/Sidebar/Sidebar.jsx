@@ -30,6 +30,10 @@ function Sidebar() {
             Report Found Item
           </Link>
 
+          <Link to="/report-suspicious" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
+            Report Suspicious Item
+          </Link>
+
           <Link to="/report-person" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
             Report Missing Person
           </Link>
@@ -40,13 +44,23 @@ function Sidebar() {
         </div>
 
         <div className="mt-6 pt-4 border-t border-gray-200">
+          <p className="text-xs font-semibold uppercase text-gray-500 px-4 mb-3">My Reports</p>
+          <Link to="/donation" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
+            My Donations
+          </Link>
+          <Link to="/rewards" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
+            Rewards
+          </Link>
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-gray-200">
           <p className="text-xs font-semibold uppercase text-gray-500 px-4 mb-3">Account</p>
           <Link to="/notifications" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
             Notifications
           </Link>
 
-          <Link to="/donation" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
-            Donation
+          <Link to="/possible-match" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
+            Matches
           </Link>
 
           <Link to="/settings" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
