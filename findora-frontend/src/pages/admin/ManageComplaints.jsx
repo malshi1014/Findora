@@ -9,9 +9,9 @@ const stats = [
 const filters = ["All Reports", "User Reports", "Post Reports", "Abuse", "Spam", "Fake Information", "Claim Disputes", "Closed"];
 
 const complaints = [
-  { id: "9821", user: { name: "Julian Vance", handle: "@julian_v" }, content: "Report about suspicious post...", status: "Investigating" },
-  { id: "9818", user: { name: "Elena Rossi", handle: "@elena_rossi" }, content: "User posted incorrect info...", status: "Pending" },
-  { id: "9805", user: { name: "Marcus King", handle: "@mking_lux" }, content: "Spam account reporting...", status: "Resolved" },
+  { id: "9821", user: { name: "Kaveen", handle: "@malshi" }, content: "Report about suspicious post...", status: "Investigating" },
+  { id: "9818", user: { name: "Ishara", handle: "@omindu" }, content: "User posted incorrect info...", status: "Pending" },
+  { id: "9805", user: { name: "Kasuni", handle: "@navod" }, content: "Spam account reporting...", status: "Resolved" },
 ];
 
 function StatusBadge({ status }) {

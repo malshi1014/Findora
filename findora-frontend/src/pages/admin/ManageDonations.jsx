@@ -7,17 +7,17 @@ const stats = [
 ];
 
 const recent = [
-  { id: "#DON-4822", name: "Alex Rivera", amount: "Rs 100.00", date: "Oct 24, 2025" },
-  { id: "#DON-4821", name: "Sarah K.", amount: "Rs 500.00", date: "Oct 23, 2025" },
-  { id: "#DON-4820", name: "Marcus Thorne", amount: "Rs 5000.00", date: "Oct 22, 2025" },
-  { id: "#DON-4819", name: "Unknown User", amount: "Rs2500.00", date: "Oct 22, 2025" },
-  { id: "#DON-4818", name: "Liam M.", amount: "Rs 2000.00", date: "Oct 21, 2025" },
+  { id: "#DON-4822", name: "Kasun", amount: "Rs 100.00", date: "Oct 24, 2025" },
+  { id: "#DON-4821", name: "Janith", amount: "Rs 500.00", date: "Oct 23, 2025" },
+  { id: "#DON-4820", name: "Dinuka", amount: "Rs 5000.00", date: "Oct 22, 2025" },
+  { id: "#DON-4819", name: "Shanthi", amount: "Rs2500.00", date: "Oct 22, 2025" },
+  { id: "#DON-4818", name: "Nipun", amount: "Rs 2000.00", date: "Oct 21, 2025" },
 ];
 
 const topDonors = [
-  { name: "Sarah K.", amount: "Rs7,500" },
-  { name: "Liam M.", amount: "Rs6,000" },
-  { name: "Chen X.", amount: "Rs5,500" },
+  { name: "Unknown Donor", amount: "Rs7,500" },
+  { name: "Priyan", amount: "Rs6,000" },
+  { name: "Lihini", amount: "Rs5,500" },
 ];
 
 function ManageDonations() {

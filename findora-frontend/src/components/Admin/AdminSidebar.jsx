@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import findoraLogo from "../../assets/logo/findora-favicon-2.png";
 
 const navItems = [
   { to: "/admin", label: "Dashboard" },
@@ -18,12 +19,12 @@ function AdminSidebar() {
   const location = useLocation();
 
   return (
-    <aside className="w-72 shrink-0 bg-slate-800 text-slate-100 border-r border-slate-800 shadow-xl">
+    <aside className="w-72 shrink-0 bg-[#0F172A] text-slate-100 border-r border-slate-800 shadow-xl">
       <div className="flex h-full flex-col justify-between px-6 py-8">
         <div>
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-3xl bg-blue-600 text-lg font-bold text-white">
-              F
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-3xl bg-blue-600">
+              <img src={findoraLogo} alt="Findora logo" className="h-full w-full object-cover" />
             </div>
             <div>
               <p className="text-lg font-semibold text-white">Findora Admin</p>
