@@ -8,12 +8,7 @@ function Sidebar() {
 
   return (
     <aside className="w-64 min-h-screen bg-white shadow-sm px-5 py-6">
-      <Link to="/dashboard" className="flex items-center gap-2 mb-8">
-        <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-          F
-        </div>
-        <span className="text-2xl font-bold text-blue-700">Findora</span>
-      </Link>
+
 
       <nav className="space-y-2 text-gray-700 font-medium">
         <Link to="/dashboard" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
@@ -59,7 +54,7 @@ function Sidebar() {
             Notifications
           </Link>
 
-          <Link to="/possible-match" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
+          <Link to="/matches" className="block px-4 py-3 rounded-xl hover:bg-blue-50 hover:text-blue-700">
             Matches
           </Link>
 

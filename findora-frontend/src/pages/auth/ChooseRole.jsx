@@ -47,7 +47,7 @@ function ChooseRole() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-500 flex flex-col font-[Outfit]">
-      <Navbar hideAuth />
+      <Navbar />
 
       <div className="relative flex-1 overflow-hidden">
         <div className="absolute -left-40 -top-52 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full bg-blue-400/20 blur-[100px] sm:blur-[120px]" />
