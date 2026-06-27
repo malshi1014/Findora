@@ -7,7 +7,7 @@ const navItems = [
   { to: "/admin/found-reports", label: "Found Items" },
   { to: "/admin/matches", label: "Matching" },
   { to: "/admin/missing-people", label: "Missing People" },
-  { to: "/admin/missing-pets", label: "Pets" },
+  { to: "/admin/missing-pets", label: "Missing Pets" },
   { to: "/admin/donations", label: "Donations" },
   { to: "/admin/rewards", label: "Rewards" },
   { to: "/admin/complaints", label: "Complaints" },
@@ -18,7 +18,7 @@ function AdminSidebar() {
   const location = useLocation();
 
   return (
-    <aside className="w-72 shrink-0 bg-slate-950 text-slate-100 border-r border-slate-800 shadow-xl">
+    <aside className="w-72 shrink-0 bg-slate-800 text-slate-100 border-r border-slate-800 shadow-xl">
       <div className="flex h-full flex-col justify-between px-6 py-8">
         <div>
           <div className="flex items-center gap-3">
@@ -52,12 +52,7 @@ function AdminSidebar() {
         </div>
 
         <div className="space-y-3 pt-6">
-          <Link
-            to="/contact"
-            className="block rounded-3xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 hover:text-white"
-          >
-            Help Support
-          </Link>
+          
 
           <button
             type="button"

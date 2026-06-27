@@ -9,12 +9,12 @@ const stats = [
 
 const activityItems = [
   {
-    label: "Alex Rivera registered as a new contributor.",
+    label: "Omindu Sandew registered as a new contributor.",
     time: "2 minutes ago",
     color: "text-blue-600",
   },
   {
-    label: "New Gold Wallet report submitted.",
+    label: "New black Wallet report submitted.",
     time: "15 minutes ago",
     color: "text-purple-600",
   },
@@ -24,16 +24,16 @@ const activityItems = [
     color: "text-teal-500",
   },
   {
-    label: "Reward distributed to Maya Sterling.",
+    label: "Reward distributed to Malshi Navodya.",
     time: "3 hours ago",
     color: "text-slate-500",
   },
 ];
 
 const topContributors = [
-  { name: "Sarah K.", title: "Expert", points: "2,480" },
-  { name: "Liam M.", title: "Contributor", points: "1,920" },
-  { name: "Chen X.", title: "Helper", points: "1,650" },
+  { name: "Duvindu.", title: "Expert", points: "2,480" },
+  { name: "Ashan.", title: "Contributor", points: "1,920" },
+  { name: "Vishmi.", title: "Helper", points: "1,650" },
 ];
 
 function AdminDashboard() {
