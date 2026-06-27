@@ -9,10 +9,14 @@ import Register from "../pages/auth/Register";
 import ChooseRole from "../pages/auth/ChooseRole";
 
 import UserDashboard from "../pages/dashboard/UserDashboard";
+import Rewards from "../pages/dashboard/Rewards";
 import Notifications from "../pages/dashboard/Notifications";
 import Settings from "../pages/dashboard/Settings";
 import Donation from "../pages/dashboard/Donation";
 import EditReport from "../pages/dashboard/EditReport";
+import PossibleMatch from "../pages/dashboard/PossibleMatch";
+import Matches from "../pages/dashboard/Matches";
+import MyPosts from "../pages/dashboard/MyPosts";
 
 import ReportLostItem from "../pages/reports/ReportLostItem";
 import ReportFoundItem from "../pages/reports/ReportFoundItem";
@@ -27,7 +31,6 @@ import ManageFoundReports from "../pages/admin/ManageFoundReports";
 import ManageMissingPeople from "../pages/admin/ManageMissingPeople";
 import ManageMissingPets from "../pages/admin/ManageMissingPets";
 import ManageDonations from "../pages/admin/ManageDonations";
-import ManageRewards from "../pages/admin/ManageRewards";
 import MatchVerification from "../pages/admin/MatchVerification";
 import ManageComplaints from "../pages/admin/ManageComplaints";
 import AdminStatistics from "../pages/admin/AdminStatistics";
@@ -51,9 +54,13 @@ function AppRoutes() {
         {/* Dashboard */}
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/rewards" element={<Rewards />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/donation" element={<Donation />} />
         <Route path="/edit-report" element={<EditReport />} />
+        <Route path="/possible-match" element={<PossibleMatch />} />
+        <Route path="/matches" element={<Matches />} />
+        <Route path="/my-posts" element={<MyPosts />} />
 
         {/* Reports */}
         <Route path="/report-lost" element={<ReportLostItem />} />
@@ -70,7 +77,6 @@ function AppRoutes() {
         <Route path="/admin/missing-people" element={<ManageMissingPeople />} />
         <Route path="/admin/missing-pets" element={<ManageMissingPets />} />
         <Route path="/admin/donations" element={<ManageDonations />} />
-        <Route path="/admin/rewards" element={<ManageRewards />} />
         <Route path="/admin/matches" element={<MatchVerification />} />
         <Route path="/admin/complaints" element={<ManageComplaints />} />
         <Route path="/admin/statistics" element={<AdminStatistics />} />
