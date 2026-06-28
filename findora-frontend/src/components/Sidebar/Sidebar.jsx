@@ -13,8 +13,8 @@ function Sidebar() {
     }`;
 
   return (
-    <aside className="w-64 min-h-screen bg-white/75 backdrop-blur border-r border-white/20 shadow-[0_45px_75px_rgba(0,0,0,0.04)] px-4 py-6 flex flex-col shrink-0">
-      <nav className="space-y-1 flex-1">
+    <aside className="w-64 h-full bg-white/75 backdrop-blur border-r border-white/20 shadow-[0_45px_75px_rgba(0,0,0,0.04)] px-4 py-6 flex flex-col shrink-0">
+      <nav className="space-y-1 flex-1 overflow-y-auto">
 
         {/* Dashboard */}
         <Link to="/dashboard" className={linkClass("/dashboard")}>
@@ -137,21 +137,6 @@ function Sidebar() {
           Settings
         </Link>
       </nav>
-
-      <button
-        onClick={() => {
-          localStorage.removeItem('auth_token');
-          window.location.href = '/';
-        }}
-        className="mt-6 flex items-center justify-center gap-2 w-full bg-red-500 text-white py-3 rounded-2xl font-medium font-['Inter'] hover:bg-red-600 transition"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-          <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M16 17L21 12L16 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M21 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-        </svg>
-        Logout
-      </button>
     </aside>
   );
 }
