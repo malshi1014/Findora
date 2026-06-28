@@ -6,12 +6,12 @@ function DashboardLayout({ children }) {
     <div className="h-screen bg-gray-50 flex flex-col">
       <Navbar hideAuth />
 
-      <div className="flex flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto shrink-0">
+      <div className="flex flex-1 min-h-0">
+        <div className="h-full shrink-0">
           <Sidebar />
         </div>
 
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-8 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
       </div>
