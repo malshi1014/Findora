@@ -1,294 +1,180 @@
-import { Link } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
-
-const activities = [
-  {
-    date: "TODAY, 10:45 AM",
-    title: "New Match Found",
-    description: 'AI detected a strong match for\nyour "Blue Backpack" in the\nTransit hub.',
-    color: "#0058BC",
-  },
-  {
-    date: "YESTERDAY, 4:20 PM",
-    title: "Claim Accepted",
-    description: 'The finder of your "House Keys"\nhas verified your claim.',
-    color: "#6D37D3",
-  },
-  {
-    date: "OCT 12, 9:00 AM",
-    title: "Post Created",
-    description: 'You reported a "Silver Ring" found\nin Golden Gate Park.',
-    color: "#717786",
-  },
-];
-
-const posts = [
-  {
-    title: "Blue Backpack",
-    status: "LOST",
-    statusColor: "#6D37D3",
-    date: "Oct 14, 2023",
-    img: true,
-  },
-  {
-    title: "Car Keys",
-    status: "FOUND",
-    statusColor: "#0058BC",
-    date: "Oct 12, 2023",
-    img: true,
-  },
-];
 
 function UserDashboard() {
   return (
     <DashboardLayout>
-      <div
-        className="relative min-h-screen"
-        style={{
-          background:
-            "radial-gradient(ellipse 50% 50% at 50% 50%, #fff 0%, #E1EAFE 100%)",
-        }}
-      >
-        <div className="mx-auto max-w-[1500px] px-10 py-24">
-          <div className="flex flex-col gap-10">
-            {/* Welcome Card */}
-            <div className="rounded-[36px] bg-white/75 p-12 shadow-[0_45px_75px_rgba(0,0,0,0.04)] backdrop-blur-[15px] ring-1 ring-white/20">
-              <div className="flex flex-col gap-3">
-                <div className="inline-flex w-fit items-center rounded-[14998.5px] bg-[rgba(0,88,188,0.10)] px-[18px] py-[6px]">
-                  <span className="text-[16.5px] font-semibold tracking-[0.83px] text-[#0058BC]">
-                    DASHBOARD OVERVIEW
-                  </span>
-                </div>
-                <h1 className="pt-3 text-[48px] font-bold leading-[60px] text-[#1B1B1D]">
+      <div className="w-full h-full" style={{ background: "radial-gradient(ellipse 50% 50% at 50% 50%, white 0%, #E1EAFE 100%)" }}>
+        <div className="w-full max-w-[2160px] mx-auto p-6 sm:p-10 flex flex-col gap-6 sm:gap-10">
+
+          {/* Dashboard Overview + Profile Strength Row */}
+          <div className="flex flex-col lg:flex-row gap-6 sm:gap-10">
+
+            {/* Dashboard Overview Card */}
+            <div className="flex-1 p-6 sm:p-12 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20 relative overflow-hidden">
+              <div className="absolute right-0 top-0 w-[302px] h-[459px] opacity-20">
+                <div className="w-full h-full bg-gradient-to-b from-white to-white opacity-30" />
+              </div>
+              <div className="flex flex-col gap-3 sm:gap-4">
+                <span className="inline-block px-4 sm:px-[18px] py-1 sm:py-[6px] bg-[rgba(0,88,188,0.10)] rounded-full text-[#0058BC] text-xs sm:text-base font-semibold font-[Inter] tracking-[0.83px]">
+                  DASHBOARD OVERVIEW
+                </span>
+                <h1 className="text-[#1B1B1D] text-2xl sm:text-[48px] font-bold font-[Inter] leading-tight sm:leading-[60px] pt-3 sm:pt-[12px]">
                   Welcome back, Duvindu!
                 </h1>
-                <div className="max-w-[672px] pb-6">
-                  <p className="text-[24px] font-normal leading-[36px] text-[#414755]">
-                    You have{" "}
-                    <span className="text-[#0058BC]">3 new matches</span> for
-                    your lost items. Let&apos;s get them back to you.
+                <p className="text-[#414755] text-base sm:text-2xl font-normal font-[Inter] leading-snug sm:leading-[36px] max-w-[672px] pb-4 sm:pb-6">
+                  You have <span className="text-[#0058BC]">3 new matches</span> for your lost items. Let&apos;s get them back to you.
+                </p>
+                <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-[rgba(0,88,188,0.05)] rounded-2xl border border-[rgba(0,88,188,0.10)] max-w-[576px]">
+                  <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-[rgba(0,88,188,0.20)] rounded-xl sm:rounded-[18px] flex items-center justify-center">
+                    <svg width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="33" height="31.5" rx="4" fill="#0058BC" />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="text-[#0058BC] text-base sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Recovery Success!</p>
+                    <p className="text-[#717786] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">Your Sony Headphones were returned.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Profile Strength Card */}
+            <div className="w-full lg:w-[400px] p-6 sm:p-12 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-[rgba(0,88,188,0.20)] flex flex-col justify-between">
+              <div className="flex flex-col gap-4 sm:gap-6 pb-6 sm:pb-9">
+                <div className="flex justify-between items-start pb-2 sm:pb-3">
+                  <h2 className="text-[#1B1B1D] text-xl sm:text-[30px] font-bold font-[Inter] leading-snug sm:leading-[42px]">Profile Strength</h2>
+                  <span className="text-[#0058BC] text-xl sm:text-[30px] font-bold font-[Inter] leading-snug sm:leading-[42px]">85%</span>
+                </div>
+                <div className="w-full h-[18px] bg-[#EAE7EA] rounded-full overflow-hidden">
+                  <div className="w-[65%] h-full bg-gradient-to-r from-[#0058BC] to-[#6D37D3] rounded-full shadow-[0_6px_9px_-6px_rgba(0,0,0,0.10),0_15px_22.5px_-4.5px_rgba(0,0,0,0.10)]" />
+                </div>
+                <p className="text-[#414755] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">
+                  Complete your identity verification to increase your trust score among the Findora community.
+                </p>
+              </div>
+              <button className="w-full py-3 sm:py-[18px] rounded-xl sm:rounded-[18px] border border-[rgba(0,88,188,0.30)] text-[#0058BC] text-base sm:text-2xl font-bold font-[Inter] leading-snug sm:leading-[36px] hover:bg-[rgba(0,88,188,0.05)] transition">
+                Verify Identity Now
+              </button>
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="flex flex-col gap-6 sm:gap-9">
+            <h2 className="text-[#1B1B1D] text-xl sm:text-[30px] font-bold font-[Inter] leading-snug sm:leading-[42px]">Recent Activity</h2>
+
+            <div className="p-6 sm:p-9 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20 flex flex-col gap-6 sm:gap-9">
+              {/* Activity Item 1 */}
+              <div className="relative pl-8 sm:pl-12 pb-6 sm:pb-9 border-l border-[rgba(113,119,134,0.10)] flex flex-col gap-1 sm:gap-[6px]">
+                <div className="absolute -left-[7px] top-0 w-[15px] h-[15px] rounded-full bg-[#0058BC] shadow-[0_0_0_6px_rgba(0,88,188,0.20)]" />
+                <p className="text-[#0058BC] text-xs sm:text-base font-bold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px]">TODAY, 10:45 AM</p>
+                <p className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">New Match Found</p>
+                <p className="text-[#414755] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">
+                  AI detected a strong match for your &quot;Blue Backpack&quot; in the Transit hub.
+                </p>
+              </div>
+
+              {/* Activity Item 2 */}
+              <div className="relative pl-8 sm:pl-12 pb-6 sm:pb-9 border-l border-[rgba(113,119,134,0.10)] flex flex-col gap-1 sm:gap-[6px]">
+                <div className="absolute -left-[7px] top-0 w-[15px] h-[15px] rounded-full bg-[#6D37D3] shadow-[0_0_0_6px_rgba(109,55,211,0.20)]" />
+                <p className="text-[#6D37D3] text-xs sm:text-base font-bold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px]">YESTERDAY, 4:20 PM</p>
+                <p className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Claim Accepted</p>
+                <p className="text-[#414755] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">
+                  The finder of your &quot;House Keys&quot; has verified your claim.
+                </p>
+              </div>
+
+              {/* Activity Item 3 */}
+              <div className="relative pl-8 sm:pl-12 border-l border-[rgba(113,119,134,0.10)] flex flex-col gap-1 sm:gap-[6px]">
+                <div className="absolute -left-[7px] top-0 w-[15px] h-[15px] rounded-full bg-[#717786] shadow-[0_0_0_6px_rgba(113,119,134,0.20)]" />
+                <p className="text-[#717786] text-xs sm:text-base font-bold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px]">OCT 12, 9:00 AM</p>
+                <p className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Post Created</p>
+                <p className="text-[#414755] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">
+                  You reported a &quot;Silver Ring&quot; found in Golden Gate Park.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* My Recent Posts */}
+          <div className="flex flex-col gap-6 sm:gap-9 pb-10 sm:pb-[159px]">
+            <div className="flex justify-between items-center">
+              <h2 className="text-[#1B1B1D] text-xl sm:text-[30px] font-bold font-[Inter] leading-snug sm:leading-[42px]">My Recent Posts</h2>
+              <span className="text-[#0058BC] text-sm sm:text-lg font-bold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px] cursor-pointer hover:underline">View All Posts</span>
+            </div>
+
+            <div className="flex flex-col gap-4 sm:gap-6">
+              {/* Post 1 */}
+              <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20">
+                <div className="w-20 h-20 sm:w-[144px] sm:h-[144px] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className="w-full h-full bg-gray-200" />
+                </div>
+                <div className="flex-1 flex flex-col justify-between gap-2 sm:gap-4 h-full min-h-[80px] sm:min-h-[144px]">
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Blue Backpack</h3>
+                      <span className="px-2 sm:px-3 py-0.5 sm:py-[3px] bg-[rgba(109,55,211,0.10)] rounded text-[#6D37D3] text-xs sm:text-sm font-bold font-[Inter] uppercase leading-snug sm:leading-[22.5px]">LOST</span>
+                    </div>
+                    <p className="text-[#717786] text-xs sm:text-base font-semibold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px] mt-1">Reported: Oct 14, 2023</p>
+                  </div>
+                  <div className="flex gap-2 sm:gap-3">
+                    <button className="p-1 sm:p-[6px] rounded bg-gray-100 hover:bg-gray-200 transition">
+                      <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="20.25" height="20.25" rx="3" fill="#0058BC" />
+                      </svg>
+                    </button>
+                    <button className="p-1 sm:p-[6px] rounded bg-gray-100 hover:bg-gray-200 transition">
+                      <svg width="18" height="21" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="18" height="20.25" rx="3" fill="#BA1A1A" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Post 2 */}
+              <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20">
+                <div className="w-20 h-20 sm:w-[144px] sm:h-[144px] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
+                  <div className="w-full h-full bg-gray-200" />
+                </div>
+                <div className="flex-1 flex flex-col justify-between gap-2 sm:gap-4 h-full min-h-[80px] sm:min-h-[144px]">
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Car Keys</h3>
+                      <span className="px-2 sm:px-3 py-0.5 sm:py-[3px] bg-[rgba(0,88,188,0.10)] rounded text-[#0058BC] text-xs sm:text-sm font-bold font-[Inter] uppercase leading-snug sm:leading-[22.5px]">FOUND</span>
+                    </div>
+                    <p className="text-[#717786] text-xs sm:text-base font-semibold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px] mt-1">Reported: Oct 12, 2023</p>
+                  </div>
+                  <div className="flex gap-2 sm:gap-3">
+                    <button className="p-1 sm:p-[6px] rounded bg-gray-100 hover:bg-gray-200 transition">
+                      <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="20.25" height="20.25" rx="3" fill="#0058BC" />
+                      </svg>
+                    </button>
+                    <button className="p-1 sm:p-[6px] rounded bg-gray-100 hover:bg-gray-200 transition">
+                      <svg width="18" height="21" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="18" height="20.25" rx="3" fill="#BA1A1A" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Add New Post */}
+              <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20 cursor-pointer hover:bg-white/90 transition">
+                <div className="w-20 h-20 sm:w-[144px] sm:h-[144px] rounded-xl sm:rounded-2xl bg-[#F0EDEF] flex items-center justify-center flex-shrink-0">
+                  <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="35" height="35" rx="4" fill="#717786" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-[#414755] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">
+                    Report another item...
                   </p>
-                </div>
-                <div className="inline-flex max-w-[576px] items-center gap-6 rounded-[24px] border border-[rgba(0,88,188,0.10)] bg-[rgba(0,88,188,0.05)] p-6">
-                  <div className="flex h-[72px] w-[72px] items-center justify-center rounded-[18px] bg-[rgba(0,88,188,0.20)]">
-                    <svg
-                      width="33"
-                      height="31.5"
-                      viewBox="0 0 33 32"
-                      fill="none"
-                    >
-                      <path
-                        d="M16.5 0L20.4 11.3L32.5 11.3L22.9 18.6L26.2 30L16.5 22.8L6.8 30L10.1 18.6L0.5 11.3L12.6 11.3L16.5 0Z"
-                        fill="#0058BC"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-[21px] font-bold leading-[30px] text-[#0058BC]">
-                      Recovery Success!
-                    </span>
-                    <span className="text-[18px] font-medium leading-[24px] tracking-[0.36px] text-[#717786]">
-                      Your Sony Headphones were returned.
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-              {/* Recent Activity */}
-              <div className="flex-1">
-                <h2 className="mb-9 text-[30px] font-bold leading-[42px] text-[#1B1B1D]">
-                  Recent Activity
-                </h2>
-                <div className="flex flex-col gap-9 rounded-[36px] bg-white/75 p-9 shadow-[0_45px_75px_rgba(0,0,0,0.04)] backdrop-blur-[15px] ring-1 ring-white/20">
-                  {activities.map((item, i) => (
-                    <div
-                      key={i}
-                      className="relative flex flex-col gap-1.5 border-l-[1.5px] border-[rgba(113,119,134,0.10)] pb-9 pl-12 last:pb-0"
-                    >
-                      <span
-                        className="text-[16.5px] font-bold leading-[24px] tracking-[0.83px]"
-                        style={{ color: item.color }}
-                      >
-                        {item.date}
-                      </span>
-                      <span className="text-[21px] font-bold leading-[30px] text-[#1B1B1D]">
-                        {item.title}
-                      </span>
-                      <span className="whitespace-pre-line text-[18px] font-medium leading-[24px] tracking-[0.36px] text-[#414755]">
-                        {item.description}
-                      </span>
-                      <div
-                        className="absolute left-0 top-0 flex h-[15px] w-[15px] -translate-x-1/2 items-center justify-start"
-                        style={{ left: "-1.5px" }}
-                      >
-                        <div
-                          className="h-[15px] w-[15px] rounded-full"
-                          style={{
-                            backgroundColor: item.color,
-                            boxShadow: `0 0 0 6px ${item.color}33`,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Profile Strength */}
-              <div className="w-full max-w-sm lg:max-w-[380px]">
-                <div className="flex flex-col rounded-[36px] bg-white/75 p-12 shadow-[0_45px_75px_rgba(0,0,0,0.04)] backdrop-blur-[15px] ring-1 ring-[rgba(0,88,188,0.20)]">
-                  <div className="flex flex-col gap-6">
-                    <div className="flex items-start justify-between">
-                      <span className="text-[30px] font-bold leading-[42px] text-[#1B1B1D]">
-                        Profile Strength
-                      </span>
-                      <span className="text-[30px] font-bold leading-[42px] text-[#0058BC]">
-                        85%
-                      </span>
-                    </div>
-                    <div className="h-[18px] w-full overflow-hidden rounded-[14998.5px] bg-[#EAE7EA]">
-                      <div
-                        className="h-full rounded-[14998.5px]"
-                        style={{
-                          width: "286.46px",
-                          background:
-                            "linear-gradient(176deg, #0058BC 0%, #6D37D3 100%)",
-                          boxShadow:
-                            "0px 6px 9px -6px rgba(0,0,0,0.10), 0px 15px 22.5px -4.5px rgba(0,0,0,0.10)",
-                        }}
-                      />
-                    </div>
-                    <span className="text-[18px] font-medium leading-[24px] tracking-[0.36px] text-[#414755]">
-                      Complete your identity verification to increase your trust
-                      score among the Findora community.
-                    </span>
-                  </div>
-                  <button className="mt-[18px] w-full rounded-[18px] border border-[rgba(0,88,188,0.30)] py-[18px] text-center text-[24px] font-bold leading-[36px] text-[#0058BC]">
-                    Verify Identity Now
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* My Recent Posts */}
-            <div className="pb-[159px]">
-              <div className="mb-9 flex items-center justify-between">
-                <h2 className="text-[30px] font-bold leading-[42px] text-[#1B1B1D]">
-                  My Recent Posts
-                </h2>
-                <Link
-                  to="/my-posts"
-                  className="text-center text-[18px] font-bold leading-[24px] tracking-[0.36px] text-[#0058BC]"
-                >
-                  View All Posts
-                </Link>
-              </div>
-              <div className="flex flex-col gap-0">
-                {posts.map((post, i) => (
-                  <div
-                    key={i}
-                    className="inline-flex h-[195px] items-start gap-6 rounded-[36px] bg-white/75 p-6 shadow-[0_45px_75px_rgba(0,0,0,0.04)] backdrop-blur-[15px] ring-1 ring-white/20"
-                  >
-                    <div className="flex h-[144px] w-[144px] shrink-0 items-center justify-center overflow-hidden rounded-[24px] bg-[#F0EDEF]">
-                      {post.img ? (
-                        <div className="h-full w-full bg-[#D9D9D9]" />
-                      ) : (
-                        <svg
-                          width="35"
-                          height="35"
-                          viewBox="0 0 35 35"
-                          fill="none"
-                        >
-                          <rect
-                            width="35"
-                            height="35"
-                            rx="5"
-                            fill="#717786"
-                          />
-                        </svg>
-                      )}
-                    </div>
-                    <div className="flex h-full flex-1 flex-col justify-between">
-                      <div className="flex flex-col gap-1.5">
-                        <div className="flex items-start justify-between">
-                          <span className="text-[21px] font-bold leading-[30px] text-[#1B1B1D]">
-                            {post.title}
-                          </span>
-                          <div
-                            className="inline-flex items-center rounded-[6px] px-3 py-[3px]"
-                            style={{
-                              backgroundColor: `${post.statusColor}1A`,
-                            }}
-                          >
-                            <span
-                              className="text-[15px] font-bold uppercase leading-[22.5px]"
-                              style={{ color: post.statusColor }}
-                            >
-                              {post.status}
-                            </span>
-                          </div>
-                        </div>
-                        <span className="text-[16.5px] font-semibold leading-[24px] tracking-[0.83px] text-[#717786]">
-                          Reported: {post.date}
-                        </span>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <button className="rounded-[6px] p-[6px]">
-                          <svg
-                            width="20.25"
-                            height="20.25"
-                            viewBox="0 0 21 21"
-                            fill="none"
-                          >
-                            <path
-                              d="M17.7188 2.125H3.28125C2.64375 2.125 2.125 2.64375 2.125 3.28125V17.7188C2.125 18.3562 2.64375 18.875 3.28125 18.875H17.7188C18.3562 18.875 18.875 18.3562 18.875 17.7188V3.28125C18.875 2.64375 18.3562 2.125 17.7188 2.125Z"
-                              fill="#0058BC"
-                            />
-                          </svg>
-                        </button>
-                        <button className="rounded-[6px] p-[6px]">
-                          <svg
-                            width="18"
-                            height="20.25"
-                            viewBox="0 0 19 22"
-                            fill="none"
-                          >
-                            <path
-                              d="M16.5 21L9.5 17L2.5 21V3C2.5 2.46957 2.71071 1.96086 3.08579 1.58579C3.46086 1.21071 3.96957 1 4.5 1H14.5C15.0304 1 15.5391 1.21071 15.9142 1.58579C16.2893 1.96086 16.5 2.46957 16.5 3V21Z"
-                              fill="#BA1A1A"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Add new item card */}
-                <div className="inline-flex h-[195px] items-start gap-6 rounded-[36px] bg-white/75 p-6 shadow-[0_45px_75px_rgba(0,0,0,0.04)] backdrop-blur-[15px] ring-1 ring-white/20">
-                  <div className="flex h-[144px] w-[144px] shrink-0 items-center justify-center rounded-[24px] bg-[#F0EDEF]">
-                    <svg
-                      width="35"
-                      height="35"
-                      viewBox="0 0 35 35"
-                      fill="none"
-                    >
-                      <rect width="35" height="35" rx="5" fill="#717786" />
-                    </svg>
-                  </div>
-                  <div className="flex h-full flex-1 items-center">
-                    <span className="text-[21px] font-bold leading-[30px] text-[#414755]">
-                      Report another
-                      <br />
-                      item...
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </DashboardLayout>
