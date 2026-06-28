@@ -22,28 +22,28 @@ const reports = [
     description: "White charging case",
     postId: "#LP-8942",
     category: "Electronics",
-    location: "Central Library",
-    reporter: "John Doe",
+    location: "UWU Library",
+    reporter: "Lakshan",
     date: "Oct 24, 2023 14:30 PM",
     status: "Pending",
   },
   {
-    item: "Ray-Ban Wayfarer",
+    item: "Leather Wallet",
     description: "Match Found",
     postId: "#LP-8941",
     category: "Accessories",
-    location: "City Park North",
-    reporter: "Sarah S.",
+    location: "Badulla Hospital",
+    reporter: "Sarath",
     date: "Oct 24, 2023 09:15 AM",
     status: "Matched",
   },
   {
-    item: "House Keys (4) on Tan Fob",
+    item: "House Keys ",
     description: "Silver keys, leather fob",
     postId: "#LP-8938",
     category: "Personal Items",
-    location: "Main St. Cafe",
-    reporter: "Mike T.",
+    location: "Muthiyanganaya temple",
+    reporter: "Sandun",
     date: "Oct 23, 2023 18:45 PM",
     status: "Approved",
   },
@@ -80,9 +80,7 @@ function ManageLostReports() {
                   className="w-full rounded-full border border-slate-800 bg-slate-900/90 py-3 pl-12 pr-4 text-sm text-slate-100 outline-none focus:border-blue-500"
                 />
               </div>
-              <button className="rounded-full bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-xl hover:bg-blue-500">
-                Add Lost Post
-              </button>
+              
             </div>
           </div>
         </section>

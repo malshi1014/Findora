@@ -8,15 +8,14 @@ const stats = [
 ];
 
 const pets = [
-  { name: "Luna", sex: "Female", age: "3 Years", id: "9821", type: "Dog", breed: "Golden Retriever", reporter: "Sarah Jenkins", location: "San Francisco", status: "Verified" },
-  { name: "Max", sex: "Male", age: "1 Year", id: "8842", type: "Dog", breed: "Husky", reporter: "David Chen", location: "Seattle", status: "Pending" },
-  { name: "Oliver", sex: "Male", age: "5 Years", id: "7712", type: "Cat", breed: "Bombay", reporter: "Marcus Roe", location: "London", status: "Matched" },
+  { name: "Luna", sex: "Female", age: "3 Years", id: "9821", type: "Dog", breed: "Golden Retriever", reporter: "Himal Udayanga", location: "Kurunagala", status: "Found" },
+  { name: "Max", sex: "Male", age: "1 Year", id: "8842", type: "Dog", breed: "Husky", reporter: "Navod Teshan", location: "Monaragala", status: "Searching" },
+  { name: "Oliver", sex: "Male", age: "5 Years", id: "7712", type: "Cat", breed: "German Shepherd", reporter: "Vishmi Kodagoda", location: "Habarana", status: "Searching" },
 ];
 
 const statusClasses = {
-  Verified: "bg-emerald-100 text-emerald-700",
-  Pending: "bg-amber-100 text-amber-700",
-  Matched: "bg-sky-100 text-sky-700",
+  Found: "bg-emerald-100 text-emerald-700",
+  Searching: "bg-amber-100 text-amber-700",
 };
 
 function ManageMissingPets() {

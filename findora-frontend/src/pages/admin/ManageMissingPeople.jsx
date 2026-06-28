@@ -10,9 +10,9 @@ const stats = [
 const tabs = ["All Cases", "Pending Verification", "Verified", "Resolved"];
 
 const cases = [
-  { id: "9821", name: "Alex Rivera", age: "24 years old", reporter: "Maria Rivera (Mother)", lastSeen: "Central Park, NY", priority: "Emergency", status: "Searching" },
-  { id: "8842", name: "Sarah Jenkins", age: "72 years old", reporter: "Staff @ Green Care", lastSeen: "Oakwood Station", priority: "High", status: "Verifying" },
-  { id: "9118", name: "Emily Zhao", age: "8 years old", reporter: "David Zhao (Father)", lastSeen: "Downtown Mall", priority: "Emergency", status: "Broadcasting" },
+  { id: "9821", name: "Omindu Sandew", age: "23 years old", reporter: "Sanjeewani de silva (Mother)", lastSeen: "Senanayake park, Badulla", priority: "Emergency", status: "Searching" },
+  { id: "8842", name: "Malshi Navodya", age: "24 years old", reporter: "Suneka Gunawardana (Mother)", lastSeen: "Railway Station,Badulla", priority: "High", status: "Searching" },
+  { id: "9118", name: "Sandun Saranga", age: "18 years old", reporter: "Sirimal (Father)", lastSeen: "Barista, Colombo", priority: "Emergency", status: "Searching" },
 ];
 
 const priorityClasses = {
