@@ -1,144 +1,171 @@
-import { Link, useLocation } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+
+const navItems = [
+  { label: "Dashboard", path: "/dashboard", icon: "dashboard" },
+  { label: "Report Find Items", path: "/report-found", icon: "reportFind" },
+  { label: "Report Lost Item", path: "/report-lost", icon: "reportLost" },
+  { label: "Report Missing People", path: "/report-person", icon: "reportPerson" },
+  { label: "Report Missing Pets", path: "/report-pet", icon: "reportPet" },
+  { label: "My Posts", path: "/my-posts", icon: "myPosts" },
+  { label: "Notifications", path: "/notifications", icon: "notifications" },
+  { label: "Donations", path: "/donation", icon: "donations" },
+  { label: "Settings", path: "/settings", icon: "settings" },
+];
 
 function Sidebar() {
-  const { pathname } = useLocation();
-
-  const isActive = (path) => pathname === path;
-
-  const linkClass = (path) =>
-    `flex items-center gap-3 px-4 py-3 rounded-2xl text-base font-medium font-['Inter'] transition-all ${
-      isActive(path)
-        ? "bg-[rgba(0,88,188,0.10)] text-[#0058BC]"
-        : "text-[#717786] hover:bg-[rgba(0,88,188,0.05)] hover:text-[#0058BC]"
-    }`;
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    window.location.href = "/";
+  };
 
   return (
-    <aside className="w-64 h-full bg-white/75 backdrop-blur border-r border-white/20 shadow-[0_45px_75px_rgba(0,0,0,0.04)] px-4 py-6 flex flex-col shrink-0">
-      <nav className="space-y-1 flex-1 overflow-y-auto">
+    <aside className="flex min-h-screen w-[420px] shrink-0 flex-col bg-[rgba(252,248,251,0.80)] shadow-[45px_0px_75px_rgba(0,0,0,0.04)] backdrop-blur-[30px]">
+      {/* Logo */}
+      <div className="flex items-start px-6 pt-6 pb-[60px]">
+        <img src="https://placehold.co/396x142" alt="Findora" className="h-[142px] w-[396px]" />
+      </div>
 
-        {/* Dashboard */}
-        <Link to="/dashboard" className={linkClass("/dashboard")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <rect x="3" y="3" width="8" height="8" rx="2" stroke="currentColor" strokeWidth="1.8"/>
-            <rect x="13" y="3" width="8" height="4" rx="2" stroke="currentColor" strokeWidth="1.8"/>
-            <rect x="13" y="10" width="8" height="11" rx="2" stroke="currentColor" strokeWidth="1.8"/>
-            <rect x="3" y="14" width="8" height="7" rx="2" stroke="currentColor" strokeWidth="1.8"/>
-          </svg>
-          Dashboard
-        </Link>
-
-        {/* Submit Report */}
-        <p className="text-xs font-semibold uppercase text-[#717786] px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">Submit Report</p>
-
-        <Link to="/report-lost" className={linkClass("/report-lost")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M12 7V12L15 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          Lost Item
-        </Link>
-
-        <Link to="/report-found" className={linkClass("/report-found")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M9 12L11 14L15 10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Found Item
-        </Link>
-
-        <Link to="/report-suspicious" className={linkClass("/report-suspicious")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M12 8V12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
-          </svg>
-          Suspicious Item
-        </Link>
-
-        <Link to="/report-person" className={linkClass("/report-person")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="8" r="3.5" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M5 21C5 16.5 7.5 14 12 14C16.5 14 19 16.5 19 21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          Missing Person
-        </Link>
-
-        <Link to="/report-pet" className={linkClass("/report-pet")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 9C8.5 9 6 11 6 14C6 16.5 8 19 12 19C16 19 18 16.5 18 14C18 11 15.5 9 12 9Z" stroke="currentColor" strokeWidth="1.8"/>
-            <circle cx="9" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
-            <circle cx="15" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
-          </svg>
-          Missing Pet
-        </Link>
-
-        {/* My Reports */}
-        <p className="text-xs font-semibold uppercase text-[#717786] px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">My Reports</p>
-
-        <Link to="/donation" className={linkClass("/donation")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M12 6V18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M8 12H16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          My Donations
-        </Link>
-
-        <Link to="/rewards" className={linkClass("/rewards")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 15L9 19L12 17L15 19L12 15Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <rect x="4" y="3" width="16" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M6 8V17C6 18.5 8 20 12 20C16 20 18 18.5 18 17V8" stroke="currentColor" strokeWidth="1.8"/>
-          </svg>
-          Rewards
-        </Link>
-
-        {/* Account */}
-        <p className="text-xs font-semibold uppercase text-[#717786] px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">Account</p>
-
-        <Link to="/notifications" className={linkClass("/notifications")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M18 8C18 5.5 15 3 12 3C9 3 6 5.5 6 8V12L4 16H20L18 12V8Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <path d="M9 19C9 20.5 10.5 22 12 22C13.5 22 15 20.5 15 19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          Notifications
-        </Link>
-
-        <Link to="/matches" className={linkClass("/matches")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M12 7V12L15 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          Matches
-        </Link>
-
-        <Link to="/my-posts" className={linkClass("/my-posts")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M4 4H20V20H4V4Z" stroke="currentColor" strokeWidth="1.8" rx="2"/>
-            <path d="M8 8H16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M8 12H14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M8 16H12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          My Posts
-        </Link>
-
-        <Link to="/settings" className={linkClass("/settings")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M12 1V4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M12 20V23" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M4.22 4.22L6.34 6.34" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M17.66 17.66L19.78 19.78" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M1 12H4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M20 12H23" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M4.22 19.78L6.34 17.66" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M17.66 6.34L19.78 4.22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          Settings
-        </Link>
+      {/* Navigation */}
+      <nav className="flex-1 space-y-0">
+        {navItems.map((item) => (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            className={({ isActive }) =>
+              `mx-[14px] flex items-center gap-6 px-6 py-[18px] text-[18px] font-medium leading-[24px] tracking-[0.36px] transition-colors ${
+                isActive
+                  ? "border-l-[6px] border-[#0058BC] bg-[rgba(0,88,188,0.10)] text-[#0058BC]"
+                  : "border-l-[6px] border-transparent text-[#414755] hover:bg-[rgba(0,88,188,0.05)]"
+              }`
+            }
+          >
+            <span className="flex h-[30px] w-[30px] items-center justify-center">
+              <NavIcon type={item.icon} />
+            </span>
+            <span>{item.label}</span>
+          </NavLink>
+        ))}
       </nav>
+
+      {/* Logout */}
+      <div className="px-6 pb-6">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-6 bg-[#1D61E7] px-6 py-[18px] text-left"
+        >
+          <span className="flex h-[27px] w-[27px] items-center justify-center">
+            <svg width="27" height="27" viewBox="0 0 27 27" fill="none">
+              <path
+                d="M16.875 18.5625L22.5 13.5M22.5 13.5L16.875 8.4375M22.5 13.5H9M11.25 22.5H5.625C5.00368 22.5 4.5 21.9963 4.5 21.375V5.625C4.5 5.00368 5.00368 4.5 5.625 4.5H11.25"
+                stroke="#F8FAFF"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span className="text-center text-[18px] font-medium leading-[24px] tracking-[0.36px] text-[#F8FAFF]">
+            Logout
+          </span>
+        </button>
+      </div>
     </aside>
   );
+}
+
+function NavIcon({ type }) {
+  switch (type) {
+    case "dashboard":
+      return (
+        <svg width="27" height="27" viewBox="0 0 27 27" fill="none">
+          <rect x="2" y="2" width="9.5" height="9.5" rx="2" fill="currentColor" />
+          <rect x="15.5" y="2" width="9.5" height="9.5" rx="2" fill="currentColor" />
+          <rect x="2" y="15.5" width="9.5" height="9.5" rx="2" fill="currentColor" />
+          <rect x="15.5" y="15.5" width="9.5" height="9.5" rx="2" fill="currentColor" />
+        </svg>
+      );
+    case "reportFind":
+      return (
+        <svg width="25" height="23" viewBox="0 0 25 23" fill="none">
+          <path
+            d="M12.5 0L15.45 8.5H24.5L17.25 13.5L19.75 22L12.5 17L5.25 22L7.75 13.5L0.5 8.5H9.55L12.5 0Z"
+            fill="currentColor"
+          />
+        </svg>
+      );
+    case "reportLost":
+      return (
+        <svg width="25" height="25" viewBox="0 0 25 25" fill="none">
+          <circle cx="12.5" cy="12.5" r="10" stroke="currentColor" strokeWidth="2" />
+          <path d="M12.5 7V13M12.5 17V16.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case "reportPerson":
+      return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="8" r="4" fill="currentColor" />
+          <path d="M4 20C4 16 8 14 12 14C16 14 20 16 20 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case "reportPet":
+      return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 8C10 8 8 10 8 12C8 14 10 16 12 16C14 16 16 14 16 12C16 10 14 8 12 8Z"
+            fill="currentColor"
+          />
+          <path d="M12 2L14 6H10L12 2Z" fill="currentColor" />
+          <path d="M12 22L10 18H14L12 22Z" fill="currentColor" />
+          <path d="M2 12L6 10V14L2 12Z" fill="currentColor" />
+          <path d="M22 12L18 14V10L22 12Z" fill="currentColor" />
+        </svg>
+      );
+    case "myPosts":
+      return (
+        <svg width="29.32" height="30" viewBox="0 0 30 31" fill="none">
+          <path
+            d="M5 3.5H25C26.1 3.5 27 4.4 27 5.5V25.5C27 26.6 26.1 27.5 25 27.5H5C3.9 27.5 3 26.6 3 25.5V5.5C3 4.4 3.9 3.5 5 3.5Z"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <path d="M8 10.5H22M8 16.5H16M8 22.5H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      );
+    case "notifications":
+      return (
+        <svg width="24" height="30" viewBox="0 0 22 28" fill="none">
+          <path
+            d="M11 27C12.1 27 13 26.1 13 25H9C9 26.1 9.9 27 11 27ZM18 21V14C18 9.9 15.9 6.3 12 5.3V4.5C12 3.7 11.3 3 10.5 3C9.7 3 9 3.7 9 4.5V5.3C5.1 6.3 3 9.9 3 14V21L1 23V24H20V23L18 21Z"
+            fill="currentColor"
+          />
+        </svg>
+      );
+    case "donations":
+      return (
+        <svg width="25" height="25" viewBox="0 0 25 25" fill="none">
+          <path
+            d="M12.5 2.5C7.5 2.5 3.5 6.5 3.5 11.5C3.5 18 12.5 22.5 12.5 22.5C12.5 22.5 21.5 18 21.5 11.5C21.5 6.5 17.5 2.5 12.5 2.5Z"
+            stroke="currentColor"
+            strokeWidth="2"
+          />
+          <circle cx="12.5" cy="11.5" r="3" fill="currentColor" />
+        </svg>
+      );
+    case "settings":
+      return (
+        <svg width="30.15" height="30" viewBox="0 0 31 30" fill="none">
+          <circle cx="15.5" cy="15" r="5" fill="currentColor" />
+          <path
+            d="M15.5 2.5V7.5M15.5 22.5V27.5M7.5 15H2.5M28.5 15H23.5M9.5 9L6 5.5M25.5 24.5L22 21M22 9L25.5 5.5M6 24.5L9.5 21"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </svg>
+      );
+    default:
+      return null;
+  }
 }
 
 export default Sidebar;
