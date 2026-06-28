@@ -8,9 +8,9 @@ const stats = [
 ];
 
 const queue = [
-  { id: "UR-001", name: "Maya Sterling", handle: "maya.s", recoveries: 4, level: "Level 3", status: "Eligible" },
-  { id: "UR-002", name: "Liam Carter", handle: "liam.c", recoveries: 2, level: "Level 2", status: "Pending" },
-  { id: "UR-003", name: "Dr. Silas Thorne", handle: "s.thorne", recoveries: 6, level: "Level 6", status: "Issued" },
+  { id: "UR-001", name: "Maya", handle: "maya.s", recoveries: 4, level: "Level 3", status: "Eligible" },
+  { id: "UR-002", name: "Linuka", handle: "liam.c", recoveries: 2, level: "Level 2", status: "Pending" },
+  { id: "UR-003", name: "Priyadarshani", handle: "s.thorne", recoveries: 6, level: "Level 6", status: "Issued" },
 ];
 
 function StatusPill({ status }) {

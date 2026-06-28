@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { authService, setToken } from "../../services/api";
 import logo from "../../assets/logo/registration.svg";
 import favicon from "../../assets/logo/favicon.ico";
 
 function Register() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const role = searchParams.get("role") || "user";
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -41,7 +43,7 @@ function Register() {
     setLoading(true);
 
     try {
-      const payload = { firstName, lastName, email, nic, phone, city, address, password };
+      const payload = { firstName, lastName, email, nic, phone, city, address, password, role };
       const response = await authService.register(payload);
 
       if (response.token) {
@@ -101,6 +103,9 @@ function Register() {
             <p className="text-sm text-slate-800">
               Get started by filling out the details below.
             </p>
+            <span className="inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold bg-white/40 text-slate-800 border border-white/30">
+              Signing up as: {role === "shop" ? "Shop Owner" : "Normal User"}
+            </span>
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               {error && (
@@ -111,7 +116,7 @@ function Register() {
 
               <div className="grid grid-cols-2 gap-3">
                 <input
-                  placeholder="First Name"
+                  placeholder={role === "shop" ? "Name" : "First Name"}
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
@@ -119,7 +124,7 @@ function Register() {
                 />
 
                 <input
-                  placeholder="Last Name"
+                  placeholder={role === "shop" ? "Shop Name" : "Last Name"}
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className="rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"

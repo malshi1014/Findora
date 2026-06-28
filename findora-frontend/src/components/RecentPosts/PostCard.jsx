@@ -1,6 +1,6 @@
 function PostCard({ title, location, image, description }) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition">
+    <div className="rounded-2xl border border-white/40 bg-blue-100/30 backdrop-blur-xl overflow-hidden shadow-xl transition duration-300 hover:-translate-y-1 hover:bg-blue-100/40 hover:shadow-2xl">
       <img
         src={image}
         alt={title}

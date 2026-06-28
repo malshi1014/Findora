@@ -29,7 +29,7 @@ const helpItems = [
 
 function HelpSection() {
   return (
-    <section className="max-w-7xl mx-auto px-6 py-16">
+    <section className="max-w-7xl mx-auto px-6 py-16 ">
       <div className="text-center">
         <h2 className="text-3xl font-bold text-slate-950">
           How Can We Help?
