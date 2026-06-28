@@ -3,7 +3,7 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 function UserDashboard() {
   return (
     <DashboardLayout>
-      <div className="min-h-screen" style={{ background: "radial-gradient(ellipse 50% 50% at 50% 50%, white 0%, #E1EAFE 100%)" }}>
+      <div className="w-full h-full" style={{ background: "radial-gradient(ellipse 50% 50% at 50% 50%, white 0%, #E1EAFE 100%)" }}>
         <div className="w-full max-w-[2160px] mx-auto p-6 sm:p-10 flex flex-col gap-6 sm:gap-10">
 
           {/* Dashboard Overview + Profile Strength Row */}
