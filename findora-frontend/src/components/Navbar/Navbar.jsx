@@ -77,7 +77,7 @@ function Navbar({ hideAuth }) {
               </svg>
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] font-bold flex items-center justify-center">3</span>
             </Link>
-            <div className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-1.5 border border-gray-100">
+            <Link to="/settings" className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-1.5 border border-gray-100 hover:bg-gray-100 transition cursor-pointer">
               <div>
                 <p className="text-xs font-semibold text-gray-900 leading-tight">Duvindu</p>
                 <p className="text-[10px] text-gray-400 leading-tight">Member</p>
@@ -87,7 +87,7 @@ function Navbar({ hideAuth }) {
                   <span className="text-white text-sm font-bold">D</span>
                 </div>
               </div>
-            </div>
+            </Link>
             <button
               onClick={() => {
                 localStorage.removeItem('auth_token');

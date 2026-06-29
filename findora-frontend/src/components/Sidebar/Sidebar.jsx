@@ -65,9 +65,13 @@ function Sidebar() {
 
         <Link to="/report-pet" className={linkClass("/report-pet")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 9C8.5 9 6 11 6 14C6 16.5 8 19 12 19C16 19 18 16.5 18 14C18 11 15.5 9 12 9Z" stroke="currentColor" strokeWidth="1.8"/>
-            <circle cx="9" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
-            <circle cx="15" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M10 5C10 3 11.5 2 12 2C12.5 2 14 3 14 5C14 6.5 12 8 12 8C12 8 10 6.5 10 5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+            <path d="M6 12C4 12 3 10.5 3 9.5C3 8 4.5 7 6 7C8 7 9 9 9 9C9 9 8 12 6 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+            <path d="M18 12C20 12 21 10.5 21 9.5C21 8 19.5 7 18 7C16 7 15 9 15 9C15 9 16 12 18 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+            <path d="M12 22C16.5 22 18 18 18 15C18 12.5 16 11 12 11C8 11 6 12.5 6 15C6 18 7.5 22 12 22Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+            <circle cx="8" cy="14" r="0.8" fill="currentColor"/>
+            <circle cx="16" cy="14" r="0.8" fill="currentColor"/>
+            <path d="M10 18C10 18 11 19 12 19C13 19 14 18 14 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
           Missing Pet
         </Link>
@@ -93,9 +97,6 @@ function Sidebar() {
           Rewards
         </Link>
 
-        {/* Account */}
-        <p className="text-xs font-semibold uppercase text-[#717786] px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">Account</p>
-
         <Link to="/matches" className={linkClass("/matches")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
@@ -114,20 +115,6 @@ function Sidebar() {
           My Posts
         </Link>
 
-        <Link to="/settings" className={linkClass("/settings")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M12 1V4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M12 20V23" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M4.22 4.22L6.34 6.34" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M17.66 17.66L19.78 19.78" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M1 12H4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M20 12H23" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M4.22 19.78L6.34 17.66" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M17.66 6.34L19.78 4.22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          Settings
-        </Link>
       </nav>
     </aside>
   );
