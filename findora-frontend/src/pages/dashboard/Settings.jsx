@@ -41,24 +41,7 @@ function Settings() {
         <div className="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-blue-100/20 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 w-full p-8">
-          <div className="max-w-4xl mx-auto space-y-8">
-
-            <div className="p-8 bg-white/30 backdrop-blur-xl rounded-[2rem] border border-white/40 shadow-xl shadow-blue-600/5">
-              <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-                <div>
-                  <span className="inline-block self-start px-4 py-1.5 bg-blue-600/10 rounded-full text-blue-700 text-sm font-semibold uppercase tracking-[0.24em]">Account</span>
-                  <h1 className="mt-4 text-3xl font-bold text-slate-950">Settings</h1>
-                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">Manage your profile, security, and notification preferences.</p>
-                </div>
-                <div className="flex items-center gap-3 rounded-full bg-white/40 backdrop-blur px-4 py-3 shadow-sm shrink-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-violet-500 text-white text-lg font-bold">D</div>
-                  <div>
-                    <p className="text-sm font-semibold text-slate-950">Duvindu</p>
-                    <p className="text-sm text-slate-500">Settings</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="max-w-4xl mx-auto">
 
             <div className="p-10 bg-white/30 backdrop-blur-xl rounded-[2rem] border border-white/40 shadow-xl shadow-blue-600/5">
               <div className="flex items-start gap-6 pb-8 border-b border-white/30">

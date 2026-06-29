@@ -5,6 +5,7 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 function ReportSuspiciousItem() {
   const navigate = useNavigate();
   const [details, setDetails] = useState("");
+  const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [contact, setContact] = useState("");
   const [category, setCategory] = useState("");
@@ -61,6 +62,11 @@ function ReportSuspiciousItem() {
                 {error && <div className="rounded-2xl bg-red-50/90 backdrop-blur p-4 text-sm text-red-600 border border-red-200">{error}</div>}
 
                 <div className="grid gap-6">
+                  <label className="block">
+                    <span className="text-sm font-semibold text-slate-700">Report Title</span>
+                    <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Give your report a title"
+                      className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                  </label>
                   <div className="grid gap-6 lg:grid-cols-2">
                     <label className="block">
                       <span className="text-sm font-semibold text-slate-700">Item Category</span>
