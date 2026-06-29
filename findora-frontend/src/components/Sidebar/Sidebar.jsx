@@ -96,14 +96,6 @@ function Sidebar() {
         {/* Account */}
         <p className="text-xs font-semibold uppercase text-[#717786] px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">Account</p>
 
-        <Link to="/notifications" className={linkClass("/notifications")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M18 8C18 5.5 15 3 12 3C9 3 6 5.5 6 8V12L4 16H20L18 12V8Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <path d="M9 19C9 20.5 10.5 22 12 22C13.5 22 15 20.5 15 19" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          Notifications
-        </Link>
-
         <Link to="/matches" className={linkClass("/matches")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>

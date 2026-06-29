@@ -70,13 +70,13 @@ function Navbar({ hideAuth }) {
         {/* Right */}
         {hideAuth ? (
           <div className="flex items-center gap-3 shrink-0">
-            <button className="relative w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition">
+            <Link to="/notifications" className="relative w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition">
               <svg className="w-4.5 h-4.5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
                 <path d="M18 8C18 5.5 15 3 12 3C9 3 6 5.5 6 8V12L4 16H20L18 12V8Z" strokeLinejoin="round" />
                 <path d="M9 19C9 20.5 10.5 22 12 22C13.5 22 15 20.5 15 19" />
               </svg>
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] font-bold flex items-center justify-center">3</span>
-            </button>
+            </Link>
             <div className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-1.5 border border-gray-100">
               <div>
                 <p className="text-xs font-semibold text-gray-900 leading-tight">Duvindu</p>
