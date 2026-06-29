@@ -25,7 +25,6 @@ function Donation() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // stub: replace with API integration
     const payload = { amount, fullName, email, anonymous };
     console.log("donation payload", payload);
     alert("Donation confirmed (stub)");
@@ -33,162 +32,129 @@ function Donation() {
 
   return (
     <DashboardLayout>
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="rounded-4xl bg-linear-to-r from-slate-100 via-white to-slate-100 p-8 shadow-2xl shadow-slate-300/20 ring-1 ring-slate-200">
-          <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">Our Cause</p>
-              <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-950">Support Our Mission</h1>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600">
-                Your contribution helps us reunite families, find beloved pets, and return precious belongings. Together, we build a safer, more connected community.
-              </p>
-            </div>
+      <div className="min-h-full relative" style={{ background: "linear-gradient(135deg, #ffffff 0%, #93c5fd 100%)" }}>
+        <div className="absolute -left-20 -top-20 w-80 h-80 rounded-full bg-blue-300/20 blur-3xl pointer-events-none" />
+        <div className="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-blue-100/20 blur-3xl pointer-events-none" />
 
-            <div className="flex items-center gap-3 rounded-full bg-white px-4 py-3 shadow-sm shadow-slate-200">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white text-lg font-bold">D</div>
-              <div>
-                <p className="text-sm font-semibold text-slate-950">Duvindu</p>
-                <p className="text-sm text-slate-500">Donations</p>
+        <div className="relative z-10 w-full p-8">
+          <div className="max-w-4xl mx-auto space-y-8">
+
+            <div className="p-8 bg-white/30 backdrop-blur-xl rounded-[2rem] border border-white/40 shadow-xl shadow-blue-600/5">
+              <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+                <div>
+                  <span className="inline-block self-start px-4 py-1.5 bg-blue-600/10 rounded-full text-blue-700 text-sm font-semibold uppercase tracking-[0.24em]">Our Cause</span>
+                  <h1 className="mt-4 text-3xl font-bold text-slate-950">Support Our Mission</h1>
+                  <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600">Your contribution helps us reunite families, find beloved pets, and return precious belongings. Together, we build a safer, more connected community.</p>
+                </div>
+                <div className="flex items-center gap-3 rounded-full bg-white/40 backdrop-blur px-4 py-3 shadow-sm shrink-0">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-violet-500 text-white text-lg font-bold">D</div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-950">Duvindu</p>
+                    <p className="text-sm text-slate-500">Donations</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        <div className="rounded-4xl bg-white p-8 shadow-xl shadow-slate-300/10 ring-1 ring-slate-200">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-6">
-              <p className="text-sm font-semibold text-slate-700">Complete Your Donation</p>
+            <div className="grid gap-8 lg:grid-cols-3">
+              <div className="p-6 bg-white/30 backdrop-blur-xl rounded-[2rem] border border-white/40 shadow-xl shadow-blue-600/5 text-center">
+                <p className="text-3xl font-bold text-slate-950">$1.2M+</p>
+                <p className="text-sm text-slate-500 mt-1">Total Impact</p>
+              </div>
+              <div className="p-6 bg-white/30 backdrop-blur-xl rounded-[2rem] border border-white/40 shadow-xl shadow-blue-600/5 text-center">
+                <p className="text-3xl font-bold text-slate-950">15,400</p>
+                <p className="text-sm text-slate-500 mt-1">People Helped</p>
+              </div>
+              <div className="p-6 bg-white/30 backdrop-blur-xl rounded-[2rem] border border-white/40 shadow-xl shadow-blue-600/5 text-center">
+                <p className="text-3xl font-bold text-slate-950">100%</p>
+                <p className="text-sm text-slate-500 mt-1">Transparent</p>
+              </div>
+            </div>
 
-              <div className="flex flex-wrap gap-3">
-                {presetAmounts.map((a) => (
+            <div className="p-10 bg-white/30 backdrop-blur-xl rounded-[2rem] border border-white/40 shadow-xl shadow-blue-600/5">
+              <form onSubmit={handleSubmit} className="space-y-9">
+                <p className="text-lg font-semibold text-slate-900">Complete Your Donation</p>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  {presetAmounts.map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => chooseAmount(a)}
+                      className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all hover:scale-105 ${
+                        amount === a && !customAmount
+                          ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                          : "bg-white/40 backdrop-blur text-slate-700 border border-white/40 hover:bg-white/60"
+                      }`}
+                    >
+                      Rs {a.toLocaleString()}
+                    </button>
+                  ))}
                   <button
-                    key={a}
                     type="button"
-                    onClick={() => chooseAmount(a)}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${amount === a && !customAmount ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+                    onClick={() => chooseAmount(0)}
+                    className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all hover:scale-105 ${
+                      customAmount
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20"
+                        : "bg-white/40 backdrop-blur text-slate-700 border border-white/40 hover:bg-white/60"
+                    }`}
                   >
-                    Rs {a}
+                    Custom
                   </button>
-                ))}
+                  {customAmount !== undefined && (
+                    <input
+                      placeholder="Enter amount"
+                      value={customAmount}
+                      onChange={handleCustomChange}
+                      className="w-36 rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
+                    />
+                  )}
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => chooseAmount(0)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition ${customAmount ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'}`}
-                >
-                  Rs Custom
-                </button>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <label className="block">
+                    <span className="text-sm font-semibold text-slate-700">Full Name</span>
+                    <input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name"
+                      className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-semibold text-slate-700">Email Address</span>
+                    <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com"
+                      className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                  </label>
+                </div>
 
-                <input
-                  placeholder="Custom"
-                  value={customAmount}
-                  onChange={handleCustomChange}
-                  className="ml-2 w-32 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 outline-none"
-                />
-              </div>
+                <div className="grid gap-6 md:grid-cols-3">
+                  <label className="block md:col-span-2">
+                    <span className="text-sm font-semibold text-slate-700">Card Number</span>
+                    <input value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} placeholder="1234 5678 9012 3456"
+                      className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-semibold text-slate-700">Expiry</span>
+                    <input value={exp} onChange={(e) => setExp(e.target.value)} placeholder="MM / YY"
+                      className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-semibold text-slate-700">CVC</span>
+                    <input value={cvc} onChange={(e) => setCvc(e.target.value)} placeholder="CVC"
+                      className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                  </label>
+                </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <input
-                  placeholder="Full Name"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
-                />
-                <input
-                  placeholder="Email Address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <input
-                  placeholder="Card Number"
-                  value={cardNumber}
-                  onChange={(e) => setCardNumber(e.target.value)}
-                  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none md:col-span-2"
-                />
-                <input
-                  placeholder="MM / YY"
-                  value={exp}
-                  onChange={(e) => setExp(e.target.value)}
-                  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none"
-                />
-                <input
-                  placeholder="CVC"
-                  value={cvc}
-                  onChange={(e) => setCvc(e.target.value)}
-                  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none md:col-span-1"
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
                 <label className="flex items-center gap-3 text-sm text-slate-700">
-                  <input type="checkbox" checked={anonymous} onChange={() => setAnonymous(!anonymous)} className="h-4 w-4 rounded" />
+                  <input type="checkbox" checked={anonymous} onChange={() => setAnonymous(!anonymous)}
+                    className="h-4 w-4 rounded border-white/40 bg-white/40 accent-blue-600" />
                   Donate Anonymously
                 </label>
-              </div>
 
-              <button type="submit" className="mt-2 inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-6 py-4 text-base font-semibold text-white transition hover:bg-blue-700">Confirm Secure Donation</button>
+                <button type="submit"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-6 py-4 text-base font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:-translate-y-0.5 hover:bg-blue-700">
+                  Confirm Secure Donation
+                </button>
+              </form>
             </div>
-          </form>
-        </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="rounded-2xl bg-white p-6 shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold">$1.2M+</p>
-                <p className="text-sm text-slate-500">Total Impact</p>
-              </div>
-              <div>
-                <p className="text-2xl font-bold">15,400</p>
-                <p className="text-sm text-slate-500">People Helped</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl bg-white p-6 shadow-md">
-            <h3 className="text-lg font-semibold">Transparency</h3>
-            <div className="mt-4 space-y-4">
-              <div>
-                <div className="mb-1 text-sm text-slate-600">Platform Maintenance <span className="float-right text-sm font-semibold">45%</span></div>
-                <div className="h-3 w-full rounded-full bg-slate-100">
-                  <div className="h-3 rounded-full bg-blue-600" style={{ width: '45%' }} />
-                </div>
-              </div>
-              <div>
-                <div className="mb-1 text-sm text-slate-600">Community Campaigns <span className="float-right text-sm font-semibold">35%</span></div>
-                <div className="h-3 w-full rounded-full bg-slate-100">
-                  <div className="h-3 rounded-full bg-purple-400" style={{ width: '35%' }} />
-                </div>
-              </div>
-              <div>
-                <div className="mb-1 text-sm text-slate-600">Emergency Grants <span className="float-right text-sm font-semibold">20%</span></div>
-                <div className="h-3 w-full rounded-full bg-slate-100">
-                  <div className="h-3 rounded-full bg-slate-400" style={{ width: '20%' }} />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-white p-6 shadow-md">
-          <h3 className="text-lg font-semibold">FAQ</h3>
-          <div className="mt-4 space-y-3">
-            <details className="rounded-lg border border-slate-100 p-3">
-              <summary className="cursor-pointer">Is my donation tax-deductible?</summary>
-              <p className="mt-2 text-sm text-slate-600">Yes, Findora is a registered 501(c)(3) non-profit organization. All donations are tax-deductible in the United States to the fullest extent of the law.</p>
-            </details>
-            <details className="rounded-lg border border-slate-100 p-3">
-              <summary className="cursor-pointer">Can I cancel a monthly donation?</summary>
-              <p className="mt-2 text-sm text-slate-600">Yes — contact support or manage recurring payments in your account settings.</p>
-            </details>
-            <details className="rounded-lg border border-slate-100 p-3">
-              <summary className="cursor-pointer">How do I receive my receipt?</summary>
-              <p className="mt-2 text-sm text-slate-600">Receipts are emailed to the address you provide after a successful donation.</p>
-            </details>
           </div>
         </div>
       </div>
