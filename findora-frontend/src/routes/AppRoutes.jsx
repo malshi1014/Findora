@@ -57,7 +57,7 @@ function AppRoutes() {
         <Route path="/rewards" element={<Rewards />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/donation" element={<Donation />} />
-        <Route path="/edit-report" element={<EditReport />} />
+        <Route path="/edit-report/:id" element={<EditReport />} />
         <Route path="/possible-match" element={<PossibleMatch />} />
         <Route path="/matches" element={<Matches />} />
         <Route path="/my-posts" element={<MyPosts />} />
