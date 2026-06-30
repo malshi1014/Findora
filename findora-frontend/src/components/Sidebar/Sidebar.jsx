@@ -32,8 +32,9 @@ function Sidebar() {
 
         <Link to="/report-lost" className={linkClass("/report-lost")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M12 7V12L15 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            <circle cx="11" cy="11" r="6" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M20 20L16 16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            <path d="M11 8V11L13 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
           </svg>
           Lost Item
         </Link>
@@ -78,18 +79,14 @@ function Sidebar() {
 
         <Link to="/donation" className={linkClass("/donation")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M12 6V18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <path d="M8 12H16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            <path d="M12 21C12 21 4 15 4 9.5C4 6.5 6.5 4 9.5 4C11 4 12 5 12 5C12 5 13 4 14.5 4C17.5 4 20 6.5 20 9.5C20 15 12 21 12 21Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
           </svg>
           My Donations
         </Link>
 
         <Link to="/rewards" className={linkClass("/rewards")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 15L9 19L12 17L15 19L12 15Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <rect x="4" y="3" width="16" height="5" rx="1.5" stroke="currentColor" strokeWidth="1.8"/>
-            <path d="M6 8V17C6 18.5 8 20 12 20C16 20 18 18.5 18 17V8" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
           </svg>
           Rewards
         </Link>
