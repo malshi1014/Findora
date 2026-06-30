@@ -8,12 +8,12 @@ function Sidebar() {
   const linkClass = (path) =>
     `flex items-center gap-3 px-4 py-3 rounded-2xl text-base font-medium font-['Inter'] transition-all ${
       isActive(path)
-        ? "bg-[rgba(0,88,188,0.10)] text-[#0058BC]"
-        : "text-[#717786] hover:bg-[rgba(0,88,188,0.05)] hover:text-[#0058BC]"
+        ? "bg-blue-600/10 text-blue-600 font-semibold"
+        : "text-slate-500 hover:bg-blue-600/5 hover:text-blue-600"
     }`;
 
   return (
-    <aside className="w-64 h-full bg-white/75 backdrop-blur border-r border-white/20 shadow-[0_45px_75px_rgba(0,0,0,0.04)] px-4 py-6 flex flex-col shrink-0">
+    <aside className="w-64 h-full bg-white/80 backdrop-blur border-r border-white/30 shadow-[0_45px_75px_rgba(0,0,0,0.04)] px-4 py-6 flex flex-col shrink-0">
       <nav className="space-y-1 flex-1 overflow-y-auto">
 
         {/* Dashboard */}
@@ -28,7 +28,7 @@ function Sidebar() {
         </Link>
 
         {/* Submit Report */}
-        <p className="text-xs font-semibold uppercase text-[#717786] px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">Submit Report</p>
+        <p className="text-xs font-semibold uppercase text-slate-400 px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">Submit Report</p>
 
         <Link to="/report-lost" className={linkClass("/report-lost")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -49,7 +49,7 @@ function Sidebar() {
 
         <Link to="/report-suspicious" className={linkClass("/report-suspicious")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.8"/>
+            <path d="M12 2L3 6V12C3 17.5 7 21 12 22C17 21 21 17.5 21 12V6L12 2Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
             <path d="M12 8V12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
             <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
           </svg>
@@ -75,7 +75,7 @@ function Sidebar() {
         </Link>
 
         {/* My Reports */}
-        <p className="text-xs font-semibold uppercase text-[#717786] px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">My Reports</p>
+        <p className="text-xs font-semibold uppercase text-slate-400 px-4 pt-6 pb-2 tracking-[1.2px] font-['Inter']">My Reports</p>
 
         <Link to="/donation" className={linkClass("/donation")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -101,7 +101,7 @@ function Sidebar() {
 
         <Link to="/my-posts" className={linkClass("/my-posts")}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M4 4H20V20H4V4Z" stroke="currentColor" strokeWidth="1.8" rx="2"/>
+            <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="1.8"/>
             <path d="M8 8H16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
             <path d="M8 12H14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
             <path d="M8 16H12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>

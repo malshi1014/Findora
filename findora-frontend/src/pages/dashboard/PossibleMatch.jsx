@@ -3,7 +3,7 @@ import Navbar from "../../components/Navbar/Navbar";
 
 function PossibleMatch() {
   return (
-    <div className="min-h-screen relative" style={{ background: "linear-gradient(135deg, #ffffff 0%, #93c5fd 100%)" }}>
+    <div className="min-h-screen relative" style={{ background: "linear-gradient(135deg, #ffffff 0%, #7ec0fc 100%)" }}>
       <div className="absolute -left-20 -top-20 w-80 h-80 rounded-full bg-blue-300/20 blur-3xl pointer-events-none" />
       <div className="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-blue-100/20 blur-3xl pointer-events-none" />
 
