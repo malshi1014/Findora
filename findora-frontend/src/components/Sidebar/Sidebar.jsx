@@ -64,14 +64,11 @@ function Sidebar() {
         </Link>
 
         <Link to="/report-pet" className={linkClass("/report-pet")}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M10 5C10 3 11.5 2 12 2C12.5 2 14 3 14 5C14 6.5 12 8 12 8C12 8 10 6.5 10 5Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <path d="M6 12C4 12 3 10.5 3 9.5C3 8 4.5 7 6 7C8 7 9 9 9 9C9 9 8 12 6 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <path d="M18 12C20 12 21 10.5 21 9.5C21 8 19.5 7 18 7C16 7 15 9 15 9C15 9 16 12 18 12Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <path d="M12 22C16.5 22 18 18 18 15C18 12.5 16 11 12 11C8 11 6 12.5 6 15C6 18 7.5 22 12 22Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
-            <circle cx="8" cy="14" r="0.8" fill="currentColor"/>
-            <circle cx="16" cy="14" r="0.8" fill="currentColor"/>
-            <path d="M10 18C10 18 11 19 12 19C13 19 14 18 14 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="7.2" cy="6.2" r="1.6" fill="currentColor" />
+            <circle cx="12" cy="4.2" r="1.6" fill="currentColor" />
+            <circle cx="16.8" cy="6.2" r="1.6" fill="currentColor" />
+            <path d="M12 9c-3 0-5 2-5 5 0 1.7 1.8 4 5 4s5-2.3 5-4c0-3-2-5-5-5z" fill="currentColor" />
           </svg>
           Missing Pet
         </Link>
