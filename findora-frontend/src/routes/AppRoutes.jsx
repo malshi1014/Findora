@@ -17,6 +17,7 @@ import EditReport from "../pages/dashboard/EditReport";
 import PossibleMatch from "../pages/dashboard/PossibleMatch";
 import Matches from "../pages/dashboard/Matches";
 import MyPosts from "../pages/dashboard/MyPosts";
+import ViewPost from "../pages/dashboard/ViewPost";
 
 import ReportLostItem from "../pages/reports/ReportLostItem";
 import ReportFoundItem from "../pages/reports/ReportFoundItem";
@@ -58,6 +59,7 @@ function AppRoutes() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/donation" element={<Donation />} />
         <Route path="/edit-report/:id" element={<EditReport />} />
+        <Route path="/view-post/:id" element={<ViewPost />} />
         <Route path="/possible-match" element={<PossibleMatch />} />
         <Route path="/matches" element={<Matches />} />
         <Route path="/my-posts" element={<MyPosts />} />
