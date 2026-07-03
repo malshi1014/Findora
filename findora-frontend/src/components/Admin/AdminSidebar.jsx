@@ -3,6 +3,7 @@ import findoraLogo from "../../assets/logo/findora-favicon-2.png";
 
 const navItems = [
   { to: "/admin", label: "Dashboard" },
+  { to: "/admin/reports", label: "Reports" },
   { to: "/admin/users", label: "Users" },
   { to: "/admin/lost-reports", label: "Lost Items" },
   { to: "/admin/found-reports", label: "Found Items" },

@@ -75,12 +75,25 @@ function ReportMissingPet() {
         images: imageUrls,
       };
 
-      await reportService.createMissingPetReport(reportPayload);
-      alert("Report submitted successfully!");
-      navigate("/dashboard");
+      const response = await reportService.createMissingPetReport(reportPayload);
+      console.log("Missing pet report response:", response);
+
+      if (response.status === "success" || response.success === true) {
+        alert("Missing pet report submitted successfully!");
+        navigate("/dashboard/my-reports");
+      } else {
+        setError(
+          response.error
+            ? `${response.message}: ${response.error}`
+            : response.message || "Failed to submit report."
+        );
+        console.log("Missing fields:", response.missing_fields);
+      }
     } catch (err) {
-      setError(err.message || "Failed to submit report. Please try again.");
       console.error("Report submission error:", err);
+      setError(
+        err.message || "Backend connection failed. Please check Apache and MySQL."
+      );
     } finally {
       setLoading(false);
     }

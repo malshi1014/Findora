@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../../layouts/DashboardLayout";
+import API_BASE_URL from "../../config/api";
 
 function ReportSuspiciousItem() {
   const navigate = useNavigate();
@@ -10,18 +11,74 @@ function ReportSuspiciousItem() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
     if (!details || !location || !contact) {
       setError("Please complete all fields before submitting.");
       return;
     }
+
     setLoading(true);
-    setTimeout(() => {
+
+    try {
+      const user = JSON.parse(localStorage.getItem("findora_user"));
+
+      if (!user) {
+        setError("Please login before submitting a report.");
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.VITE_API_BASE_URL}/reports/add_suspicious_report.php`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: user.user_id,
+            description: details,
+            location: location,
+            contact_no: contact,
+          }),
+        }
+      );
+
+      const text = await response.text();
+      console.log("Raw suspicious report response:", text);
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Backend did not return valid JSON.");
+      }
+
+      console.log("Suspicious report response:", data);
+
+      if (data.status === "success") {
+        alert("Suspicious item report submitted successfully!");
+        navigate("/dashboard/my-reports");
+      } else {
+        setError(
+          data.error
+            ? `${data.message}: ${data.error}`
+            : data.message || "Failed to submit report."
+        );
+        console.log("Missing fields:", data.missing_fields);
+      }
+    } catch (err) {
+      console.error("Report submission error:", err);
+      setError(
+        err.message || "Backend connection failed. Please check Apache and MySQL."
+      );
+    } finally {
       setLoading(false);
-      alert("Suspicious activity report submitted.");
-      navigate("/dashboard");
-    }, 800);
+    }
   };
 
   return (
