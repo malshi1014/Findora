@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import logo from "../../assets/logo/favicon.ico";
 
 function Footer() {
   return (
@@ -8,8 +7,12 @@ function Footer() {
         
         <div>
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
-              <img src={logo} alt="Findora Logo" className="w-10 h-10 object-contain" />
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img
+                  src="/favicon.png"
+                  alt="Findora Logo"
+                  className="h-full w-full rounded-full object-cover"
+                />
             </div>
             <span className="text-2xl font-bold text-blue-400">Findora</span>
           </Link>

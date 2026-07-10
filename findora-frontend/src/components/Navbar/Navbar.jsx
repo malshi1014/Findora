@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-import logo from "../../assets/logo/favicon.ico";
 
 function Navbar({ hideAuth = false }) {
   const { pathname } = useLocation();
@@ -41,13 +40,13 @@ function Navbar({ hideAuth = false }) {
     <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/90 shadow-sm backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-3">
         <Link to="/" className="flex shrink-0 items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-slate-100 bg-white shadow-sm">
-            <img
-              src={logo}
-              alt="Findora Logo"
-              className="h-10 w-10 object-contain"
-            />
-          </div>
+          <div className="w-10 h-10 flex items-center justify-center">
+              <img
+                  src="/favicon.png"
+                  alt="Findora Logo"
+                  className="h-full w-full rounded-full object-cover"
+                />
+            </div>
 
           <span className="text-3xl font-bold text-blue-700">Findora</span>
         </Link>

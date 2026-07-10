@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import logo from "../../assets/logo/registration.svg";
-import favicon from "../../assets/logo/favicon.ico";
 
 function ShopRegister() {
   const navigate = useNavigate();
@@ -110,7 +109,7 @@ function ShopRegister() {
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 flex items-center justify-center">
                 <img
-                  src={favicon}
+                  src="/favicon.png"
                   alt="Findora Logo"
                   className="h-full w-full object-contain rounded-full"
                 />
