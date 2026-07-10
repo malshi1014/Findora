@@ -5,7 +5,9 @@ import About from "../pages/public/About";
 import Contact from "../pages/public/Contact";
 
 import Login from "../pages/auth/Login";
+import ChooseRole from "../pages/auth/ChooseRole";
 import Register from "../pages/auth/Register";
+import ShopRegister from "../pages/auth/ShopRegister";
 
 import UserDashboard from "../pages/dashboard/UserDashboard";
 import MyReports from "../pages/dashboard/MyReports";
@@ -47,11 +49,14 @@ function AppRoutes() {
         <Route path="/contact" element={<Contact />} />
 
         {/* Authentication */}
+        <Route path="/choose-role" element={<ChooseRole />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/shop-register" element={<ShopRegister />} />
 
         {/* Dashboard */}
         <Route path="/dashboard" element={<UserDashboard />} />
+      
        
         <Route path="/dashboard/my-reports" element={<MyReports />} />
         <Route path="/dashboard/notifications" element={<Notifications />} />

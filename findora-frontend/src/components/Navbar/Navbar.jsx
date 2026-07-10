@@ -17,7 +17,12 @@ function Navbar({ hideAuth = false }) {
 
   const isLoggedIn = !!user || !!authToken;
 
-  const dashboardPath = user?.role === "admin" ? "/admin" : "/dashboard";
+  // Resolve dashboard path based on role. Accept both 'shop' and 'shop_owner' as shop owners.
+  const dashboardPath = user?.role === "admin"
+    ? "/admin"
+    : ["shop_owner", "shop"].includes(user?.role)
+      ? "/shop-owner"
+      : "/dashboard";
 
   const navClass = (path) =>
     `relative text-sm font-semibold transition-all duration-200 ${
@@ -73,7 +78,7 @@ function Navbar({ hideAuth = false }) {
                 </Link>
 
                 <Link
-                  to="/register"
+                  to="/choose-role"
                   className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
                 >
                   Register
