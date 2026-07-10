@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 
-function Sidebar() {
+function ShopSidebar() {
   const { pathname } = useLocation();
 
   const handleLogout = () => {
@@ -131,6 +131,28 @@ function Sidebar() {
               />
             </svg>
             Report Found Item
+          </Link>
+
+          <Link
+            to="/user-dashboard/report-suspicious"
+            className={linkClass("/user-dashboard/report-suspicious")}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 7L12 3L20 7V17L12 21L4 17V7Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9 12L11 14L15.5 9.5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Report Suspicious Item
           </Link>
 
           <Link
@@ -363,4 +385,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default ShopSidebar;

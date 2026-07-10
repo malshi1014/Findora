@@ -286,7 +286,7 @@ function EditReport() {
 
       if (data.status === "success") {
         alert("Report updated successfully!");
-        navigate("/dashboard/my-reports");
+        navigate("/user-dashboard/my-reports");
       } else {
         setError(
           data.error
@@ -325,7 +325,7 @@ function EditReport() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-6">
           <Link
-            to="/dashboard/my-reports"
+            to="/user-dashboard/my-reports"
             className="text-sm font-semibold text-blue-600 hover:underline"
           >
             ← Back to My Reports
@@ -535,7 +535,7 @@ function EditReport() {
 
                   <button
                     type="button"
-                    onClick={() => navigate("/dashboard/my-reports")}
+                    onClick={() => navigate("/user-dashboard/my-reports")}
                     className="flex-1 rounded-full border-2 border-slate-200 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
                   >
                     Cancel & Go Back

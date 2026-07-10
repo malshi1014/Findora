@@ -22,7 +22,7 @@ function Navbar({ hideAuth = false }) {
     ? "/admin"
     : ["shop_owner", "shop"].includes(user?.role)
       ? "/shop-owner"
-      : "/dashboard";
+      : "/user-dashboard";
 
   const navClass = (path) =>
     `relative text-sm font-semibold transition-all duration-200 ${
@@ -88,15 +88,15 @@ function Navbar({ hideAuth = false }) {
               <>
                 {user?.role !== "admin" && (
                   <Link
-                    to="/dashboard/report-lost"
+                    to="/user-dashboard/report-lost"
                     className="rounded-full px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 hover:text-blue-900"
                   >
                     Report
                   </Link>
                 )}
 
-                <Link
-                  to={dashboardPath}
+                  <Link
+                    to={dashboardPath}
                   className="rounded-full px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 hover:text-blue-900"
                 >
                   Dashboard
@@ -104,7 +104,7 @@ function Navbar({ hideAuth = false }) {
 
                 {user?.role !== "admin" && (
                   <Link
-                    to="/dashboard/notifications"
+                    to="/user-dashboard/notifications"
                     className="rounded-full px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-50 hover:text-blue-900"
                   >
                     Notifications

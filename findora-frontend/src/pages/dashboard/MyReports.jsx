@@ -87,7 +87,7 @@ function MyReports() {
       return;
     }
 
-    navigate(`/dashboard/edit-report/${activeTab}/${report.report_id}`);
+    navigate(`/user-dashboard/edit-report/${activeTab}/${report.report_id}`);
   };
 
   const handleDelete = async (report) => {

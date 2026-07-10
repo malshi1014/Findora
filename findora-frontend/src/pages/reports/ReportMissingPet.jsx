@@ -80,7 +80,7 @@ function ReportMissingPet() {
 
       if (response.status === "success" || response.success === true) {
         alert("Missing pet report submitted successfully!");
-        navigate("/dashboard/my-reports");
+        navigate("/user-dashboard/my-reports");
       } else {
         setError(
           response.error

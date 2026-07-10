@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import ShopLayout from "../../layouts/ShopLayout";
 import API_BASE_URL from "../../config/api";
 
-function UserDashboard() {
+function ShopOwnerDashboard() {
   const [reports, setReports] = useState({
     lost_reports: [],
     found_reports: [],
+    Suspicious_reports: [],     
   });
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,49 +15,102 @@ function UserDashboard() {
 
   const user = JSON.parse(localStorage.getItem("findora_user"));
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!user) {
-        setError("Please login to view dashboard.");
-        setLoading(false);
-        return;
+  const getCurrentUser = () => {
+  const storedUser = localStorage.getItem("findora_user");
+
+  if (!storedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    return null;
+  }
+};
+
+useEffect(() => {
+  const fetchDashboardData = async () => {
+    const user = getCurrentUser();
+
+    if (!user) {
+      setError("Please login to view dashboard.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      console.log("API BASE URL:", API_BASE_URL);
+      console.log("Logged user:", user);
+
+      const reportsResponse = await fetch(
+        `${API_BASE_URL}/reports/get_my_reports.php?user_id=${user.user_id}`
+      );
+
+      const reportsText = await reportsResponse.text();
+      console.log("Raw reports response:", reportsText);
+
+      if (!reportsText) {
+        throw new Error("Reports API returned empty response.");
       }
+
+      let reportsData;
 
       try {
-        const reportsResponse = await fetch(
-          `${API_BASE_URL}/reports/get_my_reports.php?user_id=${user.user_id}`
-        );
-
-        const reportsData = await reportsResponse.json();
-        console.log("My reports:", reportsData);
-
-        if (reportsData.status === "success") {
-          setReports({
-            lost_reports: reportsData.lost_reports || [],
-            found_reports: reportsData.found_reports || [],
-          });
-        }
-
-        const notificationResponse = await fetch(
-          `${API_BASE_URL}/notifications/get_notifications.php?user_id=${user.user_id}`
-        );
-
-        const notificationData = await notificationResponse.json();
-        console.log("Dashboard notifications:", notificationData);
-
-        if (notificationData.status === "success") {
-          setNotifications(notificationData.notifications || []);
-        }
-      } catch (err) {
-        console.error("Dashboard error:", err);
-        setError("Backend connection failed.");
-      } finally {
-        setLoading(false);
+        reportsData = JSON.parse(reportsText);
+      } catch {
+        throw new Error("Reports API did not return valid JSON.");
       }
-    };
 
-    fetchDashboardData();
-  }, [user]);
+      if (reportsData.status === "success") {
+        setReports({
+          lost_reports: reportsData.lost_reports || [],
+          found_reports: reportsData.found_reports || [],
+          suspicious_reports: reportsData.suspicious_reports || [],
+        });
+      } else {
+        throw new Error(reportsData.message || "Failed to load reports.");
+      }
+
+      const notificationResponse = await fetch(
+        `${API_BASE_URL}/notifications/get_notifications.php?user_id=${user.user_id}`
+      );
+
+      const notificationText = await notificationResponse.text();
+      console.log("Raw notifications response:", notificationText);
+
+      if (!notificationText) {
+        throw new Error("Notifications API returned empty response.");
+      }
+
+      let notificationData;
+
+      try {
+        notificationData = JSON.parse(notificationText);
+      } catch {
+        throw new Error("Notifications API did not return valid JSON.");
+      }
+
+      if (notificationData.status === "success") {
+        setNotifications(notificationData.notifications || []);
+      } else {
+        throw new Error(
+          notificationData.message || "Failed to load notifications."
+        );
+      }
+    } catch (err) {
+      console.error("Dashboard error:", err);
+      setError(err.message || "Backend connection failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboardData();
+}, []);
 
   const allReports = [
     ...reports.lost_reports.map((item) => ({
@@ -106,22 +160,22 @@ function UserDashboard() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <ShopLayout>
         <p className="p-6 text-slate-700">Loading dashboard...</p>
-      </DashboardLayout>
+      </ShopLayout>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <ShopLayout>
         <p className="p-6 text-red-600">{error}</p>
-      </DashboardLayout>
+      </ShopLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <ShopLayout>
       <div className="min-h-screen bg-linear-to-br from-blue-400 via-purple-100 to-white py-10">
         <div className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -226,7 +280,7 @@ function UserDashboard() {
                     </h4>
 
                     <Link
-                      to="/dashboard/my-reports"
+                      to="/user-dashboard/my-reports"
                       className="text-xs font-semibold text-blue-700 hover:underline"
                     >
                       View All
@@ -288,7 +342,7 @@ function UserDashboard() {
                     )}
 
                     <Link
-                      to="/dashboard/report-lost"
+                      to="/user-dashboard/report-lost"
                       className="rounded-3xl bg-white/40 backdrop-blur-xl border border-dashed border-white/50 p-4 shadow-xl flex items-center justify-center text-lg font-bold text-slate-700 transition hover:bg-white/60"
                     >
                       +
@@ -312,47 +366,13 @@ function UserDashboard() {
                 </button>
               </div>
 
-              <div className="rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-lg p-6">
-                <h4 className="text-sm font-semibold text-slate-900">
-                  Quick Actions
-                </h4>
-
-                <div className="mt-4 space-y-3">
-                  <Link
-                    to="/dashboard/report-lost"
-                    className="block rounded-full bg-blue-600 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700"
-                  >
-                    Report Lost Item
-                  </Link>
-
-                  <Link
-                    to="/dashboard/report-found"
-                    className="block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-blue-700 shadow hover:bg-blue-50"
-                  >
-                    Report Found Item
-                  </Link>
-
-                  <Link
-                    to="/dashboard/report-suspicious"
-                    className="block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-blue-700 shadow hover:bg-blue-50"
-                  >
-                    Report Suspicious Item
-                  </Link>
-
-                  <Link
-                    to="/dashboard/notifications"
-                    className="block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-slate-700 shadow hover:bg-slate-50"
-                  >
-                    View Notifications
-                  </Link>
-                </div>
-              </div>
+              
             </aside>
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </ShopLayout>
   );
 }
 
-export default UserDashboard;
+export default ShopOwnerDashboard;

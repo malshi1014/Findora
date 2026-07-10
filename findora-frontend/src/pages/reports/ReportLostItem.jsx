@@ -116,7 +116,7 @@ function ReportLostItem() {
 
       if (data.status === "success") {
         alert("Lost report submitted successfully!");
-        navigate("/dashboard/my-reports");
+        navigate("/user-dashboard/my-reports");
       } else {
         setError(
           data.error

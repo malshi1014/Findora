@@ -169,7 +169,7 @@ function ReportFoundItem() {
 
       if (data.status === "success") {
         alert("Found report submitted successfully!");
-        navigate("/dashboard/my-reports");
+        navigate("/user-dashboard/my-reports");
       } else {
         setError(
           data.error

@@ -60,24 +60,19 @@ function Login() {
       console.log("Login response:", data);
 
       if (data.status === "success") {
-        localStorage.setItem("findora_user", JSON.stringify(data.user));
+  localStorage.setItem("findora_user", JSON.stringify(data.user));
+  localStorage.setItem("auth_token", "logged_in");
 
-        if (remember) {
-          localStorage.setItem("rememberMe", "true");
-        } else {
-          localStorage.removeItem("rememberMe");
-        }
-
-        alert("Signed in successfully!");
-
-        if (data.user.role === "admin") {
-          navigate("/admin");
-        } else {
-          navigate("/dashboard");
-        }
-      } else {
-        setError(data.message || "Login failed. Please try again.");
-      }
+  if (data.user.role === "admin") {
+    navigate("/admin");
+  } else if (data.user.role === "shop_owner") {
+    navigate("/shop-owner");
+  } else {
+    navigate("/user-dashboard");
+  }
+} else {
+  setError(data.message || "Login failed.");
+} 
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message || "Backend connection failed.");

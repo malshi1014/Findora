@@ -10,12 +10,13 @@ import Register from "../pages/auth/Register";
 import ShopRegister from "../pages/auth/ShopRegister";
 
 import UserDashboard from "../pages/dashboard/UserDashboard";
+import ShopOwnerDashboard from "../pages/dashboard/ShopOwnerDashboard";
 import MyReports from "../pages/dashboard/MyReports";
 import Notifications from "../pages/dashboard/Notifications";
 import Settings from "../pages/dashboard/Settings";
 import Donation from "../pages/dashboard/Donation";
-import EditReport from "../pages/dashboard/EditReport";
 import Reward from "../pages/dashboard/Reward";
+import EditReport from "../pages/dashboard/EditReport";
 
 import ReportLostItem from "../pages/reports/ReportLostItem";
 import ReportFoundItem from "../pages/reports/ReportFoundItem";
@@ -33,7 +34,6 @@ import ManageMissingPeople from "../pages/admin/ManageMissingPeople";
 import ManageMissingPets from "../pages/admin/ManageMissingPets";
 import ManageDonations from "../pages/admin/ManageDonations";
 import ManageRewards from "../pages/admin/ManageRewards";
-import MatchVerification from "../pages/admin/MatchVerification";
 import ManageComplaints from "../pages/admin/ManageComplaints";
 import AdminStatistics from "../pages/admin/AdminStatistics";
 import ManageSettings from "../pages/admin/ManageSettings";
@@ -42,7 +42,6 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* Public Pages */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
@@ -54,23 +53,35 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/shop-register" element={<ShopRegister />} />
 
-        {/* Dashboard */}
-        <Route path="/dashboard" element={<UserDashboard />} />
-      
-       
-        <Route path="/dashboard/my-reports" element={<MyReports />} />
-        <Route path="/dashboard/notifications" element={<Notifications />} />
-        <Route path="/dashboard/report-lost" element={<ReportLostItem />} />
-        <Route path="/dashboard/report-found" element={<ReportFoundItem />} />
-        
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/donation" element={<Donation />} />
-        <Route path="/reward" element={<Reward />} />
-        <Route path="/edit-report" element={<EditReport />} />
-        <Route path="/dashboard/edit-report/:reportType/:reportId" element={<EditReport />}/>
+        {/* Normal User Dashboard */}
+        <Route path="/user-dashboard" element={<UserDashboard />} />
+        <Route path="/user-dashboard/my-reports" element={<MyReports />} />
+        <Route path="/user-dashboard/notifications" element={<Notifications />} />
+        <Route path="/user-dashboard/settings" element={<Settings />} />
+        <Route path="/user-dashboard/donation" element={<Donation />} />
+        <Route path="/user-dashboard/reward" element={<Reward />} />
 
-        {/* Reports */}
+        {/* Normal User Report Pages */}
+        <Route path="/user-dashboard/report-lost" element={<ReportLostItem />} />
+        <Route path="/user-dashboard/report-found" element={<ReportFoundItem />} />
+        <Route path="/user-dashboard/report-person" element={<ReportMissingPerson />} />
+        <Route path="/user-dashboard/report-pet" element={<ReportMissingPet />} />
+
+        <Route
+          path="/user-dashboard/edit-report/:reportType/:reportId"
+          element={<EditReport />}
+        />
+
+        {/* Shop Owner Dashboard */}
+        <Route path="/shop-owner" element={<ShopOwnerDashboard />} />
+        <Route
+          path="/shop-owner/report-suspicious"
+          element={<ReportSuspiciousItem />}
+        />
+        <Route path="/shop-owner/notifications" element={<Notifications />} />
+        <Route path="/shop-owner/settings" element={<Settings />} />
+
+        {/* Public Report Route Aliases */}
         <Route path="/report-lost" element={<ReportLostItem />} />
         <Route path="/report-found" element={<ReportFoundItem />} />
         <Route path="/report-suspicious" element={<ReportSuspiciousItem />} />
@@ -82,19 +93,15 @@ function AppRoutes() {
         <Route path="/admin/reports" element={<AdminReports />} />
         <Route path="/admin/matches" element={<AdminMatches />} />
         <Route path="/admin/users" element={<ManageUsers />} />
-        <Route path="/admin/matches" element={<AdminMatches />} />
-        <Route path="/admin/users" element={<ManageUsers />} />
         <Route path="/admin/lost-reports" element={<ManageLostReports />} />
         <Route path="/admin/found-reports" element={<ManageFoundReports />} />
         <Route path="/admin/missing-people" element={<ManageMissingPeople />} />
         <Route path="/admin/missing-pets" element={<ManageMissingPets />} />
         <Route path="/admin/donations" element={<ManageDonations />} />
         <Route path="/admin/rewards" element={<ManageRewards />} />
-        <Route path="/admin/matches" element={<MatchVerification />} />
         <Route path="/admin/complaints" element={<ManageComplaints />} />
         <Route path="/admin/statistics" element={<AdminStatistics />} />
         <Route path="/admin/settings" element={<ManageSettings />} />
-
       </Routes>
     </BrowserRouter>
   );

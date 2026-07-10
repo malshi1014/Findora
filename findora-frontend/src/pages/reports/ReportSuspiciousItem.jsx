@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import ShopLayout from "../../layouts/ShopLayout";
 import API_BASE_URL from "../../config/api";
 
 function ReportSuspiciousItem() {
@@ -62,7 +62,7 @@ function ReportSuspiciousItem() {
 
       if (data.status === "success") {
         alert("Suspicious item report submitted successfully!");
-        navigate("/dashboard/my-reports");
+        navigate("/user-dashboard/my-reports");
       } else {
         setError(
           data.error
@@ -82,7 +82,7 @@ function ReportSuspiciousItem() {
   };
 
   return (
-    <DashboardLayout>
+    <shopLayout>
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
         <div className="rounded-[2rem] bg-slate-950/95 p-8 text-white shadow-2xl shadow-slate-900/40">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -141,7 +141,7 @@ function ReportSuspiciousItem() {
           </div>
         </form>
       </div>
-    </DashboardLayout>
+    </shopLayout>
   );
 }
 
