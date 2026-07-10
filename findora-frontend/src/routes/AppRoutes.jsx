@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import ScrollToTop from "../components/ScrollToTop";
 import Home from "../pages/public/Home";
 import About from "../pages/public/About";
 import Contact from "../pages/public/Contact";
@@ -41,6 +41,9 @@ import ManageSettings from "../pages/admin/ManageSettings";
 function AppRoutes() {
   return (
     <BrowserRouter>
+        
+      <ScrollToTop />
+
       <Routes>
         {/* Public Pages */}
         <Route path="/" element={<Home />} />

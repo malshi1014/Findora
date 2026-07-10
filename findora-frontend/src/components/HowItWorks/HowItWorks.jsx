@@ -40,7 +40,7 @@ function HowItWorks() {
 
         <div className="mt-10 grid gap-6 lg:grid-cols-4">
           {steps.map((step) => (
-            <div key={step.number} className="rounded-[2rem] bg-white p-6 shadow-sm">
+            <div key={step.number} className="rounded-[2rem] bg-blue-100 p-6 shadow-sm backdrop-blur-xl p-6 shadow-xl transition hover:-translate-y-1 hover:border-blue-300 hover:bg-white/35 hover:shadow-2xl">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white text-lg font-bold">
                 {step.number}
               </div>

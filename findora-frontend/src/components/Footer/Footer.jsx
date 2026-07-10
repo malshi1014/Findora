@@ -24,14 +24,15 @@ function Footer() {
         <div>
           <h3 className="font-semibold mb-3">Quick Links</h3>
           <ul className="space-y-2 text-gray-400">
+          
             <li>
-              <Link to="/l" className="hover:text-blue-400 transition">
-                Home
+              <Link to="/login" className="hover:text-blue-400 transition">
+                Report Lost Item
               </Link>
             </li>
             <li>
               <Link to="/login" className="hover:text-blue-400 transition">
-                Report Lost Item
+                Report Found Item
               </Link>
             </li>
             <li>
