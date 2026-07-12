@@ -70,6 +70,17 @@ function AppRoutes() {
         <Route path="/user-dashboard/report-person" element={<ReportMissingPerson />} />
         <Route path="/user-dashboard/report-pet" element={<ReportMissingPet />} />
 
+        {/* Shared Pages for Shop Owners */}
+        <Route path="/shop-owner/my-reports" element={<MyReports />} />
+        <Route path="/shop-owner/notifications" element={<Notifications />} />
+        <Route path="/shop-owner/settings" element={<Settings />} />
+        <Route path="/shop-owner/donation" element={<Donation />} />
+        <Route path="/shop-owner/reward" element={<Reward />} />
+        <Route path="/shop-owner/report-lost" element={<ReportLostItem />} />
+        <Route path="/shop-owner/report-found" element={<ReportFoundItem />} />
+        <Route path="/shop-owner/report-person" element={<ReportMissingPerson />} />
+        <Route path="/shop-owner/report-pet" element={<ReportMissingPet />} />
+
         <Route
           path="/user-dashboard/edit-report/:reportType/:reportId"
           element={<EditReport />}
@@ -81,6 +92,7 @@ function AppRoutes() {
           path="/shop-owner/report-suspicious"
           element={<ReportSuspiciousItem />}
         />
+        <Route path="/shop-owner/my-reports" element={<MyReports />} />
         <Route path="/shop-owner/notifications" element={<Notifications />} />
         <Route path="/shop-owner/settings" element={<Settings />} />
 

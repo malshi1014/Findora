@@ -112,8 +112,8 @@ function ShopOwnerDashboard() {
     ...item,
     type: "Suspicious",
     title: item.title || item.item_name || "Suspicious Item",
-    date: item.report_date || item.suspicious_date || item.created_at,
-    time: item.report_time || item.suspicious_time || "",
+    date: item.report_date || item.found_date || item.created_at,
+    time: item.report_time || item.found_time || "",
     location: item.location || item.last_seen_location || "Not specified",
     contact: item.contact_no || item.contact || "Not specified",
   }));

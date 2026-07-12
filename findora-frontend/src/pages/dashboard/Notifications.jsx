@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../../config/api";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
@@ -186,15 +186,15 @@ function Notifications() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <RoleBasedLayout>
         <p className="p-6 text-slate-700">Loading notifications...</p>
-      </DashboardLayout>
+      </RoleBasedLayout>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <RoleBasedLayout>
         <div className="p-6">
           <p className="text-red-600">{error}</p>
 
@@ -208,12 +208,12 @@ function Notifications() {
             Try Again
           </button>
         </div>
-      </DashboardLayout>
+      </RoleBasedLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <RoleBasedLayout>
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
         <div>
           <h1 className="mb-8 text-3xl font-bold text-slate-900">
@@ -322,7 +322,7 @@ function Notifications() {
           ))}
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

@@ -30,7 +30,7 @@ function ShopSidebar() {
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white/90 px-4 py-6 shadow-sm backdrop-blur">
-      <Link to="/user-dashboard" className="mb-8 flex items-center gap-3 px-3">
+      <Link to="/shop-owner" className="mb-8 flex items-center gap-3 px-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 font-bold text-white shadow-md">
           F
         </div>
@@ -42,7 +42,7 @@ function ShopSidebar() {
       </Link>
 
       <nav className="flex-1 space-y-1 overflow-y-auto">
-        <Link to="/user-dashboard" className={linkClass("/user-dashboard", true)}>
+        <Link to="/shop-owner" className={linkClass("/shop-owner", true)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <rect
               x="3"
@@ -90,8 +90,8 @@ function ShopSidebar() {
           </p>
 
           <Link
-            to="/user-dashboard/report-lost"
-            className={linkClass("/user-dashboard/report-lost")}
+            to="/shop-owner/report-lost"
+            className={linkClass("/shop-owner/report-lost")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle
@@ -112,8 +112,8 @@ function ShopSidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/report-found"
-            className={linkClass("/user-dashboard/report-found")}
+            to="/shop-owner/report-found"
+            className={linkClass("/shop-owner/report-found")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path
@@ -156,8 +156,8 @@ function ShopSidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/report-person"
-            className={linkClass("/user-dashboard/report-person")}
+            to="/shop-owner/report-person"
+            className={linkClass("/shop-owner/report-person")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle
@@ -178,8 +178,8 @@ function ShopSidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/report-pet"
-            className={linkClass("/user-dashboard/report-pet")}
+            to="/shop-owner/report-pet"
+            className={linkClass("/shop-owner/report-pet")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle
@@ -226,9 +226,9 @@ function ShopSidebar() {
           </p>
 
           <Link
-            to="/user-dashboard/my-reports"
-            className={linkClass("/user-dashboard/my-reports", false, [
-              "/user-dashboard/edit-report",
+            to="/shop-owner/my-reports"
+            className={linkClass("/shop-owner/my-reports", false, [
+              "/shop-owner/edit-report",
             ])}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -294,8 +294,8 @@ function ShopSidebar() {
           </p>
 
           <Link
-            to="/user-dashboard/notifications"
-            className={linkClass("/user-dashboard/notifications")}
+            to="/shop-owner/notifications"
+            className={linkClass("/shop-owner/notifications")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path
@@ -352,8 +352,8 @@ function ShopSidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/settings"
-            className={linkClass("/user-dashboard/settings")}
+            to="/shop-owner/settings"
+            className={linkClass("/shop-owner/settings")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle

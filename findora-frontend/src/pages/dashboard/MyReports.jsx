@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import API_BASE_URL from "../../config/api";
 
 function MyReports() {
@@ -8,6 +8,7 @@ function MyReports() {
 
   const [lostReports, setLostReports] = useState([]);
   const [foundReports, setFoundReports] = useState([]);
+  const [suspiciousReports, setSuspiciousReports] = useState([]);
   const [missingPetPosts, setMissingPetPosts] = useState([]);
   const [missingPersonPosts, setMissingPersonPosts] = useState([]);
 
@@ -66,6 +67,7 @@ function MyReports() {
       if (data.status === "success") {
         setLostReports(data.lost_reports || []);
         setFoundReports(data.found_reports || []);
+        setSuspiciousReports(data.suspicious_reports || []);
         setMissingPetPosts(data.missing_pet_posts || []);
         setMissingPersonPosts(data.missing_person_posts || []);
       } else {
@@ -89,6 +91,7 @@ function MyReports() {
   const getCurrentReports = () => {
     if (activeTab === "lost") return lostReports;
     if (activeTab === "found") return foundReports;
+    if (activeTab === "suspicious") return suspiciousReports;
     if (activeTab === "missing_pet") return missingPetPosts;
     if (activeTab === "missing_person") return missingPersonPosts;
     return [];
@@ -114,7 +117,7 @@ function MyReports() {
 
   const getReportDate = (report) => {
     if (activeTab === "lost") return report.lost_date;
-    if (activeTab === "found") return report.found_date;
+    if (activeTab === "found" || activeTab === "suspicious") return report.found_date;
     if (activeTab === "missing_pet") return report.lost_date;
     if (activeTab === "missing_person") return report.missing_date;
     return "";
@@ -122,7 +125,7 @@ function MyReports() {
 
   const getReportTime = (report) => {
     if (activeTab === "lost") return report.lost_time;
-    if (activeTab === "found") return report.found_time;
+    if (activeTab === "found" || activeTab === "suspicious") return report.found_time;
     if (activeTab === "missing_pet") return report.lost_time;
     if (activeTab === "missing_person") return report.missing_time;
     return "";
@@ -165,6 +168,11 @@ function MyReports() {
       return;
     }
 
+    if (activeTab === "suspicious") {
+      alert("Edit for suspicious reports will be connected in the next step.");
+      return;
+    }
+
     navigate(`/user-dashboard/edit-report/${activeTab}/${reportId}`);
   };
 
@@ -178,6 +186,11 @@ function MyReports() {
 
     if (report.status === "matched") {
       alert("Matched reports cannot be deleted.");
+      return;
+    }
+
+    if (activeTab === "suspicious") {
+      alert("Suspicious reports cannot be deleted from this view yet.");
       return;
     }
 
@@ -274,18 +287,19 @@ function MyReports() {
   };
 
   const currentReports = getCurrentReports();
+  const isShopOwner = getCurrentUser()?.role === "shop_owner";
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <RoleBasedLayout>
         <p className="p-6 text-slate-700">Loading your reports...</p>
-      </DashboardLayout>
+      </RoleBasedLayout>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <RoleBasedLayout>
         <div className="p-6">
           <p className="text-red-600">{error}</p>
 
@@ -299,17 +313,17 @@ function MyReports() {
             Try Again
           </button>
         </div>
-      </DashboardLayout>
+      </RoleBasedLayout>
     );
   }
 
   return (
-    <DashboardLayout>
-      <div className="mx-auto max-w-6xl space-y-8">
-        <div className="rounded-4xl bg-white p-8 shadow-xl ring-1 ring-slate-200">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
-            My Reports
-          </p>
+    <RoleBasedLayout>
+        <div className="mx-auto max-w-6xl space-y-8">
+          <div className="rounded-4xl bg-white p-8 shadow-xl ring-1 ring-slate-200">
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
+              My Reports
+            </p>
 
           <h1 className="mt-4 text-3xl font-bold text-slate-950">
             Submitted Reports
@@ -342,6 +356,19 @@ function MyReports() {
             >
               Found Reports ({foundReports.length})
             </button>
+
+            {isShopOwner && (
+              <button
+                onClick={() => setActiveTab("suspicious")}
+                className={`rounded-full px-5 py-2 text-sm font-semibold ${
+                  activeTab === "suspicious"
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-100 text-slate-700"
+                }`}
+              >
+                Suspicious Items ({suspiciousReports.length})
+              </button>
+            )}
 
             <button
               onClick={() => setActiveTab("missing_pet")}
@@ -529,7 +556,7 @@ function MyReports() {
           </div>
         )}
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

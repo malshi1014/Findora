@@ -1,4 +1,4 @@
-import DashboardLayout from "../../layouts/DashboardLayout";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 
 function Reward() {
   const stats = [
@@ -9,7 +9,7 @@ function Reward() {
   ];
 
   return (
-    <DashboardLayout>
+    <RoleBasedLayout>
       <div className="space-y-6">
         <header className="rounded-lg bg-linear-to-r from-sky-100 to-sky-300 p-6 shadow-md">
           <h2 className="text-2xl font-semibold text-slate-800">My Rewards</h2>
@@ -55,7 +55,7 @@ function Reward() {
           </aside>
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

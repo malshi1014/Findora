@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import API_BASE_URL from "../../config/api";
 
 function EditReport() {
@@ -314,14 +314,14 @@ function EditReport() {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <RoleBasedLayout>
         <p className="p-6 text-slate-700">Loading report details...</p>
-      </DashboardLayout>
+      </RoleBasedLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <RoleBasedLayout>
       <div className="mx-auto max-w-6xl">
         <div className="mb-6">
           <Link
@@ -584,7 +584,7 @@ function EditReport() {
           </aside>
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

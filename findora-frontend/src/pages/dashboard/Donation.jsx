@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 
 function Donation() {
   const presetAmounts = [500, 1000, 2500, 5000];
@@ -32,7 +32,7 @@ function Donation() {
   };
 
   return (
-    <DashboardLayout>
+    <RoleBasedLayout>
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="rounded-4xl bg-linear-to-r from-slate-100 via-white to-slate-100 p-8 shadow-2xl shadow-slate-300/20 ring-1 ring-slate-200">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
@@ -192,7 +192,7 @@ function Donation() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

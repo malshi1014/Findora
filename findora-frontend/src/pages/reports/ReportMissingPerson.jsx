@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import API_BASE_URL from "../../config/api";
 
 function ReportMissingPerson() {
@@ -193,7 +193,7 @@ function ReportMissingPerson() {
   };
 
   return (
-    <DashboardLayout>
+    <RoleBasedLayout>
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="rounded-4xl bg-gradient-to-r from-slate-100 via-white to-slate-100 p-8 shadow-2xl shadow-slate-300/20 ring-1 ring-slate-200">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
@@ -544,7 +544,7 @@ function ReportMissingPerson() {
           </form>
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import API_BASE_URL from "../../config/api";
 
 function UserDashboard() {
@@ -159,22 +159,22 @@ useEffect(() => {
 
   if (loading) {
     return (
-      <DashboardLayout>
+      <RoleBasedLayout>
         <p className="p-6 text-slate-700">Loading dashboard...</p>
-      </DashboardLayout>
+      </RoleBasedLayout>
     );
   }
 
   if (error) {
     return (
-      <DashboardLayout>
+      <RoleBasedLayout>
         <p className="p-6 text-red-600">{error}</p>
-      </DashboardLayout>
+      </RoleBasedLayout>
     );
   }
 
   return (
-    <DashboardLayout>
+    <RoleBasedLayout>
       <div className="min-h-screen bg-linear-to-br from-blue-100 via-purple-100 to-white py-10">
         <div className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
@@ -397,7 +397,7 @@ useEffect(() => {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

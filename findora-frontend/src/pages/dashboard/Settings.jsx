@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 
 function Settings() {
   const [firstName, setFirstName] = useState("Duvindu");
@@ -33,7 +33,7 @@ function Settings() {
   const strengthColor = ["text-red-400", "text-yellow-400", "text-blue-400", "text-green-400"][getPasswordStrength()];
 
   return (
-    <DashboardLayout>
+    <RoleBasedLayout>
       <div className="mx-auto max-w-4xl">
         <h1 className="text-3xl font-bold text-slate-900">Settings</h1>
 
@@ -176,7 +176,7 @@ function Settings() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 
