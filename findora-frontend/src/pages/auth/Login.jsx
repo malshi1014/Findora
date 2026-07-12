@@ -65,9 +65,9 @@ function Login() {
   if (data.user.role === "admin") {
     navigate("/admin");
   } else if (data.user.role === "shop_owner") {
-    navigate("/shop-owner");
+    navigate("/");
   } else {
-    navigate("/user-dashboard");
+    navigate("/");
   }
 } else {
   setError(data.message || "Login failed.");
