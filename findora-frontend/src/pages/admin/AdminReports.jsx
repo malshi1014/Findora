@@ -4,6 +4,7 @@ import API_BASE_URL from "../../config/api";
 function AdminReports() {
   const [reports, setReports] = useState([]);
   const [activeStatus, setActiveStatus] = useState("all");
+  const [activeType, setActiveType] = useState("all");
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [error, setError] = useState("");
@@ -81,6 +82,10 @@ function AdminReports() {
     fetchReports(status);
   };
 
+  const handleTypeFilter = (type) => {
+    setActiveType(type);
+  };
+
   const updateReportStatus = async (report, newStatus) => {
     const user = getCurrentUser();
 
@@ -90,14 +95,17 @@ function AdminReports() {
     }
 
     const confirmAction = window.confirm(
-      `Are you sure you want to mark this report as ${newStatus}?`
+      `Are you sure you want to mark this ${getReportTypeLabel(
+        report.report_type
+      )} as ${newStatus}?`
     );
 
     if (!confirmAction) {
       return;
     }
 
-    setUpdatingId(`${report.report_type}-${report.report_id}`);
+    const updateKey = `${report.report_type}-${report.report_id}`;
+    setUpdatingId(updateKey);
 
     try {
       const response = await fetch(
@@ -170,13 +178,75 @@ function AdminReports() {
     return "bg-slate-100 text-slate-700";
   };
 
-  const pendingCount = reports.filter((item) => item.status === "pending")
-    .length;
-  const activeCount = reports.filter((item) => item.status === "active").length;
-  const rejectedCount = reports.filter((item) => item.status === "rejected")
-    .length;
-  const matchedCount = reports.filter((item) => item.status === "matched")
-    .length;
+  const getTypeStyle = (type) => {
+    if (type === "lost") return "bg-red-50 text-red-700";
+    if (type === "found") return "bg-green-50 text-green-700";
+    if (type === "suspicious") return "bg-purple-50 text-purple-700";
+    if (type === "missing_pet") return "bg-pink-50 text-pink-700";
+    if (type === "missing_person") return "bg-blue-50 text-blue-700";
+    return "bg-slate-50 text-slate-700";
+  };
+
+  const getReportTypeLabel = (type) => {
+    if (type === "lost") return "Lost Item Report";
+    if (type === "found") return "Found Item Report";
+    if (type === "suspicious") return "Suspicious Item Report";
+    if (type === "missing_pet") return "Missing Pet Post";
+    if (type === "missing_person") return "Missing Person Post";
+    return "Report";
+  };
+
+  const typeFilters = [
+    { key: "all", label: "All Reports", count: reports.length },
+    {
+      key: "lost",
+      label: "Lost Items",
+      count: reports.filter((item) => item.report_type === "lost").length,
+    },
+    {
+      key: "found",
+      label: "Found Items",
+      count: reports.filter((item) => item.report_type === "found").length,
+    },
+    {
+      key: "suspicious",
+      label: "Suspicious Items",
+      count: reports.filter((item) => item.report_type === "suspicious").length,
+    },
+    {
+      key: "missing_pet",
+      label: "Missing Pets",
+      count: reports.filter((item) => item.report_type === "missing_pet")
+        .length,
+    },
+    {
+      key: "missing_person",
+      label: "Missing People",
+      count: reports.filter((item) => item.report_type === "missing_person")
+        .length,
+    },
+  ];
+
+  const filteredReports =
+    activeType === "all"
+      ? reports
+      : reports.filter((item) => item.report_type === activeType);
+
+  const pendingCount = filteredReports.filter(
+    (item) => item.status === "pending"
+  ).length;
+
+  const activeCount = filteredReports.filter(
+    (item) => item.status === "active"
+  ).length;
+
+  const rejectedCount = filteredReports.filter(
+    (item) => item.status === "rejected"
+  ).length;
+
+  const matchedCount = filteredReports.filter(
+    (item) => item.status === "matched"
+  ).length;
 
   if (loading) {
     return (
@@ -212,12 +282,12 @@ function AdminReports() {
         </p>
 
         <h1 className="mt-4 text-3xl font-bold text-slate-950">
-          Report Management
+          Report Approval Center
         </h1>
 
         <p className="mt-3 text-sm text-slate-600">
-          Review lost and found reports submitted by users. Approve reports to
-          make them active for matching and reject invalid reports.
+          Review and approve lost item, found item, suspicious item, missing pet
+          and missing person reports separately.
         </p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-4">
@@ -250,30 +320,61 @@ function AdminReports() {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
-          {["all", "pending", "active", "rejected", "matched"].map((status) => (
-            <button
-              key={status}
-              onClick={() => handleStatusFilter(status)}
-              className={`rounded-full px-5 py-2 text-sm font-semibold capitalize ${
-                activeStatus === status
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
-              }`}
-            >
-              {status}
-            </button>
-          ))}
+        <div className="mt-8">
+          <p className="mb-3 text-sm font-semibold text-slate-800">
+            Filter by Report Type
+          </p>
+
+          <div className="flex flex-wrap gap-3">
+            {typeFilters.map((type) => (
+              <button
+                key={type.key}
+                onClick={() => handleTypeFilter(type.key)}
+                className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
+                  activeType === type.key
+                    ? "bg-blue-600 text-white"
+                    : "bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+                }`}
+              >
+                {type.label} ({type.count})
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8">
+          <p className="mb-3 text-sm font-semibold text-slate-800">
+            Filter by Status
+          </p>
+
+          <div className="flex flex-wrap gap-3">
+            {["all", "pending", "active", "rejected", "matched"].map(
+              (status) => (
+                <button
+                  key={status}
+                  onClick={() => handleStatusFilter(status)}
+                  className={`rounded-full px-5 py-2 text-sm font-semibold capitalize ${
+                    activeStatus === status
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+                  }`}
+                >
+                  {status}
+                </button>
+              )
+            )}
+          </div>
         </div>
       </div>
 
-      {reports.length === 0 ? (
+      {filteredReports.length === 0 ? (
         <div className="rounded-4xl bg-white p-8 text-center text-slate-500 shadow-xl ring-1 ring-slate-200">
-          No reports found.
+          No {activeType === "all" ? "reports" : getReportTypeLabel(activeType)}{" "}
+          found.
         </div>
       ) : (
         <div className="grid gap-6 xl:grid-cols-2">
-          {reports.map((report) => {
+          {filteredReports.map((report) => {
             const imageUrl = getImageUrl(report.image_path);
             const updateKey = `${report.report_type}-${report.report_id}`;
             const isUpdating = updatingId === updateKey;
@@ -299,16 +400,21 @@ function AdminReports() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-widest text-blue-700">
-                          {report.report_type} report
-                        </p>
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getTypeStyle(
+                            report.report_type
+                          )}`}
+                        >
+                          {getReportTypeLabel(report.report_type)}
+                        </span>
 
-                        <h2 className="mt-1 text-lg font-bold text-slate-950">
+                        <h2 className="mt-3 text-lg font-bold text-slate-950">
                           {report.title}
                         </h2>
 
                         <p className="mt-1 text-sm text-slate-500">
-                          {report.category} • {report.district}
+                          {report.category || "No category"} •{" "}
+                          {report.district || "No district"}
                         </p>
                       </div>
 
@@ -330,24 +436,26 @@ function AdminReports() {
                 <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
                   <p>
                     <span className="font-semibold text-slate-800">User:</span>{" "}
-                    {report.user_name}
+                    {report.user_name || "Not available"}
                   </p>
 
                   <p>
-                    <span className="font-semibold text-slate-800">Email:</span>{" "}
-                    {report.user_email}
+                    <span className="font-semibold text-slate-800">
+                      Email:
+                    </span>{" "}
+                    {report.user_email || "Not available"}
                   </p>
 
                   <p>
                     <span className="font-semibold text-slate-800">
                       Contact:
                     </span>{" "}
-                    {report.contact_no}
+                    {report.contact_no || "Not specified"}
                   </p>
 
                   <p>
                     <span className="font-semibold text-slate-800">Date:</span>{" "}
-                    {report.report_date}
+                    {report.report_date || "Not specified"}
                   </p>
 
                   <p>
@@ -359,8 +467,33 @@ function AdminReports() {
                     <span className="font-semibold text-slate-800">
                       Location:
                     </span>{" "}
-                    {report.location}
+                    {report.location || "Not specified"}
                   </p>
+
+                  {report.nearest_town && (
+                    <p>
+                      <span className="font-semibold text-slate-800">
+                        Nearest Town:
+                      </span>{" "}
+                      {report.nearest_town}
+                    </p>
+                  )}
+
+                  {report.age && (
+                    <p>
+                      <span className="font-semibold text-slate-800">Age:</span>{" "}
+                      {report.age}
+                    </p>
+                  )}
+
+                  {report.gender && (
+                    <p>
+                      <span className="font-semibold text-slate-800">
+                        Gender:
+                      </span>{" "}
+                      {report.gender}
+                    </p>
+                  )}
                 </div>
 
                 {report.unique_identifiers && (

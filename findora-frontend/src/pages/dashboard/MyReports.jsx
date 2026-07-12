@@ -8,9 +8,12 @@ function MyReports() {
 
   const [lostReports, setLostReports] = useState([]);
   const [foundReports, setFoundReports] = useState([]);
+  const [missingPetPosts, setMissingPetPosts] = useState([]);
+  const [missingPersonPosts, setMissingPersonPosts] = useState([]);
+
   const [activeTab, setActiveTab] = useState("lost");
   const [loading, setLoading] = useState(true);
-  const [deletingId, setDeletingId] = useState(null);
+  const [deletingKey, setDeletingKey] = useState(null);
   const [error, setError] = useState("");
 
   const getCurrentUser = () => {
@@ -63,6 +66,8 @@ function MyReports() {
       if (data.status === "success") {
         setLostReports(data.lost_reports || []);
         setFoundReports(data.found_reports || []);
+        setMissingPetPosts(data.missing_pet_posts || []);
+        setMissingPersonPosts(data.missing_person_posts || []);
       } else {
         setError(data.message || "Failed to load reports.");
       }
@@ -81,13 +86,86 @@ function MyReports() {
     fetchMyReports();
   }, []);
 
+  const getCurrentReports = () => {
+    if (activeTab === "lost") return lostReports;
+    if (activeTab === "found") return foundReports;
+    if (activeTab === "missing_pet") return missingPetPosts;
+    if (activeTab === "missing_person") return missingPersonPosts;
+    return [];
+  };
+
+  const getReportId = (report) => {
+    if (activeTab === "missing_pet") return report.pet_post_id;
+    if (activeTab === "missing_person") return report.person_post_id;
+    return report.report_id;
+  };
+
+  const getReportTitle = (report) => {
+    if (activeTab === "missing_pet") return report.pet_name;
+    if (activeTab === "missing_person") return report.full_name;
+    return report.title;
+  };
+
+  const getReportCategory = (report) => {
+    if (activeTab === "missing_pet") return report.pet_category;
+    if (activeTab === "missing_person") return "Missing Person";
+    return report.category;
+  };
+
+  const getReportDate = (report) => {
+    if (activeTab === "lost") return report.lost_date;
+    if (activeTab === "found") return report.found_date;
+    if (activeTab === "missing_pet") return report.lost_date;
+    if (activeTab === "missing_person") return report.missing_date;
+    return "";
+  };
+
+  const getReportTime = (report) => {
+    if (activeTab === "lost") return report.lost_time;
+    if (activeTab === "found") return report.found_time;
+    if (activeTab === "missing_pet") return report.lost_time;
+    if (activeTab === "missing_person") return report.missing_time;
+    return "";
+  };
+
+  const getReportLocation = (report) => {
+    if (activeTab === "missing_pet" || activeTab === "missing_person") {
+      return report.last_seen_location;
+    }
+
+    return report.location;
+  };
+
+  const getReportContact = (report) => {
+    if (activeTab === "missing_pet" || activeTab === "missing_person") {
+      return report.guardian_contact_no;
+    }
+
+    return report.contact_no;
+  };
+
+  const getReportIdentifiers = (report) => {
+    if (activeTab === "missing_person") {
+      return report.distinguishing_marks;
+    }
+
+    return report.unique_identifiers;
+  };
+
   const handleEdit = (report) => {
+    const reportId = getReportId(report);
+
     if (report.status === "matched") {
       alert("Matched reports cannot be edited.");
       return;
     }
 
-    navigate(`/user-dashboard/edit-report/${activeTab}/${report.report_id}`);
+    if (activeTab === "missing_pet" || activeTab === "missing_person") {
+      alert("Edit for missing pet/person posts will be connected in the next step.");
+      return;
+    }
+
+    navigate(`/user-dashboard/edit-report/${activeTab}/${reportId}`);
   };
 
   const handleDelete = async (report) => {
@@ -103,6 +181,8 @@ function MyReports() {
       return;
     }
 
+    const reportId = getReportId(report);
+
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this report?"
     );
@@ -111,7 +191,7 @@ function MyReports() {
       return;
     }
 
-    setDeletingId(report.report_id);
+    setDeletingKey(`${activeTab}-${reportId}`);
 
     try {
       const response = await fetch(`${API_BASE_URL}/reports/delete_report.php`, {
@@ -121,7 +201,7 @@ function MyReports() {
         },
         body: JSON.stringify({
           user_id: user.user_id,
-          report_id: report.report_id,
+          report_id: reportId,
           report_type: activeTab,
         }),
       });
@@ -148,11 +228,19 @@ function MyReports() {
 
         if (activeTab === "lost") {
           setLostReports((prevReports) =>
-            prevReports.filter((item) => item.report_id !== report.report_id)
+            prevReports.filter((item) => item.report_id !== reportId)
           );
-        } else {
+        } else if (activeTab === "found") {
           setFoundReports((prevReports) =>
-            prevReports.filter((item) => item.report_id !== report.report_id)
+            prevReports.filter((item) => item.report_id !== reportId)
+          );
+        } else if (activeTab === "missing_pet") {
+          setMissingPetPosts((prevReports) =>
+            prevReports.filter((item) => item.pet_post_id !== reportId)
+          );
+        } else if (activeTab === "missing_person") {
+          setMissingPersonPosts((prevReports) =>
+            prevReports.filter((item) => item.person_post_id !== reportId)
           );
         }
       } else {
@@ -165,7 +253,7 @@ function MyReports() {
           "Backend connection failed. Please check delete_report.php."
       );
     } finally {
-      setDeletingId(null);
+      setDeletingKey(null);
     }
   };
 
@@ -179,12 +267,13 @@ function MyReports() {
 
   const getStatusStyle = (status) => {
     if (status === "matched") return "bg-green-100 text-green-700";
+    if (status === "active") return "bg-green-100 text-green-700";
     if (status === "pending") return "bg-orange-100 text-orange-700";
     if (status === "rejected") return "bg-red-100 text-red-700";
     return "bg-slate-100 text-slate-700";
   };
 
-  const currentReports = activeTab === "lost" ? lostReports : foundReports;
+  const currentReports = getCurrentReports();
 
   if (loading) {
     return (
@@ -227,8 +316,8 @@ function MyReports() {
           </h1>
 
           <p className="mt-3 text-sm text-slate-600">
-            View, edit, or delete the lost and found reports you submitted to
-            Findora.
+            View your submitted lost items, found items, missing pets and
+            missing person posts.
           </p>
 
           <div className="mt-6 flex flex-wrap gap-3">
@@ -253,31 +342,58 @@ function MyReports() {
             >
               Found Reports ({foundReports.length})
             </button>
+
+            <button
+              onClick={() => setActiveTab("missing_pet")}
+              className={`rounded-full px-5 py-2 text-sm font-semibold ${
+                activeTab === "missing_pet"
+                  ? "bg-blue-600 text-white"
+                  : "bg-slate-100 text-slate-700"
+              }`}
+            >
+              Missing Pets ({missingPetPosts.length})
+            </button>
+
+            <button
+              onClick={() => setActiveTab("missing_person")}
+              className={`rounded-full px-5 py-2 text-sm font-semibold ${
+                activeTab === "missing_person"
+                  ? "bg-blue-600 text-white"
+                  : "bg-slate-100 text-slate-700"
+              }`}
+            >
+              Missing People ({missingPersonPosts.length})
+            </button>
           </div>
         </div>
 
         {currentReports.length === 0 ? (
           <div className="rounded-4xl bg-white p-8 text-center text-slate-500 shadow-xl ring-1 ring-slate-200">
-            No {activeTab} reports found.
+            No {activeTab.replace("_", " ")} reports found.
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
             {currentReports.map((report) => {
+              const reportId = getReportId(report);
               const imageUrl = getImageUrl(report);
-              const date =
-                activeTab === "lost" ? report.lost_date : report.found_date;
-              const time =
-                activeTab === "lost" ? report.lost_time : report.found_time;
+              const title = getReportTitle(report);
+              const category = getReportCategory(report);
+              const date = getReportDate(report);
+              const time = getReportTime(report);
+              const location = getReportLocation(report);
+              const contact = getReportContact(report);
+              const identifiers = getReportIdentifiers(report);
+              const deleteKey = `${activeTab}-${reportId}`;
 
               return (
                 <div
-                  key={report.report_id}
+                  key={deleteKey}
                   className="rounded-4xl bg-white p-6 shadow-xl ring-1 ring-slate-200"
                 >
                   {imageUrl ? (
                     <img
                       src={imageUrl}
-                      alt={report.title}
+                      alt={title}
                       className="h-48 w-full rounded-3xl object-cover"
                     />
                   ) : (
@@ -289,11 +405,11 @@ function MyReports() {
                   <div className="mt-5 flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-lg font-bold text-slate-950">
-                        {report.title}
+                        {title}
                       </h3>
 
                       <p className="mt-1 text-sm text-slate-500">
-                        {report.category} • {report.district}
+                        {category} • {report.district || "No district"}
                       </p>
                     </div>
 
@@ -311,11 +427,20 @@ function MyReports() {
                   </p>
 
                   <div className="mt-4 space-y-1 text-sm text-slate-500">
+                    {report.nearest_town && (
+                      <p>
+                        <span className="font-semibold text-slate-700">
+                          Nearest Town:
+                        </span>{" "}
+                        {report.nearest_town}
+                      </p>
+                    )}
+
                     <p>
                       <span className="font-semibold text-slate-700">
                         Location:
                       </span>{" "}
-                      {report.location}
+                      {location}
                     </p>
 
                     <p>
@@ -336,15 +461,33 @@ function MyReports() {
                       <span className="font-semibold text-slate-700">
                         Contact:
                       </span>{" "}
-                      {report.contact_no}
+                      {contact}
                     </p>
 
-                    {report.unique_identifiers && (
+                    {activeTab === "missing_person" && report.age && (
+                      <p>
+                        <span className="font-semibold text-slate-700">
+                          Age:
+                        </span>{" "}
+                        {report.age}
+                      </p>
+                    )}
+
+                    {activeTab === "missing_person" && report.gender && (
+                      <p>
+                        <span className="font-semibold text-slate-700">
+                          Gender:
+                        </span>{" "}
+                        {report.gender}
+                      </p>
+                    )}
+
+                    {identifiers && (
                       <p>
                         <span className="font-semibold text-slate-700">
                           Identifiers:
                         </span>{" "}
-                        {report.unique_identifiers}
+                        {identifiers}
                       </p>
                     )}
                   </div>
@@ -365,8 +508,7 @@ function MyReports() {
                     <button
                       onClick={() => handleDelete(report)}
                       disabled={
-                        deletingId === report.report_id ||
-                        report.status === "matched"
+                        deletingKey === deleteKey || report.status === "matched"
                       }
                       className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
                         report.status === "matched"
@@ -374,7 +516,7 @@ function MyReports() {
                           : "bg-red-600 text-white hover:bg-red-700"
                       }`}
                     >
-                      {deletingId === report.report_id
+                      {deletingKey === deleteKey
                         ? "Deleting..."
                         : report.status === "matched"
                         ? "Cannot Delete"

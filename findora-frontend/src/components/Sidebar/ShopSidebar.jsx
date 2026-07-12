@@ -134,8 +134,8 @@ function ShopSidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/report-suspicious"
-            className={linkClass("/user-dashboard/report-suspicious")}
+            to="/shop-owner/report-suspicious"
+            className={linkClass("/shop-owner/report-suspicious")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path

@@ -5,34 +5,56 @@ import API_BASE_URL from "../../config/api";
 
 function ReportSuspiciousItem() {
   const navigate = useNavigate();
+
   const [details, setDetails] = useState("");
   const [location, setLocation] = useState("");
   const [contact, setContact] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const getCurrentUser = () => {
+    const storedUser = localStorage.getItem("findora_user");
+
+    if (!storedUser) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(storedUser);
+    } catch {
+      return null;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    if (!details || !location || !contact) {
+    if (!details.trim() || !location.trim() || !contact.trim()) {
       setError("Please complete all fields before submitting.");
+      return;
+    }
+
+    const user = getCurrentUser();
+
+    if (!user) {
+      setError("Please login before submitting a report.");
+      return;
+    }
+
+    if (user.role !== "shop_owner" && user.role !== "admin") {
+      setError("Only shop owners can submit suspicious item reports.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const user = JSON.parse(localStorage.getItem("findora_user"));
-
-      if (!user) {
-        setError("Please login before submitting a report.");
-        setLoading(false);
-        return;
-      }
+      console.log("API BASE URL:", API_BASE_URL);
+      console.log("Logged user:", user);
 
       const response = await fetch(
-        `${process.env.VITE_API_BASE_URL}/reports/add_suspicious_report.php`,
+        `${API_BASE_URL}/reports/add_suspicious_report.php`,
         {
           method: "POST",
           headers: {
@@ -40,15 +62,19 @@ function ReportSuspiciousItem() {
           },
           body: JSON.stringify({
             user_id: user.user_id,
-            description: details,
-            location: location,
-            contact_no: contact,
+            description: details.trim(),
+            location: location.trim(),
+            contact_no: contact.trim(),
           }),
         }
       );
 
       const text = await response.text();
       console.log("Raw suspicious report response:", text);
+
+      if (!text) {
+        throw new Error("Server returned an empty response.");
+      }
 
       let data;
 
@@ -61,20 +87,20 @@ function ReportSuspiciousItem() {
       console.log("Suspicious report response:", data);
 
       if (data.status === "success") {
-        alert("Suspicious item report submitted successfully!");
-        navigate("/user-dashboard/my-reports");
+        alert("Suspicious item report submitted successfully. It is pending admin approval.");
+        navigate("/shop-owner");
       } else {
         setError(
           data.error
             ? `${data.message}: ${data.error}`
             : data.message || "Failed to submit report."
         );
-        console.log("Missing fields:", data.missing_fields);
       }
     } catch (err) {
       console.error("Report submission error:", err);
       setError(
-        err.message || "Backend connection failed. Please check Apache and MySQL."
+        err.message ||
+          "Backend connection failed. Please check add_suspicious_report.php."
       );
     } finally {
       setLoading(false);
@@ -82,20 +108,35 @@ function ReportSuspiciousItem() {
   };
 
   return (
-    <shopLayout>
+    <ShopLayout>
       <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
         <div className="rounded-[2rem] bg-slate-950/95 p-8 text-white shadow-2xl shadow-slate-900/40">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-sky-300/80">Findora Alert</p>
-              <h1 className="mt-4 text-4xl font-semibold">Report Suspicious Item</h1>
-              <p className="mt-3 max-w-2xl text-sm text-slate-300">Notify the team about suspicious items or behavior so we can investigate and protect the community.</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-sky-300/80">
+                Findora Alert
+              </p>
+
+              <h1 className="mt-4 text-4xl font-semibold">
+                Report Suspicious Item
+              </h1>
+
+              <p className="mt-3 max-w-2xl text-sm text-slate-300">
+                Notify the admin team about suspicious items received by your shop.
+              </p>
             </div>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="rounded-[2rem] bg-slate-950/95 p-8 shadow-2xl shadow-slate-900/40">
-          {error && <div className="mb-6 rounded-3xl bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</div>}
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-[2rem] bg-slate-950/95 p-8 shadow-2xl shadow-slate-900/40"
+        >
+          {error && (
+            <div className="mb-6 rounded-3xl bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {error}
+            </div>
+          )}
 
           <div className="grid gap-6">
             <label className="grid gap-2 text-sm text-slate-300">
@@ -105,7 +146,7 @@ function ReportSuspiciousItem() {
                 onChange={(e) => setDetails(e.target.value)}
                 rows={5}
                 className="rounded-[1.5rem] border border-slate-800 bg-slate-900/95 p-4 text-sm text-white outline-none focus:border-sky-500"
-                placeholder="Describe the suspicious item, location, or activity."
+                placeholder="Describe the item, device condition, IMEI/serial if available, or suspicious behavior."
               />
             </label>
 
@@ -116,7 +157,7 @@ function ReportSuspiciousItem() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 className="rounded-[1.5rem] border border-slate-800 bg-slate-900/95 p-4 text-sm text-white outline-none focus:border-sky-500"
-                placeholder="Where did you notice it?"
+                placeholder="Example: Your shop location or where you noticed it"
               />
             </label>
 
@@ -127,7 +168,7 @@ function ReportSuspiciousItem() {
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
                 className="rounded-[1.5rem] border border-slate-800 bg-slate-900/95 p-4 text-sm text-white outline-none focus:border-sky-500"
-                placeholder="Email or phone so we can follow up"
+                placeholder="Phone number or email"
               />
             </label>
 
@@ -141,7 +182,7 @@ function ReportSuspiciousItem() {
           </div>
         </form>
       </div>
-    </shopLayout>
+    </ShopLayout>
   );
 }
 
