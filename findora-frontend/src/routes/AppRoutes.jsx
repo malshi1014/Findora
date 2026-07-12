@@ -30,6 +30,7 @@ import AdminMatches from "../pages/admin/AdminMatches";
 import ManageUsers from "../pages/admin/ManageUsers";
 import ManageLostReports from "../pages/admin/ManageLostReports";
 import ManageFoundReports from "../pages/admin/ManageFoundReports";
+import ManageSuspiciousReports from "../pages/admin/ManageSuspiciousReports";
 import ManageMissingPeople from "../pages/admin/ManageMissingPeople";
 import ManageMissingPets from "../pages/admin/ManageMissingPets";
 import ManageDonations from "../pages/admin/ManageDonations";
@@ -110,6 +111,7 @@ function AppRoutes() {
         <Route path="/admin/users" element={<ManageUsers />} />
         <Route path="/admin/lost-reports" element={<ManageLostReports />} />
         <Route path="/admin/found-reports" element={<ManageFoundReports />} />
+        <Route path="/admin/suspicious-reports" element={<ManageSuspiciousReports />} />
         <Route path="/admin/missing-people" element={<ManageMissingPeople />} />
         <Route path="/admin/missing-pets" element={<ManageMissingPets />} />
         <Route path="/admin/donations" element={<ManageDonations />} />

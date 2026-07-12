@@ -165,13 +165,6 @@ function AdminDashboard() {
                 a single dashboard.
               </p>
             </div>
-
-            <div className="rounded-3xl bg-slate-900/80 px-6 py-4 text-sm text-slate-300 shadow-xl shadow-slate-900/20">
-              <p className="font-semibold text-slate-100">June 29, 2026</p>
-              <p className="mt-1 text-slate-500">
-                Live analytics updated from Findora database
-              </p>
-            </div>
           </div>
         </section>
 

@@ -59,6 +59,7 @@ function Navbar({ hideAuth = false }) {
           <Link to="/about" className={navClass("/about")}>
             About Us
           </Link>
+          
 
           <Link to="/contact" className={navClass("/contact")}>
             Contact Us
