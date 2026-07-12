@@ -51,9 +51,6 @@ function Settings() {
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-slate-900">Profile Settings</h3>
                   <p className="mt-1 text-sm text-slate-500">Update your profile information</p>
-                  <button className="mt-3 rounded-full bg-blue-600/10 px-4 py-2 text-sm font-semibold text-blue-600 hover:bg-blue-600/20 transition">
-                    Update Photo
-                  </button>
                 </div>
               </div>
 
@@ -147,6 +144,27 @@ function Settings() {
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors shrink-0 ${emailNotifs ? 'bg-blue-600' : 'bg-white/40 border border-white/40'}`}>
                       <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${emailNotifs ? 'translate-x-5' : 'translate-x-0.5'}`} />
                     </button>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-white/30 space-y-6">
+                  <h3 className="text-lg font-semibold text-slate-900">Delete Account</h3>
+                  <div className="rounded-2xl border border-red-200/60 bg-red-50/40 backdrop-blur px-5 py-4">
+                    <div className="flex items-start gap-4">
+                      <div className="mt-0.5 h-5 w-5 shrink-0 text-red-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-red-800">Danger Zone</p>
+                        <p className="text-xs text-red-600 mt-0.5">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                      </div>
+                      <button type="button" onClick={() => { if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) { console.log('delete account'); } }}
+                        className="shrink-0 rounded-full bg-red-500/10 px-5 py-2 text-sm font-semibold text-red-600 hover:bg-red-500/20 transition">
+                        Delete Account
+                      </button>
+                    </div>
                   </div>
                 </div>
 
