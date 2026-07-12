@@ -134,16 +134,16 @@ function ReportMissingPet() {
                       <input type="date" value={lastSeenDate} onChange={(e) => setLastSeenDate(e.target.value)}
                         className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
                     </label>
-                    <label className="block">
+                    <div className="block">
                       <span className="text-sm font-semibold text-slate-700">Time Range</span>
-                      <input type="text" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)} placeholder="From"
-                        className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm font-semibold text-slate-700">&nbsp;</span>
-                      <input type="text" value={timeTo} onChange={(e) => setTimeTo(e.target.value)} placeholder="To"
-                        className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-                    </label>
+                      <div className="mt-3 flex items-center gap-2">
+                        <input type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)}
+                          className="flex-1 rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                        <span className="text-sm font-semibold text-slate-400">—</span>
+                        <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)}
+                          className="flex-1 rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                      </div>
+                    </div>
                   </div>
 
                   <label className="block">

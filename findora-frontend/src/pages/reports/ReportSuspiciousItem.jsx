@@ -87,17 +87,15 @@ function ReportSuspiciousItem() {
                         className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
                     </label>
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <label className="block">
-                        <span className="text-sm font-semibold text-slate-700">Found Time From</span>
+                    <div className="block">
+                      <span className="text-sm font-semibold text-slate-700">Found Time Range</span>
+                      <div className="mt-3 flex items-center gap-2">
                         <input type="time" value={timeFrom} onChange={(e) => setTimeFrom(e.target.value)}
-                          className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-                      </label>
-                      <label className="block">
-                        <span className="text-sm font-semibold text-slate-700">Found Time To</span>
+                          className="flex-1 rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                        <span className="text-sm font-semibold text-slate-400">—</span>
                         <input type="time" value={timeTo} onChange={(e) => setTimeTo(e.target.value)}
-                          className="mt-3 w-full rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
-                      </label>
+                          className="flex-1 rounded-3xl border border-white/40 bg-white/40 backdrop-blur px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                      </div>
                     </div>
                   </div>
 
