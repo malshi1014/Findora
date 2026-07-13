@@ -1,13 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
+import { logout } from "../../services/session";
 
 function Sidebar() {
   const { pathname } = useLocation();
 
-  const handleLogout = () => {
-    localStorage.removeItem("findora_user");
-    localStorage.removeItem("auth_token");
-    window.location.href = "/login";
-  };
+  const handleLogout = () => logout("/login");
 
   const isActive = (path, exact = false, extraPaths = []) => {
     if (extraPaths.some((item) => pathname.startsWith(item))) {

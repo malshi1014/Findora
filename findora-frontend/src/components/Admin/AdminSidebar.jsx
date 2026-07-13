@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { logout } from "../../services/session";
 
 const navItems = [
   { to: "/admin", label: "Dashboard" },
@@ -58,10 +59,7 @@ function AdminSidebar() {
 
           <button
             type="button"
-            onClick={() => {
-              localStorage.removeItem("auth_token");
-              window.location.href = "/";
-            }}
+            onClick={() => logout("/login")}
             className="w-full rounded-3xl bg-red-600 px-4 py-3 text-sm font-medium text-white hover:bg-red-700"
           >
             Logout

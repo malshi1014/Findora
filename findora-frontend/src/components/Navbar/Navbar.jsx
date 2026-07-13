@@ -1,10 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
+import { logout } from "../../services/session";
 
 function Navbar({ hideAuth = false }) {
   const { pathname } = useLocation();
 
   const storedUser = localStorage.getItem("findora_user");
-  const authToken = localStorage.getItem("auth_token");
 
   let user;
 
@@ -14,7 +14,7 @@ function Navbar({ hideAuth = false }) {
     user = null;
   }
 
-  const isLoggedIn = !!user || !!authToken;
+  const isLoggedIn = !!user;
 
   // Resolve dashboard path based on role. Accept both 'shop' and 'shop_owner' as shop owners.
   const dashboardPath = user?.role === "admin"
@@ -30,11 +30,7 @@ function Navbar({ hideAuth = false }) {
         : "text-slate-600 hover:text-blue-700"
     }`;
 
-  const handleLogout = () => {
-    localStorage.removeItem("findora_user");
-    localStorage.removeItem("auth_token");
-    window.location.href = "/login";
-  };
+  const handleLogout = () => logout("/login");
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/90 shadow-sm backdrop-blur">

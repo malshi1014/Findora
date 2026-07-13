@@ -17,6 +17,7 @@ import Settings from "../pages/dashboard/Settings";
 import Donation from "../pages/dashboard/Donation";
 import Reward from "../pages/dashboard/Reward";
 import EditReport from "../pages/dashboard/EditReport";
+import Matches from "../pages/dashboard/Matches";
 
 import ReportLostItem from "../pages/reports/ReportLostItem";
 import ReportFoundItem from "../pages/reports/ReportFoundItem";
@@ -64,6 +65,7 @@ function AppRoutes() {
         <Route path="/user-dashboard/settings" element={<Settings />} />
         <Route path="/user-dashboard/donation" element={<Donation />} />
         <Route path="/user-dashboard/reward" element={<Reward />} />
+        <Route path="/user-dashboard/matches" element={<Matches />} />
 
         {/* Normal User Report Pages */}
         <Route path="/user-dashboard/report-lost" element={<ReportLostItem />} />
@@ -77,6 +79,7 @@ function AppRoutes() {
         <Route path="/shop-owner/settings" element={<Settings />} />
         <Route path="/shop-owner/donation" element={<Donation />} />
         <Route path="/shop-owner/reward" element={<Reward />} />
+        <Route path="/shop-owner/matches" element={<Matches />} />
         <Route path="/shop-owner/report-lost" element={<ReportLostItem />} />
         <Route path="/shop-owner/report-found" element={<ReportFoundItem />} />
         <Route path="/shop-owner/report-person" element={<ReportMissingPerson />} />

@@ -1,13 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
+import { logout } from "../../services/session";
 
 function ShopSidebar() {
   const { pathname } = useLocation();
 
-  const handleLogout = () => {
-    localStorage.removeItem("findora_user");
-    localStorage.removeItem("auth_token");
-    window.location.href = "/login";
-  };
+  const handleLogout = () => logout("/login");
 
   const isActive = (path, exact = false, extraPaths = []) => {
     if (extraPaths.some((item) => pathname.startsWith(item))) {
@@ -261,8 +258,8 @@ function ShopSidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/matches"
-            className={linkClass("/user-dashboard/matches")}
+            to="/shop-owner/matches"
+            className={linkClass("/shop-owner/matches")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path

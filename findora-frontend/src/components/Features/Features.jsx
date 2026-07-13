@@ -5,7 +5,7 @@
     icon: "📝",
   },
   {
-    title: "AI-Powered Search",
+    title: "Smart Search",
     description: "Smart matching helps find relevant recovery leads fast.",
     icon: "🧠",
   },

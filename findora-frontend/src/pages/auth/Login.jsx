@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
+import { storeAuthenticatedSession } from "../../services/session";
 import logo from "../../assets/logo/12953560_Data_security_01.svg";
 
 function Login() {
@@ -59,16 +60,8 @@ function Login() {
       console.log("Login response:", data);
 
       if (data.status === "success") {
-  localStorage.setItem("findora_user", JSON.stringify(data.user));
-  localStorage.setItem("auth_token", "logged_in");
-
-  if (data.user.role === "admin") {
-    navigate("/admin");
-  } else if (data.user.role === "shop_owner") {
-    navigate("/");
-  } else {
-    navigate("/");
-  }
+  storeAuthenticatedSession(data);
+  navigate(data.redirect_url || "/user-dashboard");
 } else {
   setError(data.message || "Login failed.");
 } 
