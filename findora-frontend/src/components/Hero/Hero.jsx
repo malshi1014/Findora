@@ -4,7 +4,7 @@ function Hero() {
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-100 via-blue-600 to-blue-100 px-6 py-16">
       
-      {/* Animated background circles */}
+      
      
       
       {/* Main content */}

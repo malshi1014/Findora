@@ -3,10 +3,12 @@ import AppRoutes from "./routes/AppRoutes";
 
 function App() {
   return <AppRoutes />;
- // return <Home />;
+  // return <Home />;
 }
 
 export default App;
+
+
 
 
 

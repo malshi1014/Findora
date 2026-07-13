@@ -1,0 +1,15 @@
+# React / Vite
+findora-frontend/node_modules/
+findora-frontend/dist/
+findora-frontend/.env
+findora-frontend/.vite/
+
+# Backend sensitive files
+findora-backend/config/db.php
+
+# Uploaded user images
+findora-backend/uploads/
+
+# System files
+.DS_Store
+Thumbs.db
