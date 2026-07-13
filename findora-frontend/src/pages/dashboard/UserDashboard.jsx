@@ -351,49 +351,7 @@ useEffect(() => {
               </div>
             </div>
 
-            <aside className="w-full max-w-sm space-y-4">
-              <div className="rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-lg p-6">
-                <h4 className="text-sm font-semibold text-slate-900">
-                  Profile Strength
-                </h4>
-                <p className="mt-2 text-2xl font-bold text-blue-600">85%</p>
-                <p className="mt-3 text-sm text-slate-700">
-                  Complete your identity verification to increase your trust score among the Findora community.
-                </p>
-                <button className="mt-4 bg-blue-600/90 text-white px-5 py-2 rounded-full shadow-md hover:bg-blue-700">
-                  Verify Identity Now
-                </button>
-              </div>
-
-              <div className="rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-lg p-6">
-                <h4 className="text-sm font-semibold text-slate-900">
-                  Quick Actions
-                </h4>
-
-                <div className="mt-4 space-y-3">
-                  <Link
-                    to="/user-dashboard/report-lost"
-                    className="block rounded-full bg-blue-600 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700"
-                  >
-                    Report Lost Item
-                  </Link>
-
-                  <Link
-                    to="/user-dashboard/report-found"
-                    className="block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-blue-700 shadow hover:bg-blue-50"
-                  >
-                    Report Found Item
-                  </Link>
-
-                  <Link
-                    to="/user-dashboard/notifications"
-                    className="block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-slate-700 shadow hover:bg-slate-50"
-                  >
-                    View Notifications
-                  </Link>
-                </div>
-              </div>
-            </aside>
+            
           </div>
         </div>
       </div>

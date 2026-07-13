@@ -18,6 +18,7 @@ const helpItems = [
     description: "Submit reports about suspicious items you've encountered.",
     icon: "⚠️",
     link: "/report-suspicious",
+    allowedRoles: ["shop_owner", "admin"],
   },
   {
     title: "Missing Persons",
@@ -36,20 +37,44 @@ const helpItems = [
 function HelpSection() {
   const navigate = useNavigate();
 
-  const isLoggedIn = () => {
-    const user = localStorage.getItem("findora_user");
-    const token = localStorage.getItem("auth_token");
-
-    return !!user || !!token;
+  const getCurrentUser = () => {
+    try {
+      const storedUser = localStorage.getItem("findora_user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
   };
 
-  const handleCardClick = (link) => {
-    if (!isLoggedIn()) {
-      alert("Please login first to submit a report.");
+  const handleCardClick = (item) => {
+    const user = getCurrentUser();
+
+    if (!user) {
+      navigate("/login", {
+        state: {
+          from: item.link,
+          requiredRole: item.allowedRoles ? "shop_owner" : null,
+          message: item.allowedRoles
+            ? "Please sign in with shop owner credentials to report a suspicious item."
+            : "Please sign in to continue to the report form.",
+        },
+      });
       return;
     }
 
-    navigate(link);
+    if (item.allowedRoles && !item.allowedRoles.includes(user.role)) {
+      navigate("/login", {
+        state: {
+          from: item.link,
+          requiredRole: "shop_owner",
+          message:
+            "Suspicious item reports are restricted to shop owners. Please sign in with shop owner credentials.",
+        },
+      });
+      return;
+    }
+
+    navigate(item.link);
   };
 
   return (
@@ -75,7 +100,7 @@ function HelpSection() {
     <button
       key={item.title}
       type="button"
-      onClick={() => handleCardClick(item.link)}
+      onClick={() => handleCardClick(item)}
       className="flex h-full min-h-[260px] flex-col items-center rounded-4xl bg-blue-100 p-6 text-center shadow-xl ring-1 ring-slate-200 transition hover:-translate-y-1 hover:shadow-2xl"
     >
       <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-4xl">

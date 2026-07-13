@@ -1,12 +1,16 @@
 // src/pages/auth/Login.jsx
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import { storeAuthenticatedSession } from "../../services/session";
 import logo from "../../assets/logo/12953560_Data_security_01.svg";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const requestedPath = location.state?.from;
+  const requiredRole = location.state?.requiredRole;
+  const loginMessage = location.state?.message;
 
   const [nic, setNic] = useState("");
   const [password, setPassword] = useState("");
@@ -61,7 +65,20 @@ function Login() {
 
       if (data.status === "success") {
   storeAuthenticatedSession(data);
-  navigate(data.redirect_url || "/user-dashboard");
+
+  const hasRequiredRole =
+    !requiredRole ||
+    data.user.role === requiredRole ||
+    (requiredRole === "shop_owner" && data.user.role === "admin");
+
+  if (!hasRequiredRole) {
+    setError("This report requires shop owner credentials. Please sign in with a shop owner account.");
+    return;
+  }
+
+  navigate(requestedPath || data.redirect_url || "/user-dashboard", {
+    replace: true,
+  });
 } else {
   setError(data.message || "Login failed.");
 } 
@@ -116,6 +133,12 @@ function Login() {
             <p className="mt-2 text-sm text-slate-600">
               Please enter your details to sign in.
             </p>
+
+            {loginMessage && (
+              <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700">
+                {loginMessage}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               {error && (

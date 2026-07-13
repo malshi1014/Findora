@@ -1,6 +1,50 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Footer() {
+  const navigate = useNavigate();
+
+  const getCurrentUser = () => {
+    try {
+      const storedUser = localStorage.getItem("findora_user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleReportClick = (link, allowedRoles = null) => {
+    const user = getCurrentUser();
+
+    if (!user) {
+      navigate("/login", {
+        state: {
+          from: link,
+          requiredRole: allowedRoles ? "shop_owner" : null,
+          message: allowedRoles
+            ? "Please sign in with shop owner credentials to report a suspicious item."
+            : "Please sign in to continue to the report form.",
+        },
+      });
+      return;
+    }
+
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+      navigate("/login", {
+        state: {
+          from: link,
+          requiredRole: "shop_owner",
+          message:
+            "Suspicious item reports are restricted to shop owners. Please sign in with shop owner credentials.",
+        },
+      });
+      return;
+    }
+
+    navigate(link);
+  };
+
+  const reportLinkClass = "hover:text-blue-400 transition";
+
   return (
     <footer className="bg-gray-900 text-white py-10">
       <div className="max-w-7xl mx-auto px-6 grid gap-8 md:grid-cols-3">
@@ -26,29 +70,54 @@ function Footer() {
           <ul className="space-y-2 text-gray-400">
           
             <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
+              <button
+                type="button"
+                onClick={() => handleReportClick("/report-lost")}
+                className={reportLinkClass}
+              >
                 Report Lost Item
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
+              <button
+                type="button"
+                onClick={() => handleReportClick("/report-found")}
+                className={reportLinkClass}
+              >
                 Report Found Item
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
-                Report Found Item
-              </Link>
+              <button
+                type="button"
+                onClick={() =>
+                  handleReportClick("/report-suspicious", [
+                    "shop_owner",
+                    "admin",
+                  ])
+                }
+                className={reportLinkClass}
+              >
+                Report Suspicious Item
+              </button>
             </li>
             <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
+              <button
+                type="button"
+                onClick={() => handleReportClick("/report-pet")}
+                className={reportLinkClass}
+              >
                 Report Missing Pet
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
+              <button
+                type="button"
+                onClick={() => handleReportClick("/report-person")}
+                className={reportLinkClass}
+              >
                 Report Missing Person
-              </Link>
+              </button>
             </li>
           </ul>
         </div>

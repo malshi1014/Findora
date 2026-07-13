@@ -27,10 +27,14 @@ function Sidebar() {
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white/90 px-4 py-6 shadow-sm backdrop-blur">
-      <Link to="/user-dashboard" className="mb-8 flex items-center gap-3 px-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 font-bold text-white shadow-md">
-          F
-        </div>
+      <Link to="/" className="mb-8 flex items-center gap-3 px-3">
+        <div className="w-10 h-10 flex items-center justify-center">
+              <img
+                  src="/favicon.png"
+                  alt="Findora Logo"
+                  className="h-full w-full rounded-full object-cover"
+                />
+            </div>
 
         <div>
           <h1 className="text-2xl font-bold text-blue-700">Findora</h1>

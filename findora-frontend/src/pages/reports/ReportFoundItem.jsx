@@ -212,9 +212,13 @@ function ReportFoundItem() {
             </div>
 
             <div className="flex items-center gap-3 rounded-full bg-white px-4 py-3 shadow-sm shadow-slate-200">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white text-lg font-bold">
-                F
-              </div>
+              <div className="w-10 h-10 flex items-center justify-center">
+              <img
+                  src="/favicon.png"
+                  alt="Findora Logo"
+                  className="h-full w-full rounded-full object-cover"
+                />
+            </div>
 
               <div>
                 <p className="text-sm font-semibold text-slate-950">Findora</p>
