@@ -3,8 +3,10 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 28, 2026 at 03:35 PM
--- Server version: 10.4.32-MariaDB
+-- Structure-only database schema for the Findora project
+-- Generated from the final development database on July 13, 2026
+-- Contains no table records or INSERT statements
+-- Server version: 8.0.43
 -- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -21,6 +23,11 @@ SET time_zone = "+00:00";
 -- Database: `findora_db`
 --
 
+CREATE DATABASE IF NOT EXISTS `findora_db`
+  DEFAULT CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+USE `findora_db`;
+
 -- --------------------------------------------------------
 
 --
@@ -28,43 +35,28 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `admin_log` (
-  `log_id` int(11) NOT NULL,
-  `admin_id` int(11) NOT NULL,
-  `action` varchar(255) NOT NULL,
-  `target_type` varchar(100) NOT NULL,
-  `target_id` int(11) NOT NULL,
-  `action_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `log_id` int NOT NULL,
+  `admin_id` int NOT NULL,
+  `action` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `target_type` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `target_id` int DEFAULT NULL,
+  `action_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `area_notification`
+-- Table structure for table `complaint`
 --
 
-CREATE TABLE `area_notification` (
-  `notification_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `post_id` int(11) NOT NULL,
-  `title` varchar(150) NOT NULL,
-  `message` text NOT NULL,
-  `is_read` tinyint(1) DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `comment`
---
-
-CREATE TABLE `comment` (
-  `comment_id` int(11) NOT NULL,
-  `post_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `comment_text` text NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `complaint` (
+  `complaint_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('pending','reviewing','resolved','rejected') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -73,11 +65,12 @@ CREATE TABLE `comment` (
 --
 
 CREATE TABLE `donation` (
-  `donation_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `donation_id` int NOT NULL,
+  `user_id` int NOT NULL,
   `amount` decimal(10,2) NOT NULL,
-  `donation_date` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `donation_date` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -86,20 +79,21 @@ CREATE TABLE `donation` (
 --
 
 CREATE TABLE `found_report` (
-  `report_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `category` enum('MOBILE','LAPTOP','WALLET','BAG','DOCUMENT','JEWELLERY','KEY','VEHICLE','PET','PERSON','OTHER') NOT NULL,
-  `title` varchar(150) NOT NULL,
-  `description` text NOT NULL,
-  `district` varchar(100) NOT NULL,
-  `nearest_town` varchar(100) NOT NULL,
-  `found_date` date NOT NULL,
-  `found_time` time DEFAULT NULL,
-  `unique_identifiers` text DEFAULT NULL,
-  `mobile` varchar(20) DEFAULT NULL,
-  `status` enum('PENDING','MATCHED','RETURNED','CLOSED') DEFAULT 'PENDING',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `report_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `category` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `found_date` date DEFAULT NULL,
+  `found_time` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `unique_identifiers` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_no` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('pending','active','matched','returned','rejected') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
@@ -108,11 +102,12 @@ CREATE TABLE `found_report` (
 --
 
 CREATE TABLE `found_report_image` (
-  `image_id` int(11) NOT NULL,
-  `report_id` int(11) NOT NULL,
-  `image_path` varchar(255) NOT NULL,
-  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `image_id` int NOT NULL,
+  `report_id` int NOT NULL,
+  `image_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
@@ -121,20 +116,21 @@ CREATE TABLE `found_report_image` (
 --
 
 CREATE TABLE `lost_report` (
-  `report_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `category` enum('MOBILE','LAPTOP','WALLET','BAG','DOCUMENT','JEWELLERY','KEY','VEHICLE','PET','PERSON','OTHER') NOT NULL,
-  `title` varchar(150) NOT NULL,
-  `description` text NOT NULL,
-  `district` varchar(100) NOT NULL,
-  `nearest_town` varchar(100) NOT NULL,
-  `lost_date` date NOT NULL,
-  `lost_time` time DEFAULT NULL,
-  `unique_identifiers` text DEFAULT NULL,
-  `mobile` varchar(20) DEFAULT NULL,
-  `status` enum('PENDING','MATCHED','FOUND','CLOSED') DEFAULT 'PENDING',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `report_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `category` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lost_date` date DEFAULT NULL,
+  `lost_time` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `unique_identifiers` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_no` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('pending','active','matched','recovered','rejected') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
@@ -143,11 +139,30 @@ CREATE TABLE `lost_report` (
 --
 
 CREATE TABLE `lost_report_image` (
-  `image_id` int(11) NOT NULL,
-  `report_id` int(11) NOT NULL,
-  `image_path` varchar(255) NOT NULL,
-  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `image_id` int NOT NULL,
+  `report_id` int NOT NULL,
+  `image_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `matches`
+--
+
+CREATE TABLE `matches` (
+  `match_id` int NOT NULL,
+  `lost_report_id` int NOT NULL,
+  `found_report_id` int DEFAULT NULL,
+  `similarity_score` decimal(5,2) NOT NULL,
+  `status` enum('pending','verified','rejected','completed') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `admin_id` int DEFAULT NULL,
+  `matched_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `verified_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
@@ -156,78 +171,151 @@ CREATE TABLE `lost_report_image` (
 --
 
 CREATE TABLE `match_notification` (
-  `notification_id` int(11) NOT NULL,
-  `match_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `notification_type` enum('EMAIL','DASHBOARD') NOT NULL,
-  `message` text NOT NULL,
-  `is_read` tinyint(1) DEFAULT 0,
-  `sent_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `notification_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `match_id` int DEFAULT NULL,
+  `message` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `type` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sent_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `is_read` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `match_record`
+-- Table structure for table `missing_person_comment`
 --
 
-CREATE TABLE `match_record` (
-  `match_id` int(11) NOT NULL,
-  `lost_report_id` int(11) NOT NULL,
-  `found_report_id` int(11) NOT NULL,
-  `admin_id` int(11) NOT NULL,
-  `similarity_score` decimal(5,2) NOT NULL,
-  `status` enum('PENDING','VERIFIED','REJECTED','ACCEPTED','COMPLETED') DEFAULT 'PENDING',
-  `matched_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `verified_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `missing_person_comment` (
+  `comment_id` int NOT NULL,
+  `person_post_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `comment_text` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `public_post`
+-- Table structure for table `missing_person_post`
 --
 
-CREATE TABLE `public_post` (
-  `post_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `post_type` enum('MISSING_PERSON','MISSING_PET') NOT NULL,
-  `title` varchar(150) NOT NULL,
-  `description` text NOT NULL,
-  `district` varchar(100) NOT NULL,
-  `nearest_town` varchar(100) NOT NULL,
-  `incident_date` date NOT NULL,
-  `contact_number` varchar(20) NOT NULL,
-  `status` enum('ACTIVE','FOUND','CLOSED') DEFAULT 'ACTIVE',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `missing_person_post` (
+  `person_post_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `full_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `age` int DEFAULT NULL,
+  `gender` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `distinguishing_marks` text COLLATE utf8mb4_unicode_ci,
+  `missing_date` date NOT NULL,
+  `missing_time` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nearest_town` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_seen_location` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guardian_contact_no` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('pending','active','rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `public_report_image`
+-- Table structure for table `missing_person_post_image`
 --
 
-CREATE TABLE `public_report_image` (
-  `image_id` int(11) NOT NULL,
-  `post_id` int(11) NOT NULL,
-  `image_path` varchar(255) NOT NULL,
-  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `missing_person_post_image` (
+  `image_id` int NOT NULL,
+  `person_post_id` int NOT NULL,
+  `image_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `reaction`
+-- Table structure for table `missing_person_reaction`
 --
 
-CREATE TABLE `reaction` (
-  `reaction_id` int(11) NOT NULL,
-  `post_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `reaction_type` enum('LIKE','HELPFUL') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `missing_person_reaction` (
+  `reaction_id` int NOT NULL,
+  `person_post_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `reaction_type` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'like',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `missing_pet_comment`
+--
+
+CREATE TABLE `missing_pet_comment` (
+  `comment_id` int NOT NULL,
+  `pet_post_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `comment_text` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `missing_pet_post`
+--
+
+CREATE TABLE `missing_pet_post` (
+  `pet_post_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `pet_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `pet_category` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `unique_identifiers` text COLLATE utf8mb4_unicode_ci,
+  `lost_date` date NOT NULL,
+  `lost_time` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nearest_town` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `last_seen_location` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `guardian_contact_no` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `status` enum('pending','active','rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `missing_pet_post_image`
+--
+
+CREATE TABLE `missing_pet_post_image` (
+  `image_id` int NOT NULL,
+  `pet_post_id` int NOT NULL,
+  `image_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `missing_pet_reaction`
+--
+
+CREATE TABLE `missing_pet_reaction` (
+  `reaction_id` int NOT NULL,
+  `pet_post_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `reaction_type` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'like',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -236,12 +324,15 @@ CREATE TABLE `reaction` (
 --
 
 CREATE TABLE `reward` (
-  `reward_id` int(11) NOT NULL,
-  `match_id` int(11) NOT NULL,
-  `reward_amount` decimal(10,2) DEFAULT NULL,
-  `reward_description` text DEFAULT NULL,
-  `reward_status` enum('PENDING','PAID','NOT_APPLICABLE') DEFAULT 'PENDING'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `reward_id` int NOT NULL,
+  `match_id` int NOT NULL,
+  `owner_id` int NOT NULL,
+  `finder_id` int NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `status` enum('pending','paid','cancelled') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `transaction_ref` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `paid_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -250,16 +341,17 @@ CREATE TABLE `reward` (
 --
 
 CREATE TABLE `shop_owner` (
-  `profile_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `shop_name` varchar(150) NOT NULL,
-  `shop_address` text NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `mobile` varchar(20) NOT NULL,
-  `district` varchar(100) NOT NULL,
-  `nearest_town` varchar(100) NOT NULL,
+  `profile_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `shop_name` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `shop_address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `mobile` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nearest_town` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `verified_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
@@ -268,36 +360,56 @@ CREATE TABLE `shop_owner` (
 --
 
 CREATE TABLE `suspicious_report` (
-  `suspicious_report_id` int(11) NOT NULL,
-  `shop_owner_id` int(11) NOT NULL,
-  `item_name` varchar(150) NOT NULL,
-  `description` text DEFAULT NULL,
-  `district` varchar(100) DEFAULT NULL,
-  `nearest_town` varchar(100) DEFAULT NULL,
-  `received_date` date DEFAULT NULL,
-  `status` enum('PENDING','UNDER_REVIEW','CLOSED') DEFAULT 'PENDING',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `report_id` int NOT NULL,
+  `user_id` int NOT NULL,
+  `category` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `title` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `location` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `found_date` date DEFAULT NULL,
+  `found_time` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `unique_identifiers` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `contact_no` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` enum('pending','active','rejected') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `user`
+-- Table structure for table `suspicious_report_image`
 --
 
-CREATE TABLE `user` (
-  `user_id` int(11) NOT NULL,
-  `first_name` varchar(100) NOT NULL,
-  `last_name` varchar(100) NOT NULL,
-  `nic` varchar(20) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `mobile` varchar(20) NOT NULL,
-  `password_hash` varchar(255) NOT NULL,
-  `district` varchar(100) NOT NULL,
-  `nearest_town` varchar(100) NOT NULL,
-  `role` enum('GENERAL_USER','ADMIN','SHOP_OWNER') NOT NULL DEFAULT 'GENERAL_USER',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE `suspicious_report_image` (
+  `image_id` int NOT NULL,
+  `report_id` int NOT NULL,
+  `image_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `uploaded_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `user_id` int NOT NULL,
+  `first_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_name` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nic` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `mobile` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nearest_town` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `role` enum('general_user','verified_user','shop_owner','admin') COLLATE utf8mb4_unicode_ci DEFAULT 'general_user',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 --
 -- Indexes for dumped tables
@@ -308,23 +420,14 @@ CREATE TABLE `user` (
 --
 ALTER TABLE `admin_log`
   ADD PRIMARY KEY (`log_id`),
-  ADD KEY `fk_adminlog_admin` (`admin_id`);
+  ADD KEY `fk_admin_log_admin` (`admin_id`);
 
 --
--- Indexes for table `area_notification`
+-- Indexes for table `complaint`
 --
-ALTER TABLE `area_notification`
-  ADD PRIMARY KEY (`notification_id`),
-  ADD KEY `fk_areanotification_post` (`post_id`),
-  ADD KEY `idx_area_notification_user` (`user_id`);
-
---
--- Indexes for table `comment`
---
-ALTER TABLE `comment`
-  ADD PRIMARY KEY (`comment_id`),
-  ADD KEY `fk_comment_user` (`user_id`),
-  ADD KEY `idx_comment_post` (`post_id`);
+ALTER TABLE `complaint`
+  ADD PRIMARY KEY (`complaint_id`),
+  ADD KEY `fk_complaint_user` (`user_id`);
 
 --
 -- Indexes for table `donation`
@@ -338,81 +441,119 @@ ALTER TABLE `donation`
 --
 ALTER TABLE `found_report`
   ADD PRIMARY KEY (`report_id`),
-  ADD KEY `fk_foundreport_user` (`user_id`),
+  ADD KEY `fk_found_report_user` (`user_id`),
   ADD KEY `idx_found_category` (`category`),
-  ADD KEY `idx_found_location` (`district`,`nearest_town`),
-  ADD KEY `idx_found_status` (`status`),
-  ADD KEY `idx_found_date` (`found_date`);
+  ADD KEY `idx_found_location` (`location`),
+  ADD KEY `idx_found_date` (`found_date`),
+  ADD KEY `idx_found_district` (`district`);
 
 --
 -- Indexes for table `found_report_image`
 --
 ALTER TABLE `found_report_image`
   ADD PRIMARY KEY (`image_id`),
-  ADD KEY `fk_foundimage_report` (`report_id`);
+  ADD KEY `fk_found_report_image_report` (`report_id`);
 
 --
 -- Indexes for table `lost_report`
 --
 ALTER TABLE `lost_report`
   ADD PRIMARY KEY (`report_id`),
-  ADD KEY `fk_lostreport_user` (`user_id`),
+  ADD KEY `fk_lost_report_user` (`user_id`),
   ADD KEY `idx_lost_category` (`category`),
-  ADD KEY `idx_lost_location` (`district`,`nearest_town`),
-  ADD KEY `idx_lost_status` (`status`),
-  ADD KEY `idx_lost_date` (`lost_date`);
+  ADD KEY `idx_lost_location` (`location`),
+  ADD KEY `idx_lost_date` (`lost_date`),
+  ADD KEY `idx_lost_district` (`district`);
 
 --
 -- Indexes for table `lost_report_image`
 --
 ALTER TABLE `lost_report_image`
   ADD PRIMARY KEY (`image_id`),
-  ADD KEY `fk_lostimage_report` (`report_id`);
+  ADD KEY `fk_lost_report_image_report` (`report_id`);
+
+--
+-- Indexes for table `matches`
+--
+ALTER TABLE `matches`
+  ADD PRIMARY KEY (`match_id`),
+  ADD KEY `fk_matches_lost` (`lost_report_id`),
+  ADD KEY `fk_matches_found` (`found_report_id`),
+  ADD KEY `fk_matches_admin` (`admin_id`);
 
 --
 -- Indexes for table `match_notification`
 --
 ALTER TABLE `match_notification`
   ADD PRIMARY KEY (`notification_id`),
-  ADD KEY `fk_notification_match` (`match_id`),
-  ADD KEY `fk_notification_user` (`user_id`);
+  ADD KEY `fk_match_notification_user` (`user_id`),
+  ADD KEY `fk_match_notification_match` (`match_id`);
 
 --
--- Indexes for table `match_record`
+-- Indexes for table `missing_person_comment`
 --
-ALTER TABLE `match_record`
-  ADD PRIMARY KEY (`match_id`),
-  ADD KEY `fk_match_lost` (`lost_report_id`),
-  ADD KEY `fk_match_found` (`found_report_id`),
-  ADD KEY `fk_match_admin` (`admin_id`),
-  ADD KEY `idx_match_score` (`similarity_score`),
-  ADD KEY `idx_match_status` (`status`);
+ALTER TABLE `missing_person_comment`
+  ADD PRIMARY KEY (`comment_id`),
+  ADD KEY `fk_missing_person_comment_post` (`person_post_id`),
+  ADD KEY `fk_missing_person_comment_user` (`user_id`);
 
 --
--- Indexes for table `public_post`
+-- Indexes for table `missing_person_post`
 --
-ALTER TABLE `public_post`
-  ADD PRIMARY KEY (`post_id`),
-  ADD KEY `fk_publicpost_user` (`user_id`),
-  ADD KEY `idx_public_post_type` (`post_type`),
-  ADD KEY `idx_public_post_location` (`district`,`nearest_town`),
-  ADD KEY `idx_public_post_status` (`status`),
-  ADD KEY `idx_public_post_date` (`incident_date`);
+ALTER TABLE `missing_person_post`
+  ADD PRIMARY KEY (`person_post_id`),
+  ADD KEY `fk_missing_person_user` (`user_id`),
+  ADD KEY `idx_person_status` (`status`),
+  ADD KEY `idx_person_location` (`district`,`nearest_town`),
+  ADD KEY `idx_person_missing_date` (`missing_date`);
 
 --
--- Indexes for table `public_report_image`
+-- Indexes for table `missing_person_post_image`
 --
-ALTER TABLE `public_report_image`
+ALTER TABLE `missing_person_post_image`
   ADD PRIMARY KEY (`image_id`),
-  ADD KEY `fk_publicimage_post` (`post_id`);
+  ADD KEY `fk_missing_person_image_post` (`person_post_id`);
 
 --
--- Indexes for table `reaction`
+-- Indexes for table `missing_person_reaction`
 --
-ALTER TABLE `reaction`
+ALTER TABLE `missing_person_reaction`
   ADD PRIMARY KEY (`reaction_id`),
-  ADD KEY `fk_reaction_user` (`user_id`),
-  ADD KEY `idx_reaction_post` (`post_id`);
+  ADD UNIQUE KEY `unique_person_user_reaction` (`person_post_id`,`user_id`),
+  ADD KEY `fk_missing_person_reaction_user` (`user_id`);
+
+--
+-- Indexes for table `missing_pet_comment`
+--
+ALTER TABLE `missing_pet_comment`
+  ADD PRIMARY KEY (`comment_id`),
+  ADD KEY `fk_missing_pet_comment_post` (`pet_post_id`),
+  ADD KEY `fk_missing_pet_comment_user` (`user_id`);
+
+--
+-- Indexes for table `missing_pet_post`
+--
+ALTER TABLE `missing_pet_post`
+  ADD PRIMARY KEY (`pet_post_id`),
+  ADD KEY `fk_missing_pet_user` (`user_id`),
+  ADD KEY `idx_pet_status` (`status`),
+  ADD KEY `idx_pet_location` (`district`,`nearest_town`),
+  ADD KEY `idx_pet_lost_date` (`lost_date`);
+
+--
+-- Indexes for table `missing_pet_post_image`
+--
+ALTER TABLE `missing_pet_post_image`
+  ADD PRIMARY KEY (`image_id`),
+  ADD KEY `fk_missing_pet_image_post` (`pet_post_id`);
+
+--
+-- Indexes for table `missing_pet_reaction`
+--
+ALTER TABLE `missing_pet_reaction`
+  ADD PRIMARY KEY (`reaction_id`),
+  ADD UNIQUE KEY `unique_pet_user_reaction` (`pet_post_id`,`user_id`),
+  ADD KEY `fk_missing_pet_reaction_user` (`user_id`);
 
 --
 -- Indexes for table `reward`
@@ -420,35 +561,39 @@ ALTER TABLE `reaction`
 ALTER TABLE `reward`
   ADD PRIMARY KEY (`reward_id`),
   ADD KEY `fk_reward_match` (`match_id`),
-  ADD KEY `idx_reward_status` (`reward_status`);
+  ADD KEY `fk_reward_owner` (`owner_id`),
+  ADD KEY `fk_reward_finder` (`finder_id`);
 
 --
 -- Indexes for table `shop_owner`
 --
 ALTER TABLE `shop_owner`
   ADD PRIMARY KEY (`profile_id`),
-  ADD UNIQUE KEY `user_id` (`user_id`),
-  ADD KEY `idx_shop_location` (`district`,`nearest_town`);
+  ADD KEY `fk_shop_owner_user` (`user_id`);
 
 --
 -- Indexes for table `suspicious_report`
 --
 ALTER TABLE `suspicious_report`
-  ADD PRIMARY KEY (`suspicious_report_id`),
-  ADD KEY `fk_suspicious_shopowner` (`shop_owner_id`),
-  ADD KEY `idx_suspicious_status` (`status`);
+  ADD PRIMARY KEY (`report_id`),
+  ADD KEY `fk_suspicious_report_user` (`user_id`),
+  ADD KEY `idx_suspicious_category` (`category`),
+  ADD KEY `idx_suspicious_district` (`district`);
 
 --
--- Indexes for table `user`
+-- Indexes for table `suspicious_report_image`
 --
-ALTER TABLE `user`
+ALTER TABLE `suspicious_report_image`
+  ADD PRIMARY KEY (`image_id`),
+  ADD KEY `fk_suspicious_report_image_report` (`report_id`);
+
+--
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `nic` (`nic`),
-  ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `idx_user_email` (`email`),
-  ADD KEY `idx_user_nic` (`nic`),
-  ADD KEY `idx_user_role` (`role`),
-  ADD KEY `idx_user_location` (`district`,`nearest_town`);
+  ADD UNIQUE KEY `email` (`email`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -458,103 +603,133 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `admin_log`
 --
 ALTER TABLE `admin_log`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `log_id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `area_notification`
+-- AUTO_INCREMENT for table `complaint`
 --
-ALTER TABLE `area_notification`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `comment`
---
-ALTER TABLE `comment`
-  MODIFY `comment_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `complaint`
+  MODIFY `complaint_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `donation`
 --
 ALTER TABLE `donation`
-  MODIFY `donation_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `donation_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `found_report`
 --
 ALTER TABLE `found_report`
-  MODIFY `report_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `report_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `found_report_image`
 --
 ALTER TABLE `found_report_image`
-  MODIFY `image_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `image_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `lost_report`
 --
 ALTER TABLE `lost_report`
-  MODIFY `report_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `report_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `lost_report_image`
 --
 ALTER TABLE `lost_report_image`
-  MODIFY `image_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `image_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `matches`
+--
+ALTER TABLE `matches`
+  MODIFY `match_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `match_notification`
 --
 ALTER TABLE `match_notification`
-  MODIFY `notification_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `notification_id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `match_record`
+-- AUTO_INCREMENT for table `missing_person_comment`
 --
-ALTER TABLE `match_record`
-  MODIFY `match_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `missing_person_comment`
+  MODIFY `comment_id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `public_post`
+-- AUTO_INCREMENT for table `missing_person_post`
 --
-ALTER TABLE `public_post`
-  MODIFY `post_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `missing_person_post`
+  MODIFY `person_post_id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `public_report_image`
+-- AUTO_INCREMENT for table `missing_person_post_image`
 --
-ALTER TABLE `public_report_image`
-  MODIFY `image_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `missing_person_post_image`
+  MODIFY `image_id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `reaction`
+-- AUTO_INCREMENT for table `missing_person_reaction`
 --
-ALTER TABLE `reaction`
-  MODIFY `reaction_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `missing_person_reaction`
+  MODIFY `reaction_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `missing_pet_comment`
+--
+ALTER TABLE `missing_pet_comment`
+  MODIFY `comment_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `missing_pet_post`
+--
+ALTER TABLE `missing_pet_post`
+  MODIFY `pet_post_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `missing_pet_post_image`
+--
+ALTER TABLE `missing_pet_post_image`
+  MODIFY `image_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `missing_pet_reaction`
+--
+ALTER TABLE `missing_pet_reaction`
+  MODIFY `reaction_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `reward`
 --
 ALTER TABLE `reward`
-  MODIFY `reward_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `reward_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `shop_owner`
 --
 ALTER TABLE `shop_owner`
-  MODIFY `profile_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `profile_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `suspicious_report`
 --
 ALTER TABLE `suspicious_report`
-  MODIFY `suspicious_report_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `report_id` int NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `user`
+-- AUTO_INCREMENT for table `suspicious_report_image`
 --
-ALTER TABLE `user`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `suspicious_report_image`
+  MODIFY `image_id` int NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `user_id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -564,103 +739,136 @@ ALTER TABLE `user`
 -- Constraints for table `admin_log`
 --
 ALTER TABLE `admin_log`
-  ADD CONSTRAINT `fk_adminlog_admin` FOREIGN KEY (`admin_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_admin_log_admin` FOREIGN KEY (`admin_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `area_notification`
+-- Constraints for table `complaint`
 --
-ALTER TABLE `area_notification`
-  ADD CONSTRAINT `fk_areanotification_post` FOREIGN KEY (`post_id`) REFERENCES `public_post` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_areanotification_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `comment`
---
-ALTER TABLE `comment`
-  ADD CONSTRAINT `fk_comment_post` FOREIGN KEY (`post_id`) REFERENCES `public_post` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `complaint`
+  ADD CONSTRAINT `fk_complaint_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `donation`
 --
 ALTER TABLE `donation`
-  ADD CONSTRAINT `fk_donation_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_donation_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `found_report`
 --
 ALTER TABLE `found_report`
-  ADD CONSTRAINT `fk_foundreport_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_found_report_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `found_report_image`
 --
 ALTER TABLE `found_report_image`
-  ADD CONSTRAINT `fk_foundimage_report` FOREIGN KEY (`report_id`) REFERENCES `found_report` (`report_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_found_report_image_report` FOREIGN KEY (`report_id`) REFERENCES `found_report` (`report_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `lost_report`
 --
 ALTER TABLE `lost_report`
-  ADD CONSTRAINT `fk_lostreport_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_lost_report_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `lost_report_image`
 --
 ALTER TABLE `lost_report_image`
-  ADD CONSTRAINT `fk_lostimage_report` FOREIGN KEY (`report_id`) REFERENCES `lost_report` (`report_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_lost_report_image_report` FOREIGN KEY (`report_id`) REFERENCES `lost_report` (`report_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `matches`
+--
+ALTER TABLE `matches`
+  ADD CONSTRAINT `fk_matches_admin` FOREIGN KEY (`admin_id`) REFERENCES `users` (`user_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_matches_found` FOREIGN KEY (`found_report_id`) REFERENCES `found_report` (`report_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_matches_lost` FOREIGN KEY (`lost_report_id`) REFERENCES `lost_report` (`report_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `match_notification`
 --
 ALTER TABLE `match_notification`
-  ADD CONSTRAINT `fk_notification_match` FOREIGN KEY (`match_id`) REFERENCES `match_record` (`match_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_notification_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_match_notification_match` FOREIGN KEY (`match_id`) REFERENCES `matches` (`match_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_match_notification_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Constraints for table `match_record`
+-- Constraints for table `missing_person_comment`
 --
-ALTER TABLE `match_record`
-  ADD CONSTRAINT `fk_match_admin` FOREIGN KEY (`admin_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_match_found` FOREIGN KEY (`found_report_id`) REFERENCES `found_report` (`report_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_match_lost` FOREIGN KEY (`lost_report_id`) REFERENCES `lost_report` (`report_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `missing_person_comment`
+  ADD CONSTRAINT `fk_missing_person_comment_post` FOREIGN KEY (`person_post_id`) REFERENCES `missing_person_post` (`person_post_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_missing_person_comment_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `public_post`
+-- Constraints for table `missing_person_post`
 --
-ALTER TABLE `public_post`
-  ADD CONSTRAINT `fk_publicpost_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `missing_person_post`
+  ADD CONSTRAINT `fk_missing_person_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `public_report_image`
+-- Constraints for table `missing_person_post_image`
 --
-ALTER TABLE `public_report_image`
-  ADD CONSTRAINT `fk_publicimage_post` FOREIGN KEY (`post_id`) REFERENCES `public_post` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `missing_person_post_image`
+  ADD CONSTRAINT `fk_missing_person_image_post` FOREIGN KEY (`person_post_id`) REFERENCES `missing_person_post` (`person_post_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `reaction`
+-- Constraints for table `missing_person_reaction`
 --
-ALTER TABLE `reaction`
-  ADD CONSTRAINT `fk_reaction_post` FOREIGN KEY (`post_id`) REFERENCES `public_post` (`post_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_reaction_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `missing_person_reaction`
+  ADD CONSTRAINT `fk_missing_person_reaction_post` FOREIGN KEY (`person_post_id`) REFERENCES `missing_person_post` (`person_post_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_missing_person_reaction_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `missing_pet_comment`
+--
+ALTER TABLE `missing_pet_comment`
+  ADD CONSTRAINT `fk_missing_pet_comment_post` FOREIGN KEY (`pet_post_id`) REFERENCES `missing_pet_post` (`pet_post_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_missing_pet_comment_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `missing_pet_post`
+--
+ALTER TABLE `missing_pet_post`
+  ADD CONSTRAINT `fk_missing_pet_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `missing_pet_post_image`
+--
+ALTER TABLE `missing_pet_post_image`
+  ADD CONSTRAINT `fk_missing_pet_image_post` FOREIGN KEY (`pet_post_id`) REFERENCES `missing_pet_post` (`pet_post_id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `missing_pet_reaction`
+--
+ALTER TABLE `missing_pet_reaction`
+  ADD CONSTRAINT `fk_missing_pet_reaction_post` FOREIGN KEY (`pet_post_id`) REFERENCES `missing_pet_post` (`pet_post_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_missing_pet_reaction_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `reward`
 --
 ALTER TABLE `reward`
-  ADD CONSTRAINT `fk_reward_match` FOREIGN KEY (`match_id`) REFERENCES `match_record` (`match_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_reward_finder` FOREIGN KEY (`finder_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reward_match` FOREIGN KEY (`match_id`) REFERENCES `matches` (`match_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_reward_owner` FOREIGN KEY (`owner_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `shop_owner`
 --
 ALTER TABLE `shop_owner`
-  ADD CONSTRAINT `fk_shop_owner_user` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_shop_owner_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `suspicious_report`
 --
 ALTER TABLE `suspicious_report`
-  ADD CONSTRAINT `fk_suspicious_shopowner` FOREIGN KEY (`shop_owner_id`) REFERENCES `shop_owner` (`profile_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_suspicious_report_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `suspicious_report_image`
+--
+ALTER TABLE `suspicious_report_image`
+  ADD CONSTRAINT `fk_suspicious_report_image_report` FOREIGN KEY (`report_id`) REFERENCES `suspicious_report` (`report_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
