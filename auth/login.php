@@ -1,108 +1,65 @@
 <?php
 header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Headers: Content-Type, X-CSRF-Token");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json");
 
 if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    echo json_encode(array(
-        "status" => "success",
-        "message" => "Preflight OK"
-    ));
+    http_response_code(204);
     exit();
 }
 
-include __DIR__ . "/../config/db.php";
+require_once __DIR__ . "/../config/db.php";
+require_once __DIR__ . "/../classes/Repositories/UserRepository.php";
+require_once __DIR__ . "/../classes/Services/AuthService.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Only POST method is allowed"
-    ));
+    http_response_code(405);
+    echo json_encode(array("status" => "error", "message" => "Only POST method is allowed"));
     exit();
 }
 
-$rawInput = file_get_contents("php://input");
-$data = json_decode($rawInput, true);
+$data = json_decode(file_get_contents("php://input"), true);
 
-if ($data === null) {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Invalid JSON input"
-    ));
+if (!is_array($data)) {
+    http_response_code(400);
+    echo json_encode(array("status" => "error", "message" => "Invalid JSON input"));
     exit();
 }
 
-$login_id = isset($data["login_id"]) ? trim($data["login_id"]) : "";
-$password = isset($data["password"]) ? trim($data["password"]) : "";
+$loginId = isset($data["login_id"]) ? trim($data["login_id"]) : "";
+$password = isset($data["password"]) ? (string) $data["password"] : "";
 
-if (empty($login_id) || empty($password)) {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "NIC/Email and password are required"
-    ));
+if ($loginId === "" || $password === "") {
+    http_response_code(400);
+    echo json_encode(array("status" => "error", "message" => "NIC/Email and password are required"));
     exit();
 }
 
-$stmt = $conn->prepare("
-    SELECT user_id, first_name, last_name, nic, email, password_hash, role
-    FROM users
-    WHERE nic = ? OR email = ?
-    LIMIT 1
-");
+try {
+    $authService = new AuthService(new UserRepository($conn));
+    $user = $authService->authenticate($loginId, $password);
 
-if (!$stmt) {
+    if ($user === null) {
+        http_response_code(401);
+        echo json_encode(array("status" => "error", "message" => "Invalid NIC/Email or password"));
+        exit();
+    }
+
+    SessionManager::login($user);
+    $safeUser = SessionManager::user();
+
     echo json_encode(array(
-        "status" => "error",
-        "message" => "Database query preparation failed: " . $conn->error
+        "status" => "success",
+        "message" => "Login successful",
+        "redirect_url" => $authService->getRedirectUrl($safeUser["role"]),
+        "csrf_token" => SessionManager::csrfToken(),
+        "user" => $safeUser
     ));
-    exit();
+} catch (Throwable $error) {
+    error_log("login.php: " . $error->getMessage());
+    http_response_code(500);
+    echo json_encode(array("status" => "error", "message" => "Login service is temporarily unavailable"));
 }
-
-$stmt->bind_param("ss", $login_id, $login_id);
-$stmt->execute();
-
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Invalid NIC/Email or password"
-    ));
-    exit();
-}
-
-$user = $result->fetch_assoc();
-
-if (!password_verify($password, $user["password_hash"])) {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Invalid NIC/Email or password"
-    ));
-    exit();
-}
-
-$redirect_url = "/user-dashboard";
-
-if ($user["role"] === "admin") {
-    $redirect_url = "/admin";
-} elseif ($user["role"] === "shop_owner") {
-    $redirect_url = "/shop-owner";
-}
-
-echo json_encode(array(
-    "status" => "success",
-    "message" => "Login successful",
-    "redirect_url" => $redirect_url,
-    "user" => array(
-        "user_id" => $user["user_id"],
-        "first_name" => $user["first_name"],
-        "last_name" => $user["last_name"],
-        "nic" => $user["nic"],
-        "email" => $user["email"],
-        "role" => $user["role"]
-    )
-));
 exit();
 ?>

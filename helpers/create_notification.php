@@ -1,5 +1,10 @@
 <?php
 
+require_once __DIR__ . "/../classes/Services/NotificationService.php";
+
+/**
+ * Backward-compatible wrapper for existing procedural endpoints.
+ */
 function createNotification(
     $conn,
     $user_id,
@@ -7,34 +12,13 @@ function createNotification(
     $type,
     $match_id = null
 ) {
-    $stmt = $conn->prepare("
-        INSERT INTO match_notification
-        (user_id, match_id, message, type, is_read)
-        VALUES (?, ?, ?, ?, 0)
-    ");
+    $service = new NotificationService($conn);
 
-    if (!$stmt) {
-        throw new Exception(
-            "Notification prepare failed: " . $conn->error
-        );
-    }
-
-    $stmt->bind_param(
-        "iiss",
-        $user_id,
-        $match_id,
-        $message,
-        $type
+    return $service->send(
+        (int) $user_id,
+        (string) $message,
+        (string) $type,
+        $match_id === null ? null : (int) $match_id
     );
-
-    if (!$stmt->execute()) {
-        throw new Exception(
-            "Notification insert failed: " . $stmt->error
-        );
-    }
-
-    $notification_id = $stmt->insert_id;
-    $stmt->close();
-
-    return $notification_id;
 }
+
