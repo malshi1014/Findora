@@ -35,6 +35,7 @@ function Login() {
 
     setLoading(true);
 
+    // Authenticate with the PHP session API.
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login.php`, {
         method: "POST",

@@ -96,9 +96,6 @@ function AppRoutes() {
           path="/shop-owner/report-suspicious"
           element={<ReportSuspiciousItem />}
         />
-        <Route path="/shop-owner/my-reports" element={<MyReports />} />
-        <Route path="/shop-owner/notifications" element={<Notifications />} />
-        <Route path="/shop-owner/settings" element={<Settings />} />
 
         {/* Public Report Route Aliases */}
         <Route path="/report-lost" element={<ReportLostItem />} />

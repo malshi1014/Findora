@@ -55,6 +55,7 @@ function ReportSuspiciousItem() {
     return `${formattedHour}:${minute} ${period}`;
   };
 
+  // Client-side report validation.
   const validateForm = () => {
     const errors = {};
 
@@ -123,6 +124,7 @@ function ReportSuspiciousItem() {
 
     setLoading(true);
 
+    // Handle submission and upload errors.
     try {
             const fromTimeAMPM = formatManualTime(
         timeFrom,

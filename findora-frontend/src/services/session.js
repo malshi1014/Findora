@@ -2,6 +2,7 @@ import API_BASE_URL from "../config/api";
 
 const CSRF_KEY = "findora_csrf_token";
 
+// Secure cookie and CSRF-aware requests.
 export const installSecureFetchDefaults = () => {
   if (window.__findoraSecureFetchInstalled) return;
 
@@ -26,18 +27,21 @@ export const installSecureFetchDefaults = () => {
   window.__findoraSecureFetchInstalled = true;
 };
 
+// Store authenticated session details.
 export const storeAuthenticatedSession = (data) => {
   localStorage.setItem("findora_user", JSON.stringify(data.user));
   localStorage.setItem(CSRF_KEY, data.csrf_token);
   localStorage.removeItem("auth_token");
 };
 
+// Clear browser session details.
 export const clearAuthenticatedSession = () => {
   localStorage.removeItem("findora_user");
   localStorage.removeItem(CSRF_KEY);
   localStorage.removeItem("auth_token");
 };
 
+// End the authenticated session.
 export const logout = async (redirectTo = "/login") => {
   try {
     await fetch(`${API_BASE_URL}/auth/logout.php`, { method: "POST" });
@@ -49,6 +53,7 @@ export const logout = async (redirectTo = "/login") => {
   }
 };
 
+// Restore the PHP session.
 export const restoreSession = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/auth/session.php`);
@@ -66,4 +71,3 @@ export const restoreSession = async () => {
     return null;
   }
 };
-

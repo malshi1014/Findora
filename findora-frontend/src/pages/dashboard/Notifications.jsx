@@ -1,28 +1,29 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import API_BASE_URL from "../../config/api";
 import RoleBasedLayout from "../../layouts/RoleBasedLayout";
+
+const getCurrentUser = () => {
+  const storedUser = localStorage.getItem("findora_user");
+
+  if (!storedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    return null;
+  }
+};
 
 function Notifications() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [markingId, setMarkingId] = useState(null);
   const [error, setError] = useState("");
+  const hasFetched = useRef(false);
 
-  const getCurrentUser = () => {
-    const storedUser = localStorage.getItem("findora_user");
-
-    if (!storedUser) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(storedUser);
-    } catch {
-      return null;
-    }
-  };
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     const user = getCurrentUser();
 
     if (!user) {
@@ -69,11 +70,15 @@ function Notifications() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
+    // Prevent StrictMode from sending the request twice.
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   const markAsRead = async (notificationId) => {
     const user = getCurrentUser();
@@ -184,34 +189,6 @@ function Notifications() {
     };
   };
 
-  if (loading) {
-    return (
-      <RoleBasedLayout>
-        <p className="p-6 text-slate-700">Loading notifications...</p>
-      </RoleBasedLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <RoleBasedLayout>
-        <div className="p-6">
-          <p className="text-red-600">{error}</p>
-
-          <button
-            onClick={() => {
-              setLoading(true);
-              fetchNotifications();
-            }}
-            className="mt-4 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-          >
-            Try Again
-          </button>
-        </div>
-      </RoleBasedLayout>
-    );
-  }
-
   return (
     <RoleBasedLayout>
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
@@ -221,7 +198,25 @@ function Notifications() {
           </h1>
 
           <div className="space-y-4">
-            {notifications.length === 0 ? (
+            {loading ? (
+              <div className="rounded-4xl bg-white p-8 text-center text-slate-500 shadow-lg ring-1 ring-slate-200">
+                Loading notifications...
+              </div>
+            ) : error ? (
+              <div className="rounded-4xl bg-white p-8 text-center shadow-lg ring-1 ring-red-200">
+                <p className="text-red-600">{error}</p>
+
+                <button
+                  onClick={() => {
+                    setLoading(true);
+                    fetchNotifications();
+                  }}
+                  className="mt-4 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : notifications.length === 0 ? (
               <div className="rounded-4xl bg-white p-8 text-center text-slate-500 shadow-lg ring-1 ring-slate-200">
                 No notifications yet.
               </div>

@@ -43,11 +43,13 @@ function ReportLostItem() {
 
     const user = JSON.parse(localStorage.getItem("findora_user"));
 
+    // Require an authenticated user.
     if (!user) {
       setError("Please login before submitting a report.");
       return;
     }
 
+    // Client-side report validation.
     if (
       !title ||
       !category ||
@@ -63,6 +65,7 @@ function ReportLostItem() {
 
     setLoading(true);
 
+    // Handle submission and upload errors.
     try {
       const fromTimeAMPM = formatToAMPM(timeFrom);
       const toTimeAMPM = formatToAMPM(timeTo);

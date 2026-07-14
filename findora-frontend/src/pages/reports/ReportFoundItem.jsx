@@ -54,6 +54,7 @@ function ReportFoundItem() {
     return `${formattedHour}:${minute} ${period}`;
   };
 
+  // Client-side report validation.
   const validateForm = () => {
     const errors = {};
 
@@ -117,6 +118,7 @@ function ReportFoundItem() {
 
     setLoading(true);
 
+    // Handle submission and upload errors.
     try {
       const fromTimeAMPM = formatManualTime(timeFrom, timeFromPeriod);
       const toTimeAMPM = formatManualTime(timeTo, timeToPeriod);

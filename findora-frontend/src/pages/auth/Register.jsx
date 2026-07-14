@@ -23,6 +23,7 @@ function Register() {
     e.preventDefault();
     setError("");
 
+    // Client-side registration validation.
     if (!agree) {
       setError("Please agree to the Terms of Service and Privacy Policy.");
       return;
@@ -49,6 +50,7 @@ function Register() {
 
     setLoading(true);
 
+    // Handle registration API errors.
     try {
       console.log("API BASE URL:", API_BASE_URL);
 
