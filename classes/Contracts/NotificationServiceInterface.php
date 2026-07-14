@@ -1,5 +1,6 @@
 <?php
 
+// OOP: polymorphic service contract.
 interface NotificationServiceInterface
 {
     public function send(
@@ -9,4 +10,3 @@ interface NotificationServiceInterface
         ?int $matchId = null
     ): int;
 }
-

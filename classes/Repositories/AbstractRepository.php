@@ -1,5 +1,6 @@
 <?php
 
+// OOP: abstract database base class.
 abstract class AbstractRepository
 {
     protected mysqli $connection;
@@ -9,4 +10,3 @@ abstract class AbstractRepository
         $this->connection = $connection;
     }
 }
-

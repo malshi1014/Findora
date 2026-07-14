@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/../Contracts/NotificationServiceInterface.php";
 
+// OOP: polymorphic service implementation.
 class NotificationService implements NotificationServiceInterface
 {
     private mysqli $connection;
@@ -17,6 +18,7 @@ class NotificationService implements NotificationServiceInterface
         string $type,
         ?int $matchId = null
     ): int {
+        // Prepared statement prevents SQL injection.
         $statement = $this->connection->prepare("
             INSERT INTO match_notification
             (user_id, match_id, message, type, is_read)
@@ -40,4 +42,3 @@ class NotificationService implements NotificationServiceInterface
         return $notificationId;
     }
 }
-

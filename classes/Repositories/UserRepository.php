@@ -3,10 +3,12 @@
 require_once __DIR__ . "/../Contracts/UserRepositoryInterface.php";
 require_once __DIR__ . "/AbstractRepository.php";
 
+// OOP: inheritance and interface use.
 class UserRepository extends AbstractRepository implements UserRepositoryInterface
 {
     public function findByLoginId(string $loginId): ?array
     {
+        // Prepared statement to prevent SQL injection.
         $statement = $this->connection->prepare("
             SELECT user_id, first_name, last_name, nic, email, password_hash, role
             FROM users
@@ -31,4 +33,3 @@ class UserRepository extends AbstractRepository implements UserRepositoryInterfa
         return $user;
     }
 }
-

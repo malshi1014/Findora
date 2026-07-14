@@ -1,5 +1,6 @@
 <?php
 
+// Secure PHP session handling.
 class SessionManager
 {
     private const SESSION_NAME = "findora_session";
@@ -19,6 +20,7 @@ class SessionManager
         ini_set("session.cookie_httponly", "1");
         ini_set("session.cookie_samesite", "Lax");
 
+        // Secure session cookie settings.
         session_name(self::SESSION_NAME);
         session_set_cookie_params(array(
             "lifetime" => 0,
@@ -33,6 +35,7 @@ class SessionManager
         self::enforceTimeouts();
     }
 
+    // Create an authenticated session.
     public static function login(array $user): void
     {
         self::start();
@@ -46,6 +49,7 @@ class SessionManager
             "email" => $user["email"],
             "role" => $user["role"]
         );
+        // Generate a CSRF token.
         $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
         $_SESSION["last_activity"] = time();
         $_SESSION["last_regenerated"] = time();
@@ -106,6 +110,7 @@ class SessionManager
         return $_SESSION["csrf_token"];
     }
 
+    // Enforce timeout and ID renewal.
     private static function enforceTimeouts(): void
     {
         if (!isset($_SESSION["user"])) {
@@ -138,4 +143,3 @@ class SessionManager
         return hash("sha256", $_SERVER["HTTP_USER_AGENT"] ?? "unknown");
     }
 }
-

@@ -40,6 +40,7 @@ $nearest_town = isset($data["nearest_town"]) ? trim($data["nearest_town"]) : "";
 
 $role = "shop_owner";
 
+// Server-side input validation.
 if (
     empty($first_name) ||
     empty($last_name) ||
@@ -63,8 +64,10 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit();
 }
 
+// Keep related inserts atomic.
 $conn->begin_transaction();
 
+// Roll back safely on errors.
 try {
     $check = $conn->prepare("SELECT user_id FROM users WHERE nic = ? OR email = ? LIMIT 1");
     if (!$check) {
@@ -79,6 +82,7 @@ try {
         throw new Exception("NIC or email already exists");
     }
 
+    // Secure one-way password hashing.
     $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
     $stmt = $conn->prepare("

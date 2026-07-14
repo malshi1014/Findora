@@ -32,6 +32,7 @@ $nearest_town = isset($data["nearest_town"]) ? trim($data["nearest_town"]) : "";
 
 $role = "verified_user";
 
+// Server-side input validation.
 if (
     empty($first_name) ||
     empty($last_name) ||
@@ -55,6 +56,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit();
 }
 
+// Prepared statement prevents SQL injection.
 $check = $conn->prepare("SELECT user_id FROM users WHERE nic = ? OR email = ? LIMIT 1");
 $check->bind_param("ss", $nic, $email);
 $check->execute();
@@ -68,6 +70,7 @@ if ($result->num_rows > 0) {
     exit();
 }
 
+// Secure one-way password hashing.
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
 $stmt = $conn->prepare("

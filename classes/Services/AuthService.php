@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/../Contracts/UserRepositoryInterface.php";
 
+// OOP: authentication with dependency injection.
 class AuthService
 {
     private UserRepositoryInterface $users;
@@ -15,6 +16,7 @@ class AuthService
     {
         $user = $this->users->findByLoginId($loginId);
 
+        // Verify the hashed password.
         if ($user === null || !password_verify($password, $user["password_hash"])) {
             return null;
         }
@@ -38,4 +40,3 @@ class AuthService
         return "/user-dashboard";
     }
 }
-

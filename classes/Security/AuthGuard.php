@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/SessionManager.php";
 
+// Central authentication and authorization.
 class AuthGuard
 {
     private const FRONTEND_ORIGIN = "http://localhost:5173";
@@ -20,6 +21,7 @@ class AuthGuard
         self::requireAuthenticated();
         self::validateIdentityClaims();
 
+        // Enforce role-based access.
         if (str_contains($path, "/admin/") || str_ends_with($path, "/matching/match_reports.php")) {
             self::requireRole("admin");
         }
@@ -67,6 +69,7 @@ class AuthGuard
         return $user;
     }
 
+    // Validate CSRF protection.
     public static function validateCsrfToken(): void
     {
         $provided = $_SERVER["HTTP_X_CSRF_TOKEN"] ?? "";
@@ -105,6 +108,7 @@ class AuthGuard
         }
     }
 
+    // Prevent user ID impersonation.
     private static function validateIdentityClaims(): void
     {
         $sessionUserId = SessionManager::userId();

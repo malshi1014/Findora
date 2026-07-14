@@ -36,6 +36,7 @@ if ($loginId === "" || $password === "") {
     exit();
 }
 
+// Authenticate using OOP services.
 try {
     $authService = new AuthService(new UserRepository($conn));
     $user = $authService->authenticate($loginId, $password);

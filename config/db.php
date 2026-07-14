@@ -7,6 +7,7 @@ $username = "root";
 $password = "root";
 $database = "findora_db";
 
+// MySQL database connection.
 $conn = new mysqli($host, $username, $password, $database);
 
 if ($conn->connect_error) {
@@ -21,4 +22,3 @@ if ($conn->connect_error) {
 
 $conn->set_charset("utf8mb4");
 ?>
-
