@@ -4,7 +4,7 @@ import { logout } from "../../services/session";
 function Sidebar() {
   const { pathname } = useLocation();
 
-  const handleLogout = () => logout("/login");
+  const handleLogout = () => logout("/");
 
   const isActive = (path, exact = false, extraPaths = []) => {
     if (extraPaths.some((item) => pathname.startsWith(item))) {

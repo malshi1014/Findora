@@ -59,7 +59,7 @@ function AdminSidebar() {
 
           <button
             type="button"
-            onClick={() => logout("/login")}
+            onClick={() => logout("/")}
             className="w-full rounded-3xl bg-red-600 px-4 py-3 text-sm font-medium text-white hover:bg-red-700"
           >
             Logout

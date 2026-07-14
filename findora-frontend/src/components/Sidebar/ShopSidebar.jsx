@@ -4,7 +4,7 @@ import { logout } from "../../services/session";
 function ShopSidebar() {
   const { pathname } = useLocation();
 
-  const handleLogout = () => logout("/login");
+  const handleLogout = () => logout("/");
 
   const isActive = (path, exact = false, extraPaths = []) => {
     if (extraPaths.some((item) => pathname.startsWith(item))) {
@@ -27,7 +27,7 @@ function ShopSidebar() {
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white/90 px-4 py-6 shadow-sm backdrop-blur">
-      <Link to="/shop-owner" className="mb-8 flex items-center gap-3 px-3">
+      <Link to="/" className="mb-8 flex items-center gap-3 px-3">
         <div className="w-10 h-10 flex items-center justify-center">
               <img
                   src="/favicon.png"

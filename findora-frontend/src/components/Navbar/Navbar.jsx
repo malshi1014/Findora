@@ -30,7 +30,7 @@ function Navbar({ hideAuth = false }) {
         : "text-slate-600 hover:text-blue-700"
     }`;
 
-  const handleLogout = () => logout("/login");
+  const handleLogout = () => logout("/");
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-100 bg-white/90 shadow-sm backdrop-blur">

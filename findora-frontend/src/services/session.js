@@ -42,7 +42,7 @@ export const clearAuthenticatedSession = () => {
 };
 
 // End the authenticated session.
-export const logout = async (redirectTo = "/login") => {
+export const logout = async (redirectTo = "/") => {
   try {
     await fetch(`${API_BASE_URL}/auth/logout.php`, { method: "POST" });
   } catch (error) {
