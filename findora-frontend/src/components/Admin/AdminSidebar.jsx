@@ -1,14 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
-import findoraLogo from "../../assets/logo/findora-favicon-2.png";
 
 const navItems = [
   { to: "/admin", label: "Dashboard" },
+  { to: "/admin/reports", label: "Reports" },
   { to: "/admin/users", label: "Users" },
   { to: "/admin/lost-reports", label: "Lost Items" },
   { to: "/admin/found-reports", label: "Found Items" },
-  { to: "/admin/matches", label: "Matching" },
+  { to: "/admin/suspicious-reports", label: "Suspicious Items" },
   { to: "/admin/missing-people", label: "Missing People" },
   { to: "/admin/missing-pets", label: "Missing Pets" },
+  { to: "/admin/matches", label: "Matching" },
   { to: "/admin/donations", label: "Donations" },
   { to: "/admin/rewards", label: "Rewards" },
   { to: "/admin/complaints", label: "Complaints" },
@@ -23,8 +24,8 @@ function AdminSidebar() {
       <div className="flex h-full flex-col justify-between px-6 py-8">
         <div>
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-3xl bg-blue-600">
-              <img src={findoraLogo} alt="Findora logo" className="h-full w-full object-cover" />
+            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-3xl">
+              <img src="/favicon.png" alt="Findora logo" className="h-full w-full object-cover" />
             </div>
             <div>
               <p className="text-lg font-semibold text-white">Findora Admin</p>

@@ -1,9 +1,9 @@
-import Sidebar from "../components/Sidebar/Sidebar";
+import ShopSidebar from "../components/Sidebar/ShopSidebar";
 
-function DashboardLayout({ children }) {
+function ShopLayout({ children }) {
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar />
+      <ShopSidebar />
 
       <main className="flex-1 p-8">
         {children}
@@ -12,4 +12,4 @@ function DashboardLayout({ children }) {
   );
 }
 
-export default DashboardLayout;
+export default ShopLayout;

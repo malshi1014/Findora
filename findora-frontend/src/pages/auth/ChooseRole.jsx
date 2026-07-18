@@ -87,7 +87,15 @@ function ChooseRole() {
                     </p>
                   </div>
                   <button
-                    onClick={(e) => { e.stopPropagation(); navigate(`/register?role=${key}`); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Route shop owners to the shop register flow, normal users to regular register
+                      if (key === "shop") {
+                        navigate(`/shop-register`);
+                      } else {
+                        navigate(`/register`);
+                      }
+                    }}
                     className={`w-full px-4 sm:px-6 py-2 sm:py-3.5 rounded-full sm:rounded-[26px] flex items-center justify-center gap-2 sm:gap-3 text-white text-xs sm:text-base font-semibold transition-all duration-300
                       ${isSelected ? `${sel.btn} hover:opacity-90` : "bg-blue-400 hover:bg-blue-500"}`}
                   >

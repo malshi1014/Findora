@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import logo from "../../assets/logo/registration.svg";
 
-function Register() {
+function ShopRegister() {
   const navigate = useNavigate();
 
   const [firstName, setFirstName] = useState("");
@@ -13,6 +13,7 @@ function Register() {
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("");
   const [address, setAddress] = useState("");
+  const [shopName, setShopName] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [agree, setAgree] = useState(false);
@@ -40,6 +41,7 @@ function Register() {
       !nic ||
       !phone ||
       !city ||
+      !shopName ||
       !address ||
       !password
     ) {
@@ -52,7 +54,7 @@ function Register() {
     try {
       console.log("API BASE URL:", API_BASE_URL);
 
-      const response = await fetch(`${API_BASE_URL}/auth/register.php`, {
+      const response = await fetch(`${API_BASE_URL}/auth/shopregister.php`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,7 +65,8 @@ function Register() {
           email: email,
           nic: nic,
           mobile: phone,
-          district: address,
+          shop_name: shopName,
+          shop_address: address,
           nearest_town: city,
           password: password,
         }),
@@ -92,7 +95,7 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-300 via-blue-100 to-blue-300 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-linear-to-br from-orange-300 via-blue-100 to-blue-300 flex items-center justify-center p-6">
       <div
         className="w-full max-w-5xl overflow-hidden rounded-3xl border border-white/40 bg-[radial-gradient(circle_at_center,rgba(186,230,253,0.85)_0%,rgba(96,165,250,0.65)_45%,rgba(30,64,175,0.95)_100%)] backdrop-blur-2xl shadow-2xl shadow-blue-900/20 animate-fade-up"
         style={{ animationDelay: "0.04s" }}
@@ -199,6 +202,14 @@ function Register() {
                 </div>
 
                 <input
+                  placeholder="Shop Name"
+                  value={shopName}
+                  onChange={(e) => setShopName(e.target.value)}
+                  className="w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
+                  style={{ animationDelay: "0.26s" }}
+                />
+
+                <input
                   placeholder="Nearest Town"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
@@ -207,7 +218,7 @@ function Register() {
                 />
 
                 <input
-                  placeholder="District"
+                  placeholder="Shop Address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className="w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
@@ -274,4 +285,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default ShopRegister;

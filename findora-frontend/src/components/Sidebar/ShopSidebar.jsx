@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 
-function Sidebar() {
+function ShopSidebar() {
   const { pathname } = useLocation();
 
   const handleLogout = () => {
@@ -30,7 +30,7 @@ function Sidebar() {
 
   return (
     <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white/90 px-4 py-6 shadow-sm backdrop-blur">
-      <Link to="/user-dashboard" className="mb-8 flex items-center gap-3 px-3">
+      <Link to="/shop-owner" className="mb-8 flex items-center gap-3 px-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-blue-600 font-bold text-white shadow-md">
           F
         </div>
@@ -42,7 +42,7 @@ function Sidebar() {
       </Link>
 
       <nav className="flex-1 space-y-1 overflow-y-auto">
-        <Link to="/user-dashboard" className={linkClass("/user-dashboard", true)}>
+        <Link to="/shop-owner" className={linkClass("/shop-owner", true)}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <rect
               x="3"
@@ -90,8 +90,8 @@ function Sidebar() {
           </p>
 
           <Link
-            to="/user-dashboard/report-lost"
-            className={linkClass("/user-dashboard/report-lost")}
+            to="/shop-owner/report-lost"
+            className={linkClass("/shop-owner/report-lost")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle
@@ -112,8 +112,8 @@ function Sidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/report-found"
-            className={linkClass("/user-dashboard/report-found")}
+            to="/shop-owner/report-found"
+            className={linkClass("/shop-owner/report-found")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path
@@ -134,8 +134,30 @@ function Sidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/report-person"
-            className={linkClass("/user-dashboard/report-person")}
+            to="/shop-owner/report-suspicious"
+            className={linkClass("/shop-owner/report-suspicious")}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M4 7L12 3L20 7V17L12 21L4 17V7Z"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9 12L11 14L15.5 9.5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Report Suspicious Item
+          </Link>
+
+          <Link
+            to="/shop-owner/report-person"
+            className={linkClass("/shop-owner/report-person")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle
@@ -156,8 +178,8 @@ function Sidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/report-pet"
-            className={linkClass("/user-dashboard/report-pet")}
+            to="/shop-owner/report-pet"
+            className={linkClass("/shop-owner/report-pet")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle
@@ -204,9 +226,9 @@ function Sidebar() {
           </p>
 
           <Link
-            to="/user-dashboard/my-reports"
-            className={linkClass("/user-dashboard/my-reports", false, [
-              "/user-dashboard/edit-report",
+            to="/shop-owner/my-reports"
+            className={linkClass("/shop-owner/my-reports", false, [
+              "/shop-owner/edit-report",
             ])}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -272,8 +294,8 @@ function Sidebar() {
           </p>
 
           <Link
-            to="/user-dashboard/notifications"
-            className={linkClass("/user-dashboard/notifications")}
+            to="/shop-owner/notifications"
+            className={linkClass("/shop-owner/notifications")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path
@@ -330,8 +352,8 @@ function Sidebar() {
           </Link>
 
           <Link
-            to="/user-dashboard/settings"
-            className={linkClass("/user-dashboard/settings")}
+            to="/shop-owner/settings"
+            className={linkClass("/shop-owner/settings")}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <circle
@@ -363,4 +385,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
+export default ShopSidebar;

@@ -1,183 +1,403 @@
-import DashboardLayout from "../../layouts/DashboardLayout";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
+import API_BASE_URL from "../../config/api";
 
 function UserDashboard() {
+  const [reports, setReports] = useState({
+    lost_reports: [],
+    found_reports: [],
+  });
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const user = JSON.parse(localStorage.getItem("findora_user"));
+
+  const getCurrentUser = () => {
+  const storedUser = localStorage.getItem("findora_user");
+
+  if (!storedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    return null;
+  }
+};
+
+useEffect(() => {
+  const fetchDashboardData = async () => {
+    const user = getCurrentUser();
+
+    if (!user) {
+      setError("Please login to view dashboard.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      console.log("API BASE URL:", API_BASE_URL);
+      console.log("Logged user:", user);
+
+      const reportsResponse = await fetch(
+        `${API_BASE_URL}/reports/get_my_reports.php?user_id=${user.user_id}`
+      );
+
+      const reportsText = await reportsResponse.text();
+      console.log("Raw reports response:", reportsText);
+
+      if (!reportsText) {
+        throw new Error("Reports API returned empty response.");
+      }
+
+      let reportsData;
+
+      try {
+        reportsData = JSON.parse(reportsText);
+      } catch {
+        throw new Error("Reports API did not return valid JSON.");
+      }
+
+      if (reportsData.status === "success") {
+        setReports({
+          lost_reports: reportsData.lost_reports || [],
+          found_reports: reportsData.found_reports || [],
+          suspicious_reports: reportsData.suspicious_reports || [],
+        });
+      } else {
+        throw new Error(reportsData.message || "Failed to load reports.");
+      }
+
+      const notificationResponse = await fetch(
+        `${API_BASE_URL}/notifications/get_notifications.php?user_id=${user.user_id}`
+      );
+
+      const notificationText = await notificationResponse.text();
+      console.log("Raw notifications response:", notificationText);
+
+      if (!notificationText) {
+        throw new Error("Notifications API returned empty response.");
+      }
+
+      let notificationData;
+
+      try {
+        notificationData = JSON.parse(notificationText);
+      } catch {
+        throw new Error("Notifications API did not return valid JSON.");
+      }
+
+      if (notificationData.status === "success") {
+        setNotifications(notificationData.notifications || []);
+      } else {
+        throw new Error(
+          notificationData.message || "Failed to load notifications."
+        );
+      }
+    } catch (err) {
+      console.error("Dashboard error:", err);
+      setError(err.message || "Backend connection failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchDashboardData();
+}, []);
+
+  const allReports = [
+    ...reports.lost_reports.map((item) => ({
+      ...item,
+      type: "Lost",
+      date: item.lost_date,
+      time: item.lost_time,
+    })),
+    ...reports.found_reports.map((item) => ({
+      ...item,
+      type: "Found",
+      date: item.found_date,
+      time: item.found_time,
+    })),
+  ];
+
+  const recentReports = allReports.slice(0, 4);
+  const recentNotifications = notifications.slice(0, 3);
+
+  const unreadCount = notifications.filter((item) => item.is_read == 0).length;
+  const pendingReports = allReports.filter((item) => item.status === "pending").length;
+  const matchedReports = allReports.filter((item) => item.status === "matched").length;
+
+  const getImageUrl = (report) => {
+    if (report.images && report.images.length > 0) {
+      return `${API_BASE_URL}/${report.images[0].image_path}`;
+    }
+
+    return null;
+  };
+
+  const getStatusStyle = (status) => {
+    if (status === "matched") {
+      return "bg-green-100 text-green-700";
+    }
+
+    if (status === "pending") {
+      return "bg-orange-100 text-orange-700";
+    }
+
+    if (status === "rejected") {
+      return "bg-red-100 text-red-700";
+    }
+
+    return "bg-slate-100 text-slate-700";
+  };
+
+  if (loading) {
+    return (
+      <RoleBasedLayout>
+        <p className="p-6 text-slate-700">Loading dashboard...</p>
+      </RoleBasedLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <RoleBasedLayout>
+        <p className="p-6 text-red-600">{error}</p>
+      </RoleBasedLayout>
+    );
+  }
+
   return (
-    <DashboardLayout>
-      <div className="w-full h-full" style={{ background: "radial-gradient(ellipse 50% 50% at 50% 50%, white 0%, #E1EAFE 100%)" }}>
-        <div className="w-full max-w-[2160px] mx-auto p-6 sm:p-10 flex flex-col gap-6 sm:gap-10">
+    <RoleBasedLayout>
+      <div className="min-h-screen bg-linear-to-br from-blue-100 via-purple-100 to-white py-10">
+        <div className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
+            <div className="flex-1 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-lg p-8">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
+                Dashboard Overview
+              </p>
 
-          {/* Dashboard Overview + Profile Strength Row */}
-          <div className="flex flex-col lg:flex-row gap-6 sm:gap-10">
+              <h1 className="mt-4 text-3xl font-bold text-slate-950">
+                Welcome back, {user?.first_name || "User"}!
+              </h1>
 
-            {/* Dashboard Overview Card */}
-            <div className="flex-1 p-6 sm:p-12 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20 relative overflow-hidden">
-              <div className="absolute right-0 top-0 w-[302px] h-[459px] opacity-20">
-                <div className="w-full h-full bg-gradient-to-b from-white to-white opacity-30" />
-              </div>
-              <div className="flex flex-col gap-3 sm:gap-4">
-                <span className="inline-block px-4 sm:px-[18px] py-1 sm:py-[6px] bg-[rgba(0,88,188,0.10)] rounded-full text-[#0058BC] text-xs sm:text-base font-semibold font-[Inter] tracking-[0.83px]">
-                  DASHBOARD OVERVIEW
-                </span>
-                <h1 className="text-[#1B1B1D] text-2xl sm:text-[48px] font-bold font-[Inter] leading-tight sm:leading-[60px] pt-3 sm:pt-[12px]">
-                  Welcome back, Duvindu!
-                </h1>
-                <p className="text-[#414755] text-base sm:text-2xl font-normal font-[Inter] leading-snug sm:leading-[36px] max-w-[672px] pb-4 sm:pb-6">
-                  You have <span className="text-[#0058BC]">3 new matches</span> for your lost items. Let&apos;s get them back to you.
-                </p>
-                <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-[rgba(0,88,188,0.05)] rounded-2xl border border-[rgba(0,88,188,0.10)] max-w-[576px]">
-                  <div className="w-14 h-14 sm:w-[72px] sm:h-[72px] bg-[rgba(0,88,188,0.20)] rounded-xl sm:rounded-[18px] flex items-center justify-center">
-                    <svg width="33" height="32" viewBox="0 0 33 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="33" height="31.5" rx="4" fill="#0058BC" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-[#0058BC] text-base sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Recovery Success!</p>
-                    <p className="text-[#717786] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">Your Sony Headphones were returned.</p>
-                  </div>
+              <p className="mt-3 max-w-2xl text-sm text-slate-700">
+                Track your lost and found reports, monitor match updates and view recent platform activity.
+              </p>
+
+              <div className="mt-6 grid gap-4 md:grid-cols-3">
+                <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-white/50 p-5 shadow-xl">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Total Reports
+                  </p>
+                  <p className="mt-3 text-3xl font-bold text-blue-600">
+                    {allReports.length}
+                  </p>
                 </div>
-              </div>
-            </div>
 
-            {/* Profile Strength Card */}
-            <div className="w-full lg:w-[400px] p-6 sm:p-12 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-[rgba(0,88,188,0.20)] flex flex-col justify-between">
-              <div className="flex flex-col gap-4 sm:gap-6 pb-6 sm:pb-9">
-                <div className="flex justify-between items-start pb-2 sm:pb-3">
-                  <h2 className="text-[#1B1B1D] text-xl sm:text-[30px] font-bold font-[Inter] leading-snug sm:leading-[42px]">Profile Strength</h2>
-                  <span className="text-[#0058BC] text-xl sm:text-[30px] font-bold font-[Inter] leading-snug sm:leading-[42px]">85%</span>
+                <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-white/50 p-5 shadow-xl">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Pending Reports
+                  </p>
+                  <p className="mt-3 text-3xl font-bold text-orange-500">
+                    {pendingReports}
+                  </p>
                 </div>
-                <div className="w-full h-[18px] bg-[#EAE7EA] rounded-full overflow-hidden">
-                  <div className="w-[65%] h-full bg-gradient-to-r from-[#0058BC] to-[#6D37D3] rounded-full shadow-[0_6px_9px_-6px_rgba(0,0,0,0.10),0_15px_22.5px_-4.5px_rgba(0,0,0,0.10)]" />
-                </div>
-                <p className="text-[#414755] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">
-                  Complete your identity verification to increase your trust score among the Findora community.
-                </p>
-              </div>
-              <button className="w-full py-3 sm:py-[18px] rounded-xl sm:rounded-[18px] border border-[rgba(0,88,188,0.30)] text-[#0058BC] text-base sm:text-2xl font-bold font-[Inter] leading-snug sm:leading-[36px] hover:bg-[rgba(0,88,188,0.05)] transition">
-                Verify Identity Now
-              </button>
-            </div>
-          </div>
 
-          {/* Recent Activity */}
-          <div className="flex flex-col gap-6 sm:gap-9">
-            <h2 className="text-[#1B1B1D] text-xl sm:text-[30px] font-bold font-[Inter] leading-snug sm:leading-[42px]">Recent Activity</h2>
-
-            <div className="p-6 sm:p-9 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20 flex flex-col gap-6 sm:gap-9">
-              {/* Activity Item 1 */}
-              <div className="relative pl-8 sm:pl-12 pb-6 sm:pb-9 border-l border-[rgba(113,119,134,0.10)] flex flex-col gap-1 sm:gap-[6px]">
-                <div className="absolute -left-[7px] top-0 w-[15px] h-[15px] rounded-full bg-[#0058BC] shadow-[0_0_0_6px_rgba(0,88,188,0.20)]" />
-                <p className="text-[#0058BC] text-xs sm:text-base font-bold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px]">TODAY, 10:45 AM</p>
-                <p className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">New Match Found</p>
-                <p className="text-[#414755] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">
-                  AI detected a strong match for your &quot;Blue Backpack&quot; in the Transit hub.
-                </p>
-              </div>
-
-              {/* Activity Item 2 */}
-              <div className="relative pl-8 sm:pl-12 pb-6 sm:pb-9 border-l border-[rgba(113,119,134,0.10)] flex flex-col gap-1 sm:gap-[6px]">
-                <div className="absolute -left-[7px] top-0 w-[15px] h-[15px] rounded-full bg-[#6D37D3] shadow-[0_0_0_6px_rgba(109,55,211,0.20)]" />
-                <p className="text-[#6D37D3] text-xs sm:text-base font-bold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px]">YESTERDAY, 4:20 PM</p>
-                <p className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Claim Accepted</p>
-                <p className="text-[#414755] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">
-                  The finder of your &quot;House Keys&quot; has verified your claim.
-                </p>
-              </div>
-
-              {/* Activity Item 3 */}
-              <div className="relative pl-8 sm:pl-12 border-l border-[rgba(113,119,134,0.10)] flex flex-col gap-1 sm:gap-[6px]">
-                <div className="absolute -left-[7px] top-0 w-[15px] h-[15px] rounded-full bg-[#717786] shadow-[0_0_0_6px_rgba(113,119,134,0.20)]" />
-                <p className="text-[#717786] text-xs sm:text-base font-bold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px]">OCT 12, 9:00 AM</p>
-                <p className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Post Created</p>
-                <p className="text-[#414755] text-sm sm:text-lg font-medium font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px]">
-                  You reported a &quot;Silver Ring&quot; found in Golden Gate Park.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* My Recent Posts */}
-          <div className="flex flex-col gap-6 sm:gap-9 pb-10 sm:pb-[159px]">
-            <div className="flex justify-between items-center">
-              <h2 className="text-[#1B1B1D] text-xl sm:text-[30px] font-bold font-[Inter] leading-snug sm:leading-[42px]">My Recent Posts</h2>
-              <span className="text-[#0058BC] text-sm sm:text-lg font-bold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.36px] cursor-pointer hover:underline">View All Posts</span>
-            </div>
-
-            <div className="flex flex-col gap-4 sm:gap-6">
-              {/* Post 1 */}
-              <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20">
-                <div className="w-20 h-20 sm:w-[144px] sm:h-[144px] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
-                  <div className="w-full h-full bg-gray-200" />
-                </div>
-                <div className="flex-1 flex flex-col justify-between gap-2 sm:gap-4 h-full min-h-[80px] sm:min-h-[144px]">
-                  <div>
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Blue Backpack</h3>
-                      <span className="px-2 sm:px-3 py-0.5 sm:py-[3px] bg-[rgba(109,55,211,0.10)] rounded text-[#6D37D3] text-xs sm:text-sm font-bold font-[Inter] uppercase leading-snug sm:leading-[22.5px]">LOST</span>
-                    </div>
-                    <p className="text-[#717786] text-xs sm:text-base font-semibold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px] mt-1">Reported: Oct 14, 2023</p>
-                  </div>
-                  <div className="flex gap-2 sm:gap-3">
-                    <button className="p-1 sm:p-[6px] rounded bg-gray-100 hover:bg-gray-200 transition">
-                      <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="20.25" height="20.25" rx="3" fill="#0058BC" />
-                      </svg>
-                    </button>
-                    <button className="p-1 sm:p-[6px] rounded bg-gray-100 hover:bg-gray-200 transition">
-                      <svg width="18" height="21" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="18" height="20.25" rx="3" fill="#BA1A1A" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Post 2 */}
-              <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20">
-                <div className="w-20 h-20 sm:w-[144px] sm:h-[144px] rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 flex-shrink-0">
-                  <div className="w-full h-full bg-gray-200" />
-                </div>
-                <div className="flex-1 flex flex-col justify-between gap-2 sm:gap-4 h-full min-h-[80px] sm:min-h-[144px]">
-                  <div>
-                    <div className="flex justify-between items-start">
-                      <h3 className="text-[#1B1B1D] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">Car Keys</h3>
-                      <span className="px-2 sm:px-3 py-0.5 sm:py-[3px] bg-[rgba(0,88,188,0.10)] rounded text-[#0058BC] text-xs sm:text-sm font-bold font-[Inter] uppercase leading-snug sm:leading-[22.5px]">FOUND</span>
-                    </div>
-                    <p className="text-[#717786] text-xs sm:text-base font-semibold font-[Inter] leading-snug sm:leading-[24px] tracking-[0.83px] mt-1">Reported: Oct 12, 2023</p>
-                  </div>
-                  <div className="flex gap-2 sm:gap-3">
-                    <button className="p-1 sm:p-[6px] rounded bg-gray-100 hover:bg-gray-200 transition">
-                      <svg width="20" height="20" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="20.25" height="20.25" rx="3" fill="#0058BC" />
-                      </svg>
-                    </button>
-                    <button className="p-1 sm:p-[6px] rounded bg-gray-100 hover:bg-gray-200 transition">
-                      <svg width="18" height="21" viewBox="0 0 18 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="18" height="20.25" rx="3" fill="#BA1A1A" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Add New Post */}
-              <div className="flex items-center gap-4 sm:gap-6 p-4 sm:p-6 bg-white/75 backdrop-blur rounded-3xl shadow-[0_45px_75px_rgba(0,0,0,0.04)] border border-white/20 cursor-pointer hover:bg-white/90 transition">
-                <div className="w-20 h-20 sm:w-[144px] sm:h-[144px] rounded-xl sm:rounded-2xl bg-[#F0EDEF] flex items-center justify-center flex-shrink-0">
-                  <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect width="35" height="35" rx="4" fill="#717786" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-[#414755] text-sm sm:text-xl font-bold font-[Inter] leading-snug sm:leading-[30px]">
-                    Report another item...
+                <div className="rounded-3xl bg-white/60 backdrop-blur-xl border border-white/50 p-5 shadow-xl">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    Unread Alerts
+                  </p>
+                  <p className="mt-3 text-3xl font-bold text-purple-600">
+                    {unreadCount}
                   </p>
                 </div>
               </div>
-            </div>
-          </div>
 
+              <div className="mt-6 flex items-center gap-4 rounded-2xl bg-white/40 backdrop-blur-xl border border-white/50 p-4 shadow-xl">
+                <div className="h-10 w-10 rounded-full bg-white flex items-center justify-center text-blue-600 shadow-sm">
+                  ✓
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-900">
+                    Findora Recovery Status
+                  </p>
+                  <p className="text-sm text-slate-700">
+                    You have {matchedReports} matched report(s) and {pendingReports} pending report(s).
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-6 md:grid-cols-2">
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-slate-900">
+                    Recent Activity
+                  </h4>
+
+                  <div className="mt-2 space-y-4">
+                    {recentNotifications.length === 0 ? (
+                      <div className="rounded-3xl bg-white/40 backdrop-blur-xl border border-white/50 p-5 shadow-xl">
+                        <p className="text-sm text-slate-600">
+                          No recent notifications yet.
+                        </p>
+                      </div>
+                    ) : (
+                      recentNotifications.map((item) => (
+                        <div
+                          key={item.notification_id}
+                          className="rounded-3xl bg-white/40 backdrop-blur-xl border border-white/50 p-5 shadow-xl"
+                        >
+                          <p className="text-xs text-blue-600">
+                            {item.created_at}
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-slate-950">
+                            {item.type === "match_verified"
+                              ? "Match Verified"
+                              : item.type === "match_rejected"
+                              ? "Match Rejected"
+                              : "Notification"}
+                          </p>
+                          <p className="text-sm text-slate-700 mt-1">
+                            {item.message}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-sm font-semibold text-slate-900">
+                      My Recent Reports
+                    </h4>
+
+                    <Link
+                      to="/user-dashboard/my-reports"
+                      className="text-xs font-semibold text-blue-700 hover:underline"
+                    >
+                      View All
+                    </Link>
+                  </div>
+
+                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-2">
+                    {recentReports.length === 0 ? (
+                      <div className="rounded-3xl bg-white/40 backdrop-blur-xl border border-white/50 p-5 shadow-xl text-center sm:col-span-2">
+                        <p className="text-sm text-slate-600">
+                          You have not submitted any reports yet.
+                        </p>
+                      </div>
+                    ) : (
+                      recentReports.map((report) => {
+                        const imageUrl = getImageUrl(report);
+
+                        return (
+                          <div
+                            key={`${report.type}-${report.report_id}`}
+                            className="rounded-3xl bg-white/40 backdrop-blur-xl border border-white/50 p-4 shadow-xl"
+                          >
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={report.title}
+                                className="h-24 w-full rounded-2xl object-cover"
+                              />
+                            ) : (
+                              <div className="h-24 w-full rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+                                No Image
+                              </div>
+                            )}
+
+                            <div className="mt-3 flex items-center justify-between gap-2">
+                              <p className="text-sm font-semibold text-slate-950 line-clamp-1">
+                                {report.title}
+                              </p>
+
+                              <span
+                                className={`rounded-full px-2 py-1 text-[10px] font-semibold ${getStatusStyle(
+                                  report.status
+                                )}`}
+                              >
+                                {report.status}
+                              </span>
+                            </div>
+
+                            <p className="mt-1 text-xs text-slate-600">
+                              {report.type} Report
+                            </p>
+
+                            <p className="text-xs text-slate-500">
+                              Reported: {report.date}
+                            </p>
+                          </div>
+                        );
+                      })
+                    )}
+
+                    <Link
+                      to="/user-dashboard/report-lost"
+                      className="rounded-3xl bg-white/40 backdrop-blur-xl border border-dashed border-white/50 p-4 shadow-xl flex items-center justify-center text-lg font-bold text-slate-700 transition hover:bg-white/60"
+                    >
+                      +
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside className="w-full max-w-sm space-y-4">
+              <div className="rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-lg p-6">
+                <h4 className="text-sm font-semibold text-slate-900">
+                  Profile Strength
+                </h4>
+                <p className="mt-2 text-2xl font-bold text-blue-600">85%</p>
+                <p className="mt-3 text-sm text-slate-700">
+                  Complete your identity verification to increase your trust score among the Findora community.
+                </p>
+                <button className="mt-4 bg-blue-600/90 text-white px-5 py-2 rounded-full shadow-md hover:bg-blue-700">
+                  Verify Identity Now
+                </button>
+              </div>
+
+              <div className="rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-lg p-6">
+                <h4 className="text-sm font-semibold text-slate-900">
+                  Quick Actions
+                </h4>
+
+                <div className="mt-4 space-y-3">
+                  <Link
+                    to="/user-dashboard/report-lost"
+                    className="block rounded-full bg-blue-600 px-5 py-3 text-center text-sm font-semibold text-white hover:bg-blue-700"
+                  >
+                    Report Lost Item
+                  </Link>
+
+                  <Link
+                    to="/user-dashboard/report-found"
+                    className="block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-blue-700 shadow hover:bg-blue-50"
+                  >
+                    Report Found Item
+                  </Link>
+
+                  <Link
+                    to="/user-dashboard/notifications"
+                    className="block rounded-full bg-white px-5 py-3 text-center text-sm font-semibold text-slate-700 shadow hover:bg-slate-50"
+                  >
+                    View Notifications
+                  </Link>
+                </div>
+              </div>
+            </aside>
+          </div>
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

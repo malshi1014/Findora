@@ -8,14 +8,8 @@ const statusStyles = {
   rejected: "bg-rose-100 text-rose-700",
 };
 
-const priorityClasses = {
-  Emergency: "bg-rose-100 text-rose-700",
-  High: "bg-amber-100 text-amber-700",
-  Normal: "bg-slate-100 text-slate-700",
-};
-
-function ManageMissingPeople() {
-  const [peopleReports, setPeopleReports] = useState([]);
+function ManageSuspiciousReports() {
+  const [suspiciousReports, setSuspiciousReports] = useState([]);
   const [activeTab, setActiveTab] = useState("all");
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(true);
@@ -36,7 +30,7 @@ function ManageMissingPeople() {
     }
   };
 
-  const fetchMissingPeople = async (silent = false) => {
+  const fetchSuspiciousReports = async (silent = false) => {
     const user = getCurrentUser();
 
     if (!user || user.role !== "admin") {
@@ -57,7 +51,7 @@ function ManageMissingPeople() {
       );
 
       const text = await response.text();
-      console.log("Raw missing people response:", text);
+      console.log("Raw suspicious reports response:", text);
 
       if (!text) {
         throw new Error("Server returned an empty response.");
@@ -72,16 +66,16 @@ function ManageMissingPeople() {
       }
 
       if (data.status === "success") {
-        const onlyMissingPeople = (data.reports || []).filter(
-          (item) => item.report_type === "missing_person"
+        const onlySuspiciousReports = (data.reports || []).filter(
+          (item) => item.report_type === "suspicious"
         );
 
-        setPeopleReports(onlyMissingPeople);
+        setSuspiciousReports(onlySuspiciousReports);
       } else {
-        setError(data.message || "Failed to load missing people reports.");
+        setError(data.message || "Failed to load suspicious reports.");
       }
     } catch (err) {
-      console.error("Missing people loading error:", err);
+      console.error("Suspicious reports loading error:", err);
       setError(
         err.message ||
           "Backend connection failed. Please check get_all_reports.php."
@@ -92,10 +86,10 @@ function ManageMissingPeople() {
   };
 
   useEffect(() => {
-    fetchMissingPeople();
+    fetchSuspiciousReports();
 
     const intervalId = setInterval(() => {
-      fetchMissingPeople(true);
+      fetchSuspiciousReports(true);
     }, 15000);
 
     return () => clearInterval(intervalId);
@@ -111,12 +105,12 @@ function ManageMissingPeople() {
     }
 
     if (report.status === newStatus) {
-      alert(`This missing person report is already ${newStatus}.`);
+      alert(`This suspicious report is already ${newStatus}.`);
       return;
     }
 
     const confirmAction = window.confirm(
-      `Are you sure you want to mark this missing person report as ${newStatus}?`
+      `Are you sure you want to mark this suspicious report as ${newStatus}?`
     );
 
     if (!confirmAction) {
@@ -136,14 +130,14 @@ function ManageMissingPeople() {
           body: JSON.stringify({
             admin_id: user.user_id,
             report_id: report.report_id,
-            report_type: "missing_person",
+            report_type: "suspicious",
             status: newStatus,
           }),
         }
       );
 
       const text = await response.text();
-      console.log("Raw missing person status update response:", text);
+      console.log("Raw suspicious status update response:", text);
 
       if (!text) {
         throw new Error("Server returned an empty response.");
@@ -158,7 +152,7 @@ function ManageMissingPeople() {
       }
 
       if (data.status === "success") {
-        setPeopleReports((prevReports) =>
+        setSuspiciousReports((prevReports) =>
           prevReports.map((item) =>
             item.report_id === report.report_id
               ? { ...item, status: newStatus }
@@ -166,7 +160,7 @@ function ManageMissingPeople() {
           )
         );
 
-        alert("Missing person report status updated successfully.");
+        alert("Suspicious report status updated successfully.");
       } else {
         alert(
           data.error
@@ -175,7 +169,7 @@ function ManageMissingPeople() {
         );
       }
     } catch (err) {
-      console.error("Missing person update error:", err);
+      console.error("Suspicious report update error:", err);
       alert(
         err.message ||
           "Backend connection failed. Please check update_report_status.php."
@@ -186,33 +180,10 @@ function ManageMissingPeople() {
   };
 
   const getStatusLabel = (status) => {
-    if (status === "pending") return "Pending Verification";
-    if (status === "active") return "Verified";
+    if (status === "pending") return "Pending Review";
+    if (status === "active") return "Approved";
     if (status === "rejected") return "Rejected";
     return status || "Unknown";
-  };
-
-  const getPriority = (report) => {
-    if (!report.report_date) {
-      return "Normal";
-    }
-
-    const reportedDate = new Date(report.report_date);
-    const today = new Date();
-
-    const differenceInDays = Math.floor(
-      (today - reportedDate) / (1000 * 60 * 60 * 24)
-    );
-
-    if (differenceInDays <= 2) {
-      return "Emergency";
-    }
-
-    if (differenceInDays <= 7) {
-      return "High";
-    }
-
-    return "Normal";
   };
 
   const getImageUrl = (imagePath) => {
@@ -224,7 +195,7 @@ function ManageMissingPeople() {
   };
 
   const filteredReports = useMemo(() => {
-    let result = [...peopleReports];
+    let result = [...suspiciousReports];
 
     if (activeTab !== "all") {
       result = result.filter((item) => item.status === activeTab);
@@ -237,8 +208,7 @@ function ManageMissingPeople() {
         const searchableText = [
           item.report_id,
           item.title,
-          item.age,
-          item.gender,
+          item.category,
           item.location,
           item.district,
           item.nearest_town,
@@ -256,35 +226,38 @@ function ManageMissingPeople() {
     }
 
     return result;
-  }, [peopleReports, activeTab, searchText]);
+  }, [suspiciousReports, activeTab, searchText]);
 
   const stats = [
     {
-      label: "Total Cases",
-      value: peopleReports.length,
-      detail: "All submitted missing person posts",
+      label: "Total Suspicious Reports",
+      value: suspiciousReports.length,
+      detail: "All submitted suspicious item reports",
     },
     {
-      label: "Pending Verification",
-      value: peopleReports.filter((item) => item.status === "pending").length,
-      detail: "Waiting for admin review",
+      label: "Pending Review",
+      value: suspiciousReports.filter((item) => item.status === "pending")
+        .length,
+      detail: "Waiting for admin approval",
     },
     {
-      label: "Verified Reports",
-      value: peopleReports.filter((item) => item.status === "active").length,
-      detail: "Displayed on Home page",
+      label: "Approved Reports",
+      value: suspiciousReports.filter((item) => item.status === "active")
+        .length,
+      detail: "Verified suspicious reports",
     },
     {
       label: "Rejected Reports",
-      value: peopleReports.filter((item) => item.status === "rejected").length,
-      detail: "Not displayed publicly",
+      value: suspiciousReports.filter((item) => item.status === "rejected")
+        .length,
+      detail: "Invalid or rejected reports",
     },
   ];
 
   const tabs = [
-    { label: "All Cases", key: "all" },
-    { label: "Pending Verification", key: "pending" },
-    { label: "Verified", key: "active" },
+    { label: "All Reports", key: "all" },
+    { label: "Pending Review", key: "pending" },
+    { label: "Approved", key: "active" },
     { label: "Rejected", key: "rejected" },
   ];
 
@@ -292,7 +265,7 @@ function ManageMissingPeople() {
     return (
       <AdminLayout>
         <div className="p-8 text-slate-700">
-          Loading missing people reports...
+          Loading suspicious reports...
         </div>
       </AdminLayout>
     );
@@ -305,7 +278,7 @@ function ManageMissingPeople() {
           <p className="text-red-600">{error}</p>
 
           <button
-            onClick={() => fetchMissingPeople()}
+            onClick={() => fetchSuspiciousReports()}
             className="mt-4 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
           >
             Try Again
@@ -326,12 +299,12 @@ function ManageMissingPeople() {
               </p>
 
               <h1 className="mt-4 text-4xl font-semibold">
-                Missing People Management
+                Suspicious Reports Management
               </h1>
 
               <p className="mt-3 max-w-2xl text-sm text-slate-300">
-                Review and verify missing person posts. These reports are not
-                used for matching; approved posts are displayed on the Home page.
+                Review suspicious item reports submitted by verified shop owners.
+                These reports are for admin verification and investigation.
               </p>
             </div>
 
@@ -345,13 +318,13 @@ function ManageMissingPeople() {
                   type="search"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search ID, name, user, location..."
+                  placeholder="Search ID, shop owner, item, location..."
                   className="w-full rounded-full border border-slate-800 bg-slate-900/90 py-3 pl-12 pr-4 text-sm text-slate-100 outline-none focus:border-blue-500"
                 />
               </div>
 
               <button
-                onClick={() => fetchMissingPeople()}
+                onClick={() => fetchSuspiciousReports()}
                 className="rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500"
               >
                 Refresh
@@ -385,9 +358,10 @@ function ManageMissingPeople() {
               {tabs.map((tab) => {
                 const count =
                   tab.key === "all"
-                    ? peopleReports.length
-                    : peopleReports.filter((item) => item.status === tab.key)
-                        .length;
+                    ? suspiciousReports.length
+                    : suspiciousReports.filter(
+                        (item) => item.status === tab.key
+                      ).length;
 
                 return (
                   <button
@@ -406,31 +380,32 @@ function ManageMissingPeople() {
             </div>
 
             <p className="text-xs text-slate-400">
-              Showing {filteredReports.length} of {peopleReports.length} cases
+              Showing {filteredReports.length} of {suspiciousReports.length}{" "}
+              suspicious reports
             </p>
           </div>
 
           <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[1050px] border-collapse text-left text-sm text-slate-300">
+            <table className="w-full min-w-[1050px] border-separate border-spacing-y-3 text-left text-sm text-slate-300">
               <thead>
                 <tr>
                   <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Photo & ID
+                    Image
                   </th>
                   <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Name / Age
+                    Report ID
                   </th>
                   <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Reporter
+                    Item Details
                   </th>
                   <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Last Seen
+                    Shop Owner
+                  </th>
+                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                    Location
                   </th>
                   <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
                     Date / Time
-                  </th>
-                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Priority
                   </th>
                   <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
                     Status
@@ -441,105 +416,92 @@ function ManageMissingPeople() {
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-800">
+              <tbody>
                 {filteredReports.length === 0 ? (
                   <tr>
                     <td
                       colSpan="8"
                       className="py-10 text-center text-sm text-slate-400"
                     >
-                      No missing person reports found.
+                      No suspicious reports found.
                     </td>
                   </tr>
                 ) : (
                   filteredReports.map((report) => {
                     const imageUrl = getImageUrl(report.image_path);
-                    const priority = getPriority(report);
                     const isUpdating = updatingId === report.report_id;
 
                     return (
                       <tr
                         key={report.report_id}
-                        className="border-t border-slate-800"
+                        className="rounded-[1.5rem] bg-slate-900/80 shadow-sm shadow-slate-950/20"
                       >
-                        <td className="py-5 pr-6">
-                          <div className="flex items-center gap-3">
-                            {imageUrl ? (
-                              <img
-                                src={imageUrl}
-                                alt={report.title}
-                                className="h-12 w-12 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800 text-xs text-slate-500">
-                                No
-                              </div>
-                            )}
-
-                            <div>
-                              <p className="font-semibold text-white">
-                                #MP-{report.report_id}
-                              </p>
-                              <p className="mt-1 text-xs text-slate-500">
-                                {report.district || "No district"}
-                              </p>
+                        <td className="py-5 pr-6 align-middle">
+                          {imageUrl ? (
+                            <img
+                              src={imageUrl}
+                              alt={report.title || "Suspicious item"}
+                              className="h-16 w-16 rounded-3xl object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-800 text-xs text-slate-300">
+                              No Img
                             </div>
-                          </div>
+                          )}
                         </td>
 
-                        <td className="py-5 pr-6">
+                        <td className="py-5 pr-6 align-middle font-semibold text-white">
+                          #SR-{report.report_id}
+                        </td>
+
+                        <td className="py-5 pr-6 align-middle">
                           <p className="font-semibold text-white">
-                            {report.title}
+                            {report.title || "Suspicious Item"}
                           </p>
 
-                          <p className="mt-1 text-xs text-slate-500">
-                            {report.age ? `${report.age} years old` : "Age not specified"}
-                            {report.gender ? ` • ${report.gender}` : ""}
+                          <p className="mt-1 text-xs text-slate-400">
+                            {report.category || "Suspicious Item"}
+                          </p>
+
+                          <p className="mt-1 max-w-xs text-xs text-slate-500">
+                            {report.description || "No description provided"}
                           </p>
 
                           {report.unique_identifiers && (
-                            <p className="mt-1 line-clamp-1 text-xs text-slate-500">
-                              {report.unique_identifiers}
+                            <p className="mt-1 max-w-xs text-xs text-sky-300">
+                              ID: {report.unique_identifiers}
                             </p>
                           )}
                         </td>
 
-                        <td className="py-5 pr-6 text-slate-300">
-                          <p>{report.user_name}</p>
+                        <td className="py-5 pr-6 align-middle text-slate-300">
+                          <p>{report.user_name || "Unknown user"}</p>
                           <p className="mt-1 text-xs text-slate-400">
-                            {report.user_email}
+                            {report.user_email || "No email"}
                           </p>
                           <p className="mt-1 text-xs text-slate-500">
-                            {report.contact_no || "No contact"}
+                            {report.user_mobile || report.contact_no || "No contact"}
                           </p>
                         </td>
 
-                        <td className="py-5 pr-6 text-slate-300">
-                          <p>{report.location}</p>
+                        <td className="py-5 pr-6 align-middle text-slate-300">
+                          <p>{report.location || "No location"}</p>
                           <p className="mt-1 text-xs text-slate-400">
                             {report.nearest_town || "No nearest town"}
                           </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {report.district || "No district"}
+                          </p>
                         </td>
 
-                        <td className="py-5 pr-6 text-slate-300">
-                          <p>{report.report_date}</p>
+                        <td className="py-5 pr-6 align-middle text-slate-300">
+                          <p>{report.report_date || "No date"}</p>
                           <p className="mt-1 text-xs text-slate-400">
                             {report.report_time || "Not specified"}
                           </p>
                         </td>
 
-                        <td className="py-5 pr-6">
-                          <span
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                              priorityClasses[priority] ||
-                              "bg-slate-100 text-slate-700"
-                            }`}
-                          >
-                            {priority}
-                          </span>
-                        </td>
-
-                        <td className="py-5 pr-6">
+                        <td className="py-5 pr-6 align-middle">
                           <span
                             className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                               statusStyles[report.status] ||
@@ -550,7 +512,7 @@ function ManageMissingPeople() {
                           </span>
                         </td>
 
-                        <td className="py-5 text-slate-300">
+                        <td className="py-5 align-middle">
                           <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
                             <button
                               onClick={() =>
@@ -561,7 +523,7 @@ function ManageMissingPeople() {
                               }
                               className="rounded-full bg-emerald-600 px-3 py-2 text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
                             >
-                              Verify
+                              Approve
                             </button>
 
                             <button
@@ -600,7 +562,7 @@ function ManageMissingPeople() {
           <div className="mt-6 flex items-center justify-between text-xs text-slate-400">
             <p>
               Auto-refreshes every 15 seconds. Stats update immediately after
-              verification or rejection.
+              approval or rejection.
             </p>
           </div>
         </section>
@@ -609,4 +571,4 @@ function ManageMissingPeople() {
   );
 }
 
-export default ManageMissingPeople;
+export default ManageSuspiciousReports;
