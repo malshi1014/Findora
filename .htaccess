@@ -1,0 +1,11 @@
+Options -Indexes
+
+<IfModule mod_headers.c>
+    Header always set Access-Control-Allow-Credentials "true"
+    Header always set Access-Control-Allow-Headers "Content-Type, X-CSRF-Token"
+</IfModule>
+
+<FilesMatch "^(\.env|db\.php|db\.example\.php)$">
+    Require all denied
+</FilesMatch>
+
