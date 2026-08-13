@@ -15,6 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 include __DIR__ . "/../config/db.php";
 include __DIR__ . "/../helpers/create_notification.php";
+require_once __DIR__ . "/../helpers/send_location_notifications.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode(array(
@@ -223,6 +224,9 @@ try {
 );
 
     $conn->commit();
+    
+    // Dispatch email notifications (non-blocking, failures won't break the response)
+    sendLocationNotifications($conn, 'missing_pet', $pet_post_id, $nearest_town, $user_id, $pet_name, $description);
 
     echo json_encode(array(
         "status" => "success",

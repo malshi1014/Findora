@@ -15,6 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 
 include __DIR__ . "/../config/db.php";
 include __DIR__ . "/../helpers/create_notification.php";
+require_once __DIR__ . "/../helpers/send_location_notifications.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode(array(
@@ -29,6 +30,7 @@ $category = isset($_POST["category"]) ? trim($_POST["category"]) : "";
 $title = isset($_POST["title"]) ? trim($_POST["title"]) : "";
 $description = isset($_POST["description"]) ? trim($_POST["description"]) : "";
 $district = isset($_POST["district"]) ? trim($_POST["district"]) : "";
+$nearest_town = isset($_POST["nearest_town"]) ? trim($_POST["nearest_town"]) : "";
 $location = isset($_POST["location"]) ? trim($_POST["location"]) : "";
 $lost_date = isset($_POST["lost_date"]) ? trim($_POST["lost_date"]) : "";
 $lost_time = isset($_POST["lost_time"]) ? trim($_POST["lost_time"]) : "";
@@ -41,7 +43,7 @@ if ($user_id <= 0) $missing[] = "user_id";
 if (empty($category)) $missing[] = "category";
 if (empty($title)) $missing[] = "title";
 if (empty($description)) $missing[] = "description";
-if (empty($district)) $missing[] = "district";
+if (empty($nearest_town)) $missing[] = "nearest_town";
 if (empty($location)) $missing[] = "location";
 if (empty($lost_date)) $missing[] = "lost_date";
 if (empty($contact_no)) $missing[] = "contact_no";
@@ -61,8 +63,8 @@ $conn->begin_transaction();
 try {
     $stmt = $conn->prepare("
         INSERT INTO lost_report
-        (user_id, category, title, description, district, location, lost_date, lost_time, unique_identifiers, contact_no, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
+        (user_id, category, title, description, district, nearest_town, location, lost_date, lost_time, unique_identifiers, contact_no, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
     ");
 
     if (!$stmt) {
@@ -70,12 +72,13 @@ try {
     }
 
     $stmt->bind_param(
-        "isssssssss",
+        "issssssssss",
         $user_id,
         $category,
         $title,
         $description,
         $district,
+        $nearest_town,
         $location,
         $lost_date,
         $lost_time,
@@ -156,6 +159,9 @@ try {
 );
 
     $conn->commit();
+    
+    // Dispatch email notifications (non-blocking, failures won't break the response)
+    sendLocationNotifications($conn, 'lost_item', $report_id, $nearest_town, $user_id, $title, $description);
 
     echo json_encode(array(
         "status" => "success",

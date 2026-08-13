@@ -87,7 +87,9 @@ class AuthGuard
             "/auth/register.php",
             "/auth/shopregister.php",
             "/auth/logout.php",
-            "/auth/session.php"
+            "/auth/session.php",
+            // PayHere IPN: called server-to-server, no session cookie present
+            "/donations/payhere_notify.php"
         );
 
         foreach ($publicSuffixes as $suffix) {

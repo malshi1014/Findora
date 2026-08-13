@@ -90,14 +90,12 @@ try {
 
     $statusConditionLost = "";
     $statusConditionFound = "";
-    $statusConditionSuspicious = "";
     $statusConditionPet = "";
     $statusConditionPerson = "";
 
     if ($filter_status !== "all") {
         $statusConditionLost = " AND l.status = '$safe_status' ";
         $statusConditionFound = " AND f.status = '$safe_status' ";
-        $statusConditionSuspicious = " AND s.status = '$safe_status' ";
         $statusConditionPet = " AND p.status = '$safe_status' ";
         $statusConditionPerson = " AND mp.status = '$safe_status' ";
     }
@@ -298,6 +296,19 @@ try {
             $contactSelect = $contactColumn ? "s.`$contactColumn`" : "NULL";
             $statusSelect = $statusColumn ? "s.`$statusColumn`" : "'pending'";
             $createdAtSelect = $createdAtColumn ? "s.`$createdAtColumn`" : "NOW()";
+
+            $statusConditionSuspicious = "";
+            if ($filter_status !== "all") {
+                if ($statusColumn) {
+                    $statusConditionSuspicious = " AND s.`$statusColumn` = '$safe_status' ";
+                } else {
+                    if ($safe_status === 'pending') {
+                         $statusConditionSuspicious = "";
+                    } else {
+                         $statusConditionSuspicious = " AND 1=0 ";
+                    }
+                }
+            }
 
             $suspiciousImageSelect = "NULL AS image_path";
 

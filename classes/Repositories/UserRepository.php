@@ -32,4 +32,37 @@ class UserRepository extends AbstractRepository implements UserRepositoryInterfa
 
         return $user;
     }
+
+    public function findUsersByNearestTown(string $town, int $excludeUserId): array
+    {
+        $statement = $this->connection->prepare("
+            SELECT user_id, first_name, email
+            FROM users
+            WHERE LOWER(TRIM(nearest_town)) = LOWER(TRIM(?))
+            AND user_id != ?
+            AND email_notifications_enabled = 1
+            AND email IS NOT NULL
+        ");
+
+        if (!$statement) {
+            throw new RuntimeException("Database query preparation failed: " . $this->connection->error);
+        }
+
+        $statement->bind_param("si", $town, $excludeUserId);
+
+        if (!$statement->execute()) {
+            throw new RuntimeException("Database query execution failed");
+        }
+
+        $result = $statement->get_result();
+        
+        $users = [];
+        while ($row = $result->fetch_assoc()) {
+            $users[] = $row;
+        }
+
+        $statement->close();
+
+        return $users;
+    }
 }

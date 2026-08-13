@@ -109,6 +109,25 @@ try {
         $updateFound->bind_param("i", $match["found_report_id"]);
         $updateFound->execute();
 
+        // ── Read configurable reward amount from system_config ────────────────
+        $rewardAmount = 100.00; // safe fallback if table doesn't exist yet
+        $cfgResult = $conn->query("
+            SELECT config_value FROM system_config
+            WHERE config_key = 'reward_amount' LIMIT 1
+        ");
+        if ($cfgResult && $cfgRow = $cfgResult->fetch_assoc()) {
+            $rewardAmount = (float) $cfgRow["config_value"];
+        }
+
+        // ── Auto-create a pending reward for the finder ───────────────────────
+        $insertReward = $conn->prepare("
+            INSERT INTO reward (match_id, owner_id, finder_id, amount, status)
+            VALUES (?, ?, ?, ?, 'pending')
+        ");
+        $insertReward->bind_param("iiid", $match_id, $match["owner_id"], $match["finder_id"], $rewardAmount);
+        $insertReward->execute();
+        $insertReward->close();
+
         // Send notification to lost item owner
         $ownerMessage = "Your lost report '" . $match["lost_title"] . "' has a verified match. Please check your dashboard.";
         $ownerNotify = $conn->prepare("
@@ -118,8 +137,10 @@ try {
         $ownerNotify->bind_param("iis", $match["owner_id"], $match_id, $ownerMessage);
         $ownerNotify->execute();
 
-        // Send notification to finder
-        $finderMessage = "Your found report '" . $match["found_title"] . "' has been verified as a possible match. Please check your dashboard.";
+        // Send notification to finder (including reward info)
+        $rewardAmountFormatted = number_format($rewardAmount, 2);
+        $finderMessage = "Your found report '" . $match["found_title"] . "' has been verified as a match! " .
+                         "A Rs. {$rewardAmountFormatted} mobile reload reward is pending for you.";
         $finderNotify = $conn->prepare("
             INSERT INTO match_notification (user_id, match_id, message, type)
             VALUES (?, ?, ?, 'match_verified')
