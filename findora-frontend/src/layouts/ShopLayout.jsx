@@ -1,12 +1,19 @@
 import ShopSidebar from "../components/Sidebar/ShopSidebar";
+import { motion } from "framer-motion";
 
 function ShopLayout({ children }) {
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-transparent flex">
       <ShopSidebar />
-
-      <main className="flex-1 p-8">
-        {children}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="h-full"
+        >
+          {children}
+        </motion.div>
       </main>
     </div>
   );

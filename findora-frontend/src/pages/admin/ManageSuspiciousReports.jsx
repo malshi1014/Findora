@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import API_BASE_URL from "../../config/api";
+import { Search, Filter, RefreshCw } from "lucide-react";
 
 const statusStyles = {
-  pending: "bg-amber-100 text-amber-700",
-  active: "bg-emerald-100 text-emerald-700",
-  rejected: "bg-rose-100 text-rose-700",
+  pending: "bg-amber-50 text-amber-700 border-amber-200",
+  active: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  rejected: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
 function ManageSuspiciousReports() {
@@ -105,7 +106,7 @@ function ManageSuspiciousReports() {
     }
 
     if (report.status === newStatus) {
-      alert(`This suspicious report is already ${newStatus}.`);
+      alert(`This report is already ${newStatus}.`);
       return;
     }
 
@@ -137,7 +138,7 @@ function ManageSuspiciousReports() {
       );
 
       const text = await response.text();
-      console.log("Raw suspicious status update response:", text);
+      console.log("Raw suspicious report status update response:", text);
 
       if (!text) {
         throw new Error("Server returned an empty response.");
@@ -180,7 +181,7 @@ function ManageSuspiciousReports() {
   };
 
   const getStatusLabel = (status) => {
-    if (status === "pending") return "Pending Review";
+    if (status === "pending") return "Pending";
     if (status === "active") return "Approved";
     if (status === "rejected") return "Rejected";
     return status || "Unknown";
@@ -211,7 +212,6 @@ function ManageSuspiciousReports() {
           item.category,
           item.location,
           item.district,
-          item.nearest_town,
           item.user_name,
           item.user_email,
           item.contact_no,
@@ -232,31 +232,28 @@ function ManageSuspiciousReports() {
     {
       label: "Total Suspicious Reports",
       value: suspiciousReports.length,
-      detail: "All submitted suspicious item reports",
+      detail: "Submitted suspicious activity reports",
     },
     {
-      label: "Pending Review",
-      value: suspiciousReports.filter((item) => item.status === "pending")
-        .length,
-      detail: "Waiting for admin approval",
+      label: "Pending Verification",
+      value: suspiciousReports.filter((item) => item.status === "pending").length,
+      detail: "Waiting for admin review",
     },
     {
-      label: "Approved Reports",
-      value: suspiciousReports.filter((item) => item.status === "active")
-        .length,
-      detail: "Verified suspicious reports",
+      label: "Approved Logs",
+      value: suspiciousReports.filter((item) => item.status === "active").length,
+      detail: "Logged into system",
     },
     {
-      label: "Rejected Reports",
-      value: suspiciousReports.filter((item) => item.status === "rejected")
-        .length,
-      detail: "Invalid or rejected reports",
+      label: "Rejected Logs",
+      value: suspiciousReports.filter((item) => item.status === "rejected").length,
+      detail: "Dismissed reports",
     },
   ];
 
   const tabs = [
-    { label: "All Reports", key: "all" },
-    { label: "Pending Review", key: "pending" },
+    { label: "All Logs", key: "all" },
+    { label: "Pending", key: "pending" },
     { label: "Approved", key: "active" },
     { label: "Rejected", key: "rejected" },
   ];
@@ -264,8 +261,8 @@ function ManageSuspiciousReports() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="p-8 text-slate-700">
-          Loading suspicious reports...
+        <div className="flex h-full min-h-[400px] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
         </div>
       </AdminLayout>
     );
@@ -274,12 +271,12 @@ function ManageSuspiciousReports() {
   if (error) {
     return (
       <AdminLayout>
-        <div className="p-8">
-          <p className="text-red-600">{error}</p>
-
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center max-w-lg mx-auto mt-12">
+          <h3 className="text-lg font-bold text-red-800">Connection Failed</h3>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
           <button
             onClick={() => fetchSuspiciousReports()}
-            className="mt-4 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="mt-5 rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-all"
           >
             Try Again
           </button>
@@ -290,87 +287,83 @@ function ManageSuspiciousReports() {
 
   return (
     <AdminLayout>
-      <div className="mx-auto max-w-7xl space-y-8">
-        <section className="rounded-[2rem] bg-slate-950/95 p-8 text-white shadow-2xl shadow-slate-900/40">
+      <div className="mx-auto max-w-7xl space-y-6">
+        {/* Header */}
+        <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-6 md:p-8 text-slate-900 shadow-sm backdrop-blur-md">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-sky-300/80">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">
                 Findora Admin
               </p>
-
-              <h1 className="mt-4 text-4xl font-semibold">
-                Suspicious Reports Management
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">
+                Suspicious Activities Management
               </h1>
-
-              <p className="mt-3 max-w-2xl text-sm text-slate-300">
-                Review suspicious item reports submitted by verified shop owners.
-                These reports are for admin verification and investigation.
+              <p className="mt-2 text-sm text-slate-500 max-w-2xl">
+                Review, approve, reject and monitor all suspicious item or activity reports submitted by shop owners.
               </p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="relative w-full max-w-sm">
-                <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-500">
-                  🔍
-                </span>
-
+              <div className="relative w-full sm:w-64">
+                <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="search"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search ID, shop owner, item, location..."
-                  className="w-full rounded-full border border-slate-800 bg-slate-900/90 py-3 pl-12 pr-4 text-sm text-slate-100 outline-none focus:border-blue-500"
+                  placeholder="Search ID, finder, location..."
+                  className="w-full rounded-full border border-slate-200 bg-white py-2.5 pl-11 pr-4 text-xs text-slate-950 placeholder-slate-400 outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
               <button
                 onClick={() => fetchSuspiciousReports()}
-                className="rounded-full bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-500"
+                className="flex items-center justify-center gap-1.5 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-all"
               >
+                <RefreshCw className="h-3.5 w-3.5" />
                 Refresh
               </button>
             </div>
           </div>
         </section>
 
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {/* Stats Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="rounded-[1.75rem] bg-blue-950/95 p-6 shadow-xl shadow-slate-900/20"
+              className="rounded-2xl border border-slate-200/50 bg-white/80 p-5 shadow-xs backdrop-blur-md"
             >
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                 {stat.label}
               </p>
-
-              <p className="mt-4 text-3xl font-semibold text-white">
+              <p className="mt-2.5 text-2xl font-bold text-slate-950">
                 {stat.value}
               </p>
-
-              <p className="mt-3 text-sm text-slate-400">{stat.detail}</p>
+              <p className="mt-1 text-[10px] text-slate-500">{stat.detail}</p>
             </div>
           ))}
         </div>
 
-        <section className="rounded-[2rem] bg-slate-950/95 p-6 shadow-2xl shadow-slate-900/40">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-wrap gap-2">
+        {/* Table list box */}
+        <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-5 md:p-6 shadow-sm backdrop-blur-md">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5">
+            <div className="flex flex-wrap gap-2 text-xs">
+              <Filter className="h-3.5 w-3.5 text-slate-400 self-center mr-1" />
               {tabs.map((tab) => {
                 const count =
                   tab.key === "all"
                     ? suspiciousReports.length
-                    : suspiciousReports.filter(
-                        (item) => item.status === tab.key
-                      ).length;
+                    : suspiciousReports.filter((item) => item.status === tab.key)
+                        .length;
 
                 return (
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
-                    className={`rounded-full border px-4 py-2 text-xs font-semibold transition ${
+                    className={`rounded-full px-4 py-1.5 font-semibold transition ${
                       activeTab === tab.key
-                        ? "border-blue-500 bg-blue-600 text-white"
-                        : "border-slate-800 bg-slate-900/80 text-slate-300 hover:border-slate-700 hover:bg-slate-800"
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-100 text-slate-650 hover:bg-slate-200"
                     }`}
                   >
                     {tab.label} ({count})
@@ -379,49 +372,31 @@ function ManageSuspiciousReports() {
               })}
             </div>
 
-            <p className="text-xs text-slate-400">
-              Showing {filteredReports.length} of {suspiciousReports.length}{" "}
-              suspicious reports
+            <p className="text-xs text-slate-400 font-medium">
+              Showing {filteredReports.length} of {suspiciousReports.length} suspicious reports
             </p>
           </div>
 
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full min-w-[1050px] border-separate border-spacing-y-3 text-left text-sm text-slate-300">
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full min-w-[1000px] border-collapse text-left text-xs">
               <thead>
                 <tr>
-                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Image
-                  </th>
-                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Report ID
-                  </th>
-                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Item Details
-                  </th>
-                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Shop Owner
-                  </th>
-                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Location
-                  </th>
-                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Date / Time
-                  </th>
-                  <th className="pb-4 pr-6 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Status
-                  </th>
-                  <th className="pb-4 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                    Actions
-                  </th>
+                  <th className="pb-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Item Details</th>
+                  <th className="pb-4 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Post ID</th>
+                  <th className="pb-4 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Category & Location</th>
+                  <th className="pb-4 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Finder Details</th>
+                  <th className="pb-4 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Date & Time</th>
+                  <th className="pb-4 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Status</th>
+                  <th className="pb-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 text-right">Actions</th>
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {filteredReports.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="8"
-                      className="py-10 text-center text-sm text-slate-400"
+                      colSpan="7"
+                      className="py-12 text-center text-sm text-slate-400"
                     >
                       No suspicious reports found.
                     </td>
@@ -434,94 +409,80 @@ function ManageSuspiciousReports() {
                     return (
                       <tr
                         key={report.report_id}
-                        className="rounded-[1.5rem] bg-slate-900/80 shadow-sm shadow-slate-950/20"
+                        className="hover:bg-slate-50/50 transition-colors"
                       >
-                        <td className="py-5 pr-6 align-middle">
-                          {imageUrl ? (
-                            <img
-                              src={imageUrl}
-                              alt={report.title || "Suspicious item"}
-                              className="h-16 w-16 rounded-3xl object-cover"
-                            />
-                          ) : (
-                            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-slate-800 text-xs text-slate-300">
-                              No Img
+                        <td className="py-4 pr-4">
+                          <div className="flex items-center gap-3.5 max-w-sm">
+                            {imageUrl ? (
+                              <img
+                                src={imageUrl}
+                                alt={report.title}
+                                className="h-12 w-12 shrink-0 rounded-lg object-cover border border-slate-100 shadow-xs"
+                              />
+                            ) : (
+                              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-100 text-[10px] text-slate-400 font-semibold">
+                                No Image
+                              </div>
+                            )}
+
+                            <div className="min-w-0">
+                              <p className="font-bold text-slate-900 text-sm truncate">
+                                {report.title}
+                              </p>
+                              <p className="mt-0.5 line-clamp-1 text-[10px] text-slate-400">
+                                {report.description}
+                              </p>
                             </div>
-                          )}
+                          </div>
                         </td>
 
-                        <td className="py-5 pr-6 align-middle font-semibold text-white">
-                          #SR-{report.report_id}
+                        <td className="py-4 pr-4 font-semibold text-slate-700">
+                          #SP-{report.report_id}
                         </td>
 
-                        <td className="py-5 pr-6 align-middle">
-                          <p className="font-semibold text-white">
-                            {report.title || "Suspicious Item"}
-                          </p>
-
-                          <p className="mt-1 text-xs text-slate-400">
-                            {report.category || "Suspicious Item"}
-                          </p>
-
-                          <p className="mt-1 max-w-xs text-xs text-slate-500">
-                            {report.description || "No description provided"}
-                          </p>
-
-                          {report.unique_identifiers && (
-                            <p className="mt-1 max-w-xs text-xs text-sky-300">
-                              ID: {report.unique_identifiers}
-                            </p>
-                          )}
-                        </td>
-
-                        <td className="py-5 pr-6 align-middle text-slate-300">
-                          <p>{report.user_name || "Unknown user"}</p>
-                          <p className="mt-1 text-xs text-slate-400">
-                            {report.user_email || "No email"}
-                          </p>
-                          <p className="mt-1 text-xs text-slate-500">
-                            {report.user_mobile || report.contact_no || "No contact"}
+                        <td className="py-4 pr-4 text-slate-700">
+                          <p className="font-semibold text-slate-800">{report.category}</p>
+                          <p className="mt-0.5 text-[10px] text-slate-400">
+                            {report.location} • {report.district}
                           </p>
                         </td>
 
-                        <td className="py-5 pr-6 align-middle text-slate-300">
-                          <p>{report.location || "No location"}</p>
-                          <p className="mt-1 text-xs text-slate-400">
-                            {report.nearest_town || "No nearest town"}
-                          </p>
-                          <p className="mt-1 text-xs text-slate-500">
-                            {report.district || "No district"}
+                        <td className="py-4 pr-4 text-slate-700">
+                          <p className="font-semibold text-slate-800">{report.user_name}</p>
+                          <p className="mt-0.5 text-[10px] text-slate-400">
+                            {report.user_email}
                           </p>
                         </td>
 
-                        <td className="py-5 pr-6 align-middle text-slate-300">
-                          <p>{report.report_date || "No date"}</p>
-                          <p className="mt-1 text-xs text-slate-400">
+                        <td className="py-4 pr-4 text-slate-700">
+                          <p className="font-semibold text-slate-800">{report.report_date}</p>
+                          <p className="mt-0.5 text-[10px] text-slate-400">
                             {report.report_time || "Not specified"}
                           </p>
                         </td>
 
-                        <td className="py-5 pr-6 align-middle">
+                        <td className="py-4 pr-4">
                           <span
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                            className={`inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                               statusStyles[report.status] ||
-                              "bg-slate-800 text-slate-300"
+                              "bg-slate-50 text-slate-650 border-slate-200"
                             }`}
                           >
                             {getStatusLabel(report.status)}
                           </span>
                         </td>
 
-                        <td className="py-5 align-middle">
-                          <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
+                        <td className="py-4 text-right">
+                          <div className="flex items-center justify-end gap-2 text-[10px] font-bold uppercase tracking-wider">
                             <button
                               onClick={() =>
                                 updateReportStatus(report, "active")
                               }
                               disabled={
-                                isUpdating || report.status === "active"
+                                isUpdating ||
+                                report.status === "active"
                               }
-                              className="rounded-full bg-emerald-600 px-3 py-2 text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40"
+                              className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-600 hover:bg-emerald-100 transition disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               Approve
                             </button>
@@ -531,9 +492,10 @@ function ManageSuspiciousReports() {
                                 updateReportStatus(report, "rejected")
                               }
                               disabled={
-                                isUpdating || report.status === "rejected"
+                                isUpdating ||
+                                report.status === "rejected"
                               }
-                              className="rounded-full bg-rose-600 px-3 py-2 text-white transition hover:bg-rose-500 disabled:cursor-not-allowed disabled:opacity-40"
+                              className="rounded-full bg-rose-50 px-3 py-1.5 text-rose-600 hover:bg-rose-100 transition disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               Reject
                             </button>
@@ -543,9 +505,10 @@ function ManageSuspiciousReports() {
                                 updateReportStatus(report, "pending")
                               }
                               disabled={
-                                isUpdating || report.status === "pending"
+                                isUpdating ||
+                                report.status === "pending"
                               }
-                              className="rounded-full bg-slate-800 px-3 py-2 text-slate-200 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                              className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-600 hover:bg-slate-200 transition disabled:cursor-not-allowed disabled:opacity-40"
                             >
                               Pending
                             </button>
@@ -559,10 +522,9 @@ function ManageSuspiciousReports() {
             </table>
           </div>
 
-          <div className="mt-6 flex items-center justify-between text-xs text-slate-400">
+          <div className="mt-5 flex items-center justify-between text-[11px] text-slate-400 font-medium border-t border-slate-100 pt-5">
             <p>
-              Auto-refreshes every 15 seconds. Stats update immediately after
-              approval or rejection.
+              Auto-refreshes every 15 seconds. Stats update immediately after approval or rejection.
             </p>
           </div>
         </section>

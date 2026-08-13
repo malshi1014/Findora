@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import logo from "../../assets/logo/registration.svg";
+import { UserPlus, ArrowRight, ShieldCheck, Mail, MapPin, Phone, Lock, Hash } from "lucide-react";
+import { motion } from "framer-motion";
+import TownSelect from "../../components/TownSelect";
 
 function Register() {
   const navigate = useNavigate();
@@ -23,7 +26,6 @@ function Register() {
     e.preventDefault();
     setError("");
 
-    // Client-side registration validation.
     if (!agree) {
       setError("Please agree to the Terms of Service and Privacy Policy.");
       return;
@@ -34,26 +36,14 @@ function Register() {
       return;
     }
 
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !nic ||
-      !phone ||
-      !city ||
-      !address ||
-      !password
-    ) {
+    if (!firstName || !lastName || !email || !nic || !phone || !city || !address || !password) {
       setError("Please fill in all required fields.");
       return;
     }
 
     setLoading(true);
 
-    // Handle registration API errors.
     try {
-      console.log("API BASE URL:", API_BASE_URL);
-
       const response = await fetch(`${API_BASE_URL}/auth/register.php`, {
         method: "POST",
         headers: {
@@ -72,10 +62,7 @@ function Register() {
       });
 
       const text = await response.text();
-      console.log("Raw register response:", text);
-
       const data = JSON.parse(text);
-      console.log("Register response:", data);
 
       if (data.status === "success") {
         alert("Account created successfully! Please login.");
@@ -84,194 +71,273 @@ function Register() {
         setError(data.message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      setError(
-        "Backend connection failed. Please check Apache, MySQL, and register.php."
-      );
+      setError("Backend connection failed. Please check your connection.");
       console.error("Register error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-linear-to-br from-blue-300 via-blue-100 to-blue-300 flex items-center justify-center p-6">
-      <div
-        className="w-full max-w-5xl overflow-hidden rounded-3xl border border-white/40 bg-[radial-gradient(circle_at_center,rgba(186,230,253,0.85)_0%,rgba(96,165,250,0.65)_45%,rgba(30,64,175,0.95)_100%)] backdrop-blur-2xl shadow-2xl shadow-blue-900/20 animate-fade-up"
-        style={{ animationDelay: "0.04s" }}
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          {/* Left Side */}
-          <div
-            className="p-10 flex flex-col gap-6 items-start justify-center animate-fade-up"
-            style={{ animationDelay: "0.08s" }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 flex items-center justify-center">
-                <img
-                  src="/favicon.png"
-                  alt="Findora Logo"
-                  className="h-full w-full object-contain rounded-full"
-                />
-              </div>
-              <h3 className="text-lg font-semibold text-slate-950">Findora</h3>
-            </div>
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+    }
+  };
 
-            <div className="max-w-md">
-              <h2 className="text-2xl font-bold text-slate-950">
-                Join Our Community of Finders.
+  const itemVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  };
+
+  return (
+    <div className="min-h-screen bg-transparent flex items-center justify-center p-4 sm:p-8 relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-200/40 mix-blend-multiply blur-[100px]" />
+        <div className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-indigo-200/40 mix-blend-multiply blur-[100px]" />
+        <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-purple-200/40 mix-blend-multiply blur-[100px]" />
+      </div>
+
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl shadow-slate-200/50 flex flex-col lg:flex-row overflow-hidden relative z-10 border border-slate-100"
+      >
+        {/* Left Side - Brand & Illustration */}
+        <div className="lg:w-5/12 bg-blue-600 p-6 flex flex-col justify-between text-white relative overflow-hidden hidden md:flex">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800" />
+          {/* Decorative Pattern overlay */}
+          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
+          
+          <div className="relative z-10">
+            <Link to="/" className="flex items-center gap-3 w-fit hover:opacity-90 transition-opacity">
+              <div className="h-8 w-8 bg-white rounded-lg flex items-center justify-center shadow-lg">
+                <img src="/favicon.png" alt="Findora" className="h-5 w-5 object-contain" />
+              </div>
+              <span className="text-lg font-bold tracking-tight">Findora</span>
+            </Link>
+
+            <div className="mt-10">
+              <h2 className="text-2xl font-bold leading-tight mb-3">
+                Join our community<br/>of finders.
               </h2>
-              <p className="mt-3 text-sm leading-6 text-slate-900">
-                Create an account to report lost items, help others recover
-                their valuables and become part of a reliable network dedicated
-                to restoring peace of mind.
+              <p className="text-blue-100 text-sm leading-relaxed max-w-xs">
+                Create an account to report lost items, help others recover their valuables, and become part of a reliable network.
               </p>
             </div>
-
-            <div className="mt-4 ml-10 rounded-2xl border border-white/40 bg-white/60 backdrop-blur-xl p-4 shadow-xl">
-              <img
-                src={logo}
-                alt="register"
-                className="w-full h-full object-contain"
-              />
+            
+            <div className="mt-6 space-y-2">
+              <div className="flex items-center gap-2 text-blue-100 text-xs">
+                <ShieldCheck className="w-4 h-4 text-blue-300" />
+                <span>Secure & Verified Community</span>
+              </div>
+              <div className="flex items-center gap-2 text-blue-100 text-xs">
+                <UserPlus className="w-4 h-4 text-blue-300" />
+                <span>Easy Registration Process</span>
+              </div>
             </div>
           </div>
 
-          {/* Right Side */}
-          <div className="p-8 bg-white/20 backdrop-blur-xl border-l border-white/30">
-            <div
-              className="max-w-md mx-auto animate-fade-up"
-              style={{ animationDelay: "0.12s" }}
+          <div className="relative z-10 mt-6 bg-white/10 rounded-xl p-3 backdrop-blur-sm border border-white/20">
+            <img src={logo} alt="register illustration" className="w-full h-auto drop-shadow-2xl opacity-90" />
+          </div>
+        </div>
+
+        {/* Right Side - Form */}
+        <div className="lg:w-7/12 p-6 sm:p-8 flex flex-col justify-center bg-white">
+          <div className="max-w-md mx-auto w-full">
+            <div className="mb-6">
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Create your account</h3>
+              <p className="text-sm text-slate-500">Get started by filling out the details below.</p>
+            </div>
+
+            <motion.form 
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              onSubmit={handleSubmit} 
+              className="space-y-4"
             >
-              <h3 className="text-xl font-semibold text-slate-950">
-                Create Account
-              </h3>
-              <p className="text-sm text-slate-800">
-                Get started by filling out the details below.
-              </p>
+              {error && (
+                <motion.div variants={itemVariants} className="bg-red-50 text-red-600 p-3 rounded-lg border border-red-100 text-xs flex items-start gap-2">
+                  <div className="shrink-0 mt-0.5">⚠️</div>
+                  <p>{error}</p>
+                </motion.div>
+              )}
 
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-                {error && (
-                  <div className="rounded-2xl bg-red-50/80 p-3 text-sm text-red-600 border border-red-200">
-                    {error}
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">First Name</label>
                   <input
-                    placeholder="First Name"
+                    type="text"
+                    placeholder="John"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                    style={{ animationDelay: "0.16s" }}
+                    className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
                   />
-
+                </motion.div>
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">Last Name</label>
                   <input
-                    placeholder="Last Name"
+                    type="text"
+                    placeholder="Doe"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                    style={{ animationDelay: "0.18s" }}
+                    className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                  />
+                </motion.div>
+              </div>
+
+              <motion.div variants={itemVariants} className="space-y-1">
+                <label className="text-xs font-medium text-slate-700">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    type="email"
+                    placeholder="john@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
                   />
                 </div>
+              </motion.div>
 
-                <input
-                  placeholder="Email Address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                  style={{ animationDelay: "0.20s" }}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">NIC Number</label>
+                  <div className="relative">
+                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Enter NIC"
+                      value={nic}
+                      onChange={(e) => setNic(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                    />
+                  </div>
+                </motion.div>
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">Phone Number</label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="tel"
+                      placeholder="07X XXX XXXX"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                    />
+                  </div>
+                </motion.div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    placeholder="NIC"
-                    value={nic}
-                    onChange={(e) => setNic(e.target.value)}
-                    className="rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                    style={{ animationDelay: "0.22s" }}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">Nearest Town</label>
+                  <TownSelect 
+                    value={city}
+                    onChange={setCity}
                   />
-
+                </motion.div>
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">District</label>
                   <input
-                    placeholder="Phone Number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                    style={{ animationDelay: "0.24s" }}
+                    type="text"
+                    placeholder="e.g. Western"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
                   />
-                </div>
+                </motion.div>
+              </div>
 
-                <input
-                  placeholder="Nearest Town"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  className="w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                  style={{ animationDelay: "0.26s" }}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                    />
+                  </div>
+                </motion.div>
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">Confirm Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="password"
+                      placeholder="••••••••"
+                      value={confirm}
+                      onChange={(e) => setConfirm(e.target.value)}
+                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                    />
+                  </div>
+                </motion.div>
+              </div>
 
-                <input
-                  placeholder="District"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                  style={{ animationDelay: "0.28s" }}
-                />
-
-                <input
-                  placeholder="Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                  style={{ animationDelay: "0.30s" }}
-                />
-
-                <input
-                  placeholder="Confirm Password"
-                  type="password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  className="w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-200 animate-fade-up"
-                  style={{ animationDelay: "0.32s" }}
-                />
-
-                <label className="flex items-center gap-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={agree}
-                    onChange={() => setAgree(!agree)}
-                    className="h-4 w-4"
-                  />
-                  I agree to the{" "}
-                  <Link to="#" className="text-blue-700 font-medium">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link to="#" className="text-blue-700 font-medium">
-                    Privacy Policy
-                  </Link>
-                  .
+              <motion.div variants={itemVariants} className="pt-1">
+                <label className="flex items-start gap-2 cursor-pointer group">
+                  <div className="relative flex items-center justify-center mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={agree}
+                      onChange={() => setAgree(!agree)}
+                      className="peer w-4 h-4 appearance-none rounded border-2 border-slate-300 checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer"
+                    />
+                    <svg className="absolute w-2.5 h-2.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 5L4.5 8.5L13 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <span className="text-xs text-slate-600 leading-relaxed">
+                    I agree to the{" "}
+                    <Link to="#" className="text-blue-600 font-medium hover:underline">Terms of Service</Link>
+                    {" "}and{" "}
+                    <Link to="#" className="text-blue-600 font-medium hover:underline">Privacy Policy</Link>
+                    .
+                  </span>
                 </label>
+              </motion.div>
 
+              <motion.div variants={itemVariants} className="pt-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-white font-semibold shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed animate-fade-up"
-                  style={{ animationDelay: "0.36s" }}
+                  className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 >
-                  {loading ? "Creating Account..." : "Create Account"}
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Creating Account...
+                    </span>
+                  ) : (
+                    <>
+                      Create Account
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
+              </motion.div>
 
-                <p className="text-center text-sm text-slate-600">
+              <motion.div variants={itemVariants} className="text-center pt-2">
+                <p className="text-xs text-slate-600">
                   Already have an account?{" "}
-                  <Link to="/login" className="text-blue-700 font-medium">
-                    Login
+                  <Link to="/login" className="text-blue-600 font-semibold hover:underline">
+                    Log in here
                   </Link>
                 </p>
-              </form>
-            </div>
+              </motion.div>
+            </motion.form>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

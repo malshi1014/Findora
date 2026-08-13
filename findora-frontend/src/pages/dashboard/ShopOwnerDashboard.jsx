@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ShopLayout from "../../layouts/ShopLayout";
 import API_BASE_URL from "../../config/api";
+import { ShieldAlert, AlertTriangle, Bell, ArrowRight, ShieldCheck, Plus, Search, Clock, XCircle, FileText } from "lucide-react";
+import { motion } from "framer-motion";
 
 function ShopOwnerDashboard() {
   const [reports, setReports] = useState({
@@ -14,11 +16,7 @@ function ShopOwnerDashboard() {
 
   const getCurrentUser = () => {
     const storedUser = localStorage.getItem("findora_user");
-
-    if (!storedUser) {
-      return null;
-    }
-
+    if (!storedUser) return null;
     try {
       return JSON.parse(storedUser);
     } catch {
@@ -48,22 +46,15 @@ function ShopOwnerDashboard() {
         setLoading(true);
         setError("");
 
-        console.log("API BASE URL:", API_BASE_URL);
-        console.log("Logged shop owner:", currentUser);
-
         const reportsResponse = await fetch(
           `${API_BASE_URL}/reports/get_my_reports.php?user_id=${currentUser.user_id}`
         );
 
         const reportsText = await reportsResponse.text();
-        console.log("Raw shop owner reports response:", reportsText);
 
-        if (!reportsText) {
-          throw new Error("Reports API returned empty response.");
-        }
+        if (!reportsText) throw new Error("Reports API returned empty response.");
 
         let reportsData;
-
         try {
           reportsData = JSON.parse(reportsText);
         } catch {
@@ -82,19 +73,16 @@ function ShopOwnerDashboard() {
           const notificationResponse = await fetch(
             `${API_BASE_URL}/notifications/get_notifications.php?user_id=${currentUser.user_id}`
           );
-
           const notificationText = await notificationResponse.text();
-          console.log("Raw shop notifications response:", notificationText);
 
           if (notificationText) {
             const notificationData = JSON.parse(notificationText);
-
             if (notificationData.status === "success") {
               setNotifications(notificationData.notifications || []);
             }
           }
         } catch (notificationError) {
-          console.warn("Notifications failed, but dashboard will still load.");
+          // Silently fail notifications
           setNotifications([]);
         }
       } catch (err) {
@@ -122,39 +110,36 @@ function ShopOwnerDashboard() {
   const recentNotifications = notifications.slice(0, 3);
 
   const unreadCount = notifications.filter((item) => item.is_read == 0).length;
-  const pendingReports = suspiciousReports.filter(
-    (item) => item.status === "pending"
-  ).length;
-  const activeReports = suspiciousReports.filter(
-    (item) => item.status === "active"
-  ).length;
-  const rejectedReports = suspiciousReports.filter(
-    (item) => item.status === "rejected"
-  ).length;
+  const pendingReports = suspiciousReports.filter((item) => item.status === "pending").length;
+  const activeReports = suspiciousReports.filter((item) => item.status === "active").length;
+  const rejectedReports = suspiciousReports.filter((item) => item.status === "rejected").length;
 
   const getImageUrl = (report) => {
-    if (report.images && report.images.length > 0) {
-      return `${API_BASE_URL}/${report.images[0].image_path}`;
-    }
-
-    if (report.image_path) {
-      return `${API_BASE_URL}/${report.image_path}`;
-    }
-
+    if (report.images && report.images.length > 0) return `${API_BASE_URL}/${report.images[0].image_path}`;
+    if (report.image_path) return `${API_BASE_URL}/${report.image_path}`;
     return null;
   };
 
+  const getStatusIcon = (status) => {
+    if (status === "active") return <ShieldCheck className="w-3 h-3 mr-1" />;
+    if (status === "pending") return <Clock className="w-3 h-3 mr-1" />;
+    if (status === "rejected") return <XCircle className="w-3 h-3 mr-1" />;
+    return <FileText className="w-3 h-3 mr-1" />;
+  };
+
   const getStatusStyle = (status) => {
-    if (status === "active") return "bg-green-100 text-green-700";
-    if (status === "pending") return "bg-orange-100 text-orange-700";
-    if (status === "rejected") return "bg-red-100 text-red-700";
-    return "bg-slate-100 text-slate-700";
+    if (status === "active") return "bg-green-50 text-green-700 border-green-200";
+    if (status === "pending") return "bg-amber-50 text-amber-700 border-amber-200";
+    if (status === "rejected") return "bg-red-50 text-red-700 border-red-200";
+    return "bg-slate-50 text-slate-700 border-slate-200";
   };
 
   if (loading) {
     return (
       <ShopLayout>
-        <p className="p-6 text-slate-700">Loading shop owner dashboard...</p>
+        <div className="flex h-full items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+        </div>
       </ShopLayout>
     );
   }
@@ -162,15 +147,19 @@ function ShopOwnerDashboard() {
   if (error) {
     return (
       <ShopLayout>
-        <div className="p-6">
-          <p className="text-red-600">{error}</p>
-
-          <Link
-            to="/shop-owner/report-suspicious"
-            className="mt-4 inline-flex rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-          >
-            Report Suspicious Item
-          </Link>
+        <div className="p-8">
+          <div className="rounded-xl bg-red-50 p-6 border border-red-100 text-red-600">
+            <AlertTriangle className="mb-2 h-6 w-6" />
+            <h3 className="font-semibold text-red-800">Error Loading Dashboard</h3>
+            <p className="text-sm mt-1">{error}</p>
+            <Link
+              to="/shop-owner/report-suspicious"
+              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-red-700"
+            >
+              <Plus className="w-4 h-4" />
+              Report Suspicious Item Anyway
+            </Link>
+          </div>
         </div>
       </ShopLayout>
     );
@@ -178,207 +167,197 @@ function ShopOwnerDashboard() {
 
   return (
     <ShopLayout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-100 to-white py-10">
-        <div className="mx-auto max-w-6xl space-y-8 px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-            <div className="flex-1 rounded-2xl border border-white/40 bg-white/30 p-8 shadow-lg backdrop-blur-xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
-                Shop Owner Dashboard
-              </p>
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
+        
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Welcome back, {user?.first_name || "Shop Owner"}
+            </h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Manage your store's security and suspicious item reports.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              to="/shop-owner/report-suspicious"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 hover:shadow"
+            >
+              <ShieldAlert className="w-4 h-4" />
+              Report Suspicious Item
+            </Link>
+          </div>
+        </div>
 
-              <h1 className="mt-4 text-3xl font-bold text-slate-950">
-                Welcome back, {user?.first_name || "Shop Owner"}!
-              </h1>
-
-              <p className="mt-3 max-w-2xl text-sm text-slate-700">
-                Submit suspicious item reports and track admin approval status.
-              </p>
-
-              <div className="mt-6 grid gap-4 md:grid-cols-4">
-                <div className="rounded-3xl border border-white/50 bg-white/60 p-5 shadow-xl backdrop-blur-xl">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Total Reports
-                  </p>
-                  <p className="mt-3 text-3xl font-bold text-blue-600">
-                    {suspiciousReports.length}
-                  </p>
-                </div>
-
-                <div className="rounded-3xl border border-white/50 bg-white/60 p-5 shadow-xl backdrop-blur-xl">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Pending
-                  </p>
-                  <p className="mt-3 text-3xl font-bold text-orange-500">
-                    {pendingReports}
-                  </p>
-                </div>
-
-                <div className="rounded-3xl border border-white/50 bg-white/60 p-5 shadow-xl backdrop-blur-xl">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Active
-                  </p>
-                  <p className="mt-3 text-3xl font-bold text-green-600">
-                    {activeReports}
-                  </p>
-                </div>
-
-                <div className="rounded-3xl border border-white/50 bg-white/60 p-5 shadow-xl backdrop-blur-xl">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                    Rejected
-                  </p>
-                  <p className="mt-3 text-3xl font-bold text-red-600">
-                    {rejectedReports}
-                  </p>
-                </div>
+        {/* Stats Row */}
+        <div className="grid gap-5 md:grid-cols-4">
+          <motion.div whileHover={{ y: -2 }} className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+                <FileText className="h-6 w-6" />
               </div>
-
-              <div className="mt-6 flex items-center gap-4 rounded-2xl border border-white/50 bg-white/40 p-4 shadow-xl backdrop-blur-xl">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-blue-600 shadow-sm">
-                  ✓
-                </div>
-
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    Suspicious Item Status
-                  </p>
-                  <p className="text-sm text-slate-700">
-                    You have {pendingReports} pending report(s), {activeReports} approved report(s), and {unreadCount} unread alert(s).
-                  </p>
-                </div>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Total Reports</p>
+                <p className="text-2xl font-bold text-slate-900">{suspiciousReports.length}</p>
               </div>
+            </div>
+          </motion.div>
 
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
-                <div className="space-y-3">
-                  <h4 className="text-sm font-semibold text-slate-900">
-                    Recent Activity
-                  </h4>
+          <motion.div whileHover={{ y: -2 }} className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+                <Clock className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Pending</p>
+                <p className="text-2xl font-bold text-slate-900">{pendingReports}</p>
+              </div>
+            </div>
+          </motion.div>
 
-                  <div className="mt-2 space-y-4">
-                    {recentNotifications.length === 0 ? (
-                      <div className="rounded-3xl border border-white/50 bg-white/40 p-5 shadow-xl backdrop-blur-xl">
-                        <p className="text-sm text-slate-600">
-                          No recent notifications yet.
-                        </p>
-                      </div>
-                    ) : (
-                      recentNotifications.map((item) => (
-                        <div
-                          key={item.notification_id}
-                          className="rounded-3xl border border-white/50 bg-white/40 p-5 shadow-xl backdrop-blur-xl"
-                        >
-                          <p className="text-xs text-blue-600">
-                            {item.created_at}
-                          </p>
-                          <p className="mt-1 text-sm font-semibold text-slate-950">
-                            Notification
-                          </p>
-                          <p className="mt-1 text-sm text-slate-700">
-                            {item.message}
-                          </p>
-                        </div>
-                      ))
-                    )}
-                  </div>
+          <motion.div whileHover={{ y: -2 }} className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-50 text-green-600">
+                <ShieldCheck className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Active</p>
+                <p className="text-2xl font-bold text-slate-900">{activeReports}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div whileHover={{ y: -2 }} className="rounded-xl bg-white p-6 shadow-sm border border-slate-200">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-50 text-red-600">
+                <XCircle className="h-6 w-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-500">Rejected</p>
+                <p className="text-2xl font-bold text-slate-900">{rejectedReports}</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Main Content Area - Recent Reports */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-slate-900">Recent Suspicious Reports</h2>
+              <Link to="/shop-owner/report-suspicious" className="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                View all <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              {recentReports.length === 0 ? (
+                <div className="sm:col-span-2 rounded-xl bg-white border border-dashed border-slate-300 p-12 text-center">
+                  <ShieldAlert className="mx-auto h-8 w-8 text-slate-400 mb-3" />
+                  <h3 className="text-sm font-medium text-slate-900">No reports found</h3>
+                  <p className="mt-1 text-sm text-slate-500">Your store's suspicious activity reports will appear here.</p>
+                  <Link
+                    to="/shop-owner/report-suspicious"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-white border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Report Issue
+                  </Link>
                 </div>
-
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-sm font-semibold text-slate-900">
-                      My Suspicious Reports
-                    </h4>
-
-                    <Link
-                      to="/shop-owner/report-suspicious"
-                      className="text-xs font-semibold text-blue-700 hover:underline"
+              ) : (
+                recentReports.map((report) => {
+                  const imageUrl = getImageUrl(report);
+                  return (
+                    <div
+                      key={`suspicious-${report.report_id || report.suspicious_id}`}
+                      className="group rounded-xl bg-white border border-slate-200 p-4 shadow-sm transition-all hover:shadow-md hover:border-blue-200"
                     >
-                      Add New
-                    </Link>
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {recentReports.length === 0 ? (
-                      <div className="rounded-3xl border border-white/50 bg-white/40 p-5 text-center shadow-xl backdrop-blur-xl sm:col-span-2">
-                        <p className="text-sm text-slate-600">
-                          You have not submitted suspicious item reports yet.
-                        </p>
-                      </div>
-                    ) : (
-                      recentReports.map((report) => {
-                        const imageUrl = getImageUrl(report);
-
-                        return (
-                          <div
-                            key={`suspicious-${report.report_id || report.suspicious_id}`}
-                            className="rounded-3xl border border-white/50 bg-white/40 p-4 shadow-xl backdrop-blur-xl"
-                          >
-                            {imageUrl ? (
-                              <img
-                                src={imageUrl}
-                                alt={report.title}
-                                className="h-24 w-full rounded-2xl object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-24 w-full items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
-                                No Image
-                              </div>
-                            )}
-
-                            <div className="mt-3 flex items-center justify-between gap-2">
-                              <p className="line-clamp-1 text-sm font-semibold text-slate-950">
-                                {report.title}
-                              </p>
-
-                              <span
-                                className={`rounded-full px-2 py-1 text-[10px] font-semibold ${getStatusStyle(
-                                  report.status
-                                )}`}
-                              >
-                                {report.status}
-                              </span>
+                      <div className="flex gap-4">
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-100 border border-slate-200/60">
+                          {imageUrl ? (
+                            <img src={imageUrl} alt={report.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center text-slate-400">
+                              <ShieldAlert className="h-6 w-6 opacity-50" />
                             </div>
-
-                            <p className="mt-1 text-xs text-slate-600">
-                              Suspicious Item Report
-                            </p>
-
-                            <p className="text-xs text-slate-500">
-                              Reported: {report.date || "Not specified"}
-                            </p>
+                          )}
+                        </div>
+                        <div className="flex flex-1 flex-col justify-between py-0.5">
+                          <div>
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="text-sm font-semibold text-slate-900 line-clamp-1">{report.title}</p>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">{report.date || "Not specified"}</p>
                           </div>
-                        );
-                      })
-                    )}
+                          <div className="flex items-center">
+                            <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${getStatusStyle(report.status)}`}>
+                              {getStatusIcon(report.status)}
+                              <span className="capitalize">{report.status}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
 
-                    <Link
-                      to="/shop-owner/report-suspicious"
-                      className="flex min-h-[120px] items-center justify-center rounded-3xl border border-dashed border-white/50 bg-white/40 p-4 text-center text-sm font-bold text-slate-700 shadow-xl transition hover:bg-white/60"
-                    >
-                      Report Suspicious Item
-                    </Link>
+          {/* Sidebar Area - Notifications & Tips */}
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-slate-900">Activity</h2>
+                {unreadCount > 0 && (
+                  <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">
+                    {unreadCount} New
+                  </span>
+                )}
+              </div>
+              
+              <div className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+                {recentNotifications.length === 0 ? (
+                  <div className="p-8 text-center">
+                    <Bell className="mx-auto h-6 w-6 text-slate-300 mb-2" />
+                    <p className="text-sm text-slate-500">No new notifications</p>
                   </div>
-                </div>
+                ) : (
+                  <div className="divide-y divide-slate-100">
+                    {recentNotifications.map((item) => (
+                      <div key={item.notification_id} className="p-4 hover:bg-slate-50 transition-colors">
+                        <div className="flex gap-3">
+                          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                            <Bell className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-slate-900">Notification</p>
+                            <p className="mt-1 text-sm text-slate-600 line-clamp-2">{item.message}</p>
+                            <p className="mt-2 text-xs text-slate-400">{item.created_at}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
-            <aside className="w-full max-w-sm space-y-4">
-              <div className="rounded-2xl border border-white/40 bg-white/30 p-6 shadow-lg backdrop-blur-xl">
-                <h4 className="text-sm font-semibold text-slate-900">
-                  Shop Owner Tip
-                </h4>
-
-                <p className="mt-3 text-sm text-slate-700">
-                  Report suspicious devices or items with accurate location and contact details. Admins will review them before taking action.
-                </p>
-
-                <Link
-                  to="/shop-owner/report-suspicious"
-                  className="mt-4 inline-flex rounded-full bg-blue-600/90 px-5 py-2 text-sm font-semibold text-white shadow-md hover:bg-blue-700"
-                >
-                  Submit Report
-                </Link>
+            {/* Quick Tip Box */}
+            <div className="rounded-xl bg-blue-50 border border-blue-100 p-5 shadow-sm">
+              <div className="flex gap-3">
+                <AlertTriangle className="h-5 w-5 text-blue-600 shrink-0" />
+                <div>
+                  <h4 className="text-sm font-semibold text-blue-900">Shop Owner Tip</h4>
+                  <p className="mt-1.5 text-sm text-blue-700 leading-relaxed">
+                    Report suspicious devices or items with accurate location and contact details. Ensure you provide clear photos if available.
+                  </p>
+                </div>
               </div>
-            </aside>
+            </div>
           </div>
+
         </div>
       </div>
     </ShopLayout>

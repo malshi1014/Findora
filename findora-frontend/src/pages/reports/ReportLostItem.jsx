@@ -1,14 +1,15 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import RoleBasedLayout from "../../layouts/RoleBasedLayout";
+import TownSelect from "../../components/TownSelect";
 
 function ReportLostItem() {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [district, setDistrict] = useState("");
+  const [nearestTown, setNearestTown] = useState("");
   const [location, setLocation] = useState("");
   const [contactNumber, setContactNumber] = useState("");
   const [lostDate, setLostDate] = useState("");
@@ -53,7 +54,7 @@ function ReportLostItem() {
     if (
       !title ||
       !category ||
-      !district ||
+      !nearestTown ||
       !location ||
       !contactNumber ||
       !lostDate ||
@@ -84,7 +85,7 @@ function ReportLostItem() {
       formData.append("user_id", user.user_id);
       formData.append("title", title);
       formData.append("category", category);
-      formData.append("district", district);
+      formData.append("nearest_town", nearestTown);
       formData.append("location", location);
       formData.append("contact_no", contactNumber);
       formData.append("lost_date", lostDate);
@@ -218,15 +219,13 @@ function ReportLostItem() {
               </label>
 
               <label className="block">
-                <span className="text-sm font-semibold text-slate-700">
-                  District
+                <span className="text-sm font-semibold text-slate-700 block mb-3">
+                  Nearest Town
                 </span>
-                <input
-                  type="text"
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
-                  placeholder="Example: Badulla"
-                  className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                <TownSelect 
+                  value={nearestTown}
+                  onChange={setNearestTown}
+                  hasIcon={false}
                 />
               </label>
 

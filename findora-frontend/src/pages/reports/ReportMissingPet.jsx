@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import API_BASE_URL from "../../config/api";
+import TownSelect from "../../components/TownSelect";
 
 function ReportMissingPet() {
   const navigate = useNavigate();
@@ -303,19 +304,13 @@ function ReportMissingPet() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-semibold text-slate-700">
+                  <span className="text-sm font-semibold text-slate-700 block mb-3">
                     Nearest Town <span className="text-red-500">*</span>
                   </span>
-                  <input
-                    type="text"
+                  <TownSelect 
                     value={nearestTown}
-                    onChange={(e) => setNearestTown(e.target.value)}
-                    placeholder="Example: Badulla Town"
-                    className={`mt-3 w-full rounded-3xl border ${
-                      fieldErrors.nearestTown
-                        ? "border-red-400"
-                        : "border-slate-200"
-                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                    onChange={setNearestTown}
+                    hasIcon={false}
                   />
                   {fieldErrors.nearestTown && (
                     <p className="mt-1 text-xs text-red-600">

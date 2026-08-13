@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import API_BASE_URL from "../../config/api";
+import AdminLayout from "../../layouts/AdminLayout";
 
 function AdminReports() {
   const [reports, setReports] = useState([]);
@@ -250,292 +251,286 @@ function AdminReports() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <p className="text-slate-700">Loading reports...</p>
-      </div>
+      <AdminLayout>
+        <div className="flex h-full min-h-[400px] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+        </div>
+      </AdminLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="p-8">
-        <p className="text-red-600">{error}</p>
-
-        <button
-          onClick={() => {
-            setLoading(true);
-            fetchReports(activeStatus);
-          }}
-          className="mt-4 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-        >
-          Try Again
-        </button>
-      </div>
+      <AdminLayout>
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center max-w-lg mx-auto mt-12">
+          <h3 className="text-lg font-bold text-red-800">Connection Failed</h3>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
+          <button
+            onClick={() => {
+              setLoading(true);
+              fetchReports(activeStatus);
+            }}
+            className="mt-5 rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-all"
+          >
+            Try Again
+          </button>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <div className="space-y-8 p-8">
-      <div className="rounded-4xl bg-white p-8 shadow-xl ring-1 ring-slate-200">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
-          Admin Panel
-        </p>
-
-        <h1 className="mt-4 text-3xl font-bold text-slate-950">
-          Report Approval Center
-        </h1>
-
-        <p className="mt-3 text-sm text-slate-600">
-          Review and approve lost item, found item, suspicious item, missing pet
-          and missing person reports separately.
-        </p>
-
-        <div className="mt-6 grid gap-4 sm:grid-cols-4">
-          <div className="rounded-3xl bg-orange-50 p-4">
-            <p className="text-sm font-semibold text-orange-700">Pending</p>
-            <p className="mt-2 text-2xl font-bold text-orange-700">
-              {pendingCount}
-            </p>
-          </div>
-
-          <div className="rounded-3xl bg-green-50 p-4">
-            <p className="text-sm font-semibold text-green-700">Active</p>
-            <p className="mt-2 text-2xl font-bold text-green-700">
-              {activeCount}
-            </p>
-          </div>
-
-          <div className="rounded-3xl bg-red-50 p-4">
-            <p className="text-sm font-semibold text-red-700">Rejected</p>
-            <p className="mt-2 text-2xl font-bold text-red-700">
-              {rejectedCount}
-            </p>
-          </div>
-
-          <div className="rounded-3xl bg-blue-50 p-4">
-            <p className="text-sm font-semibold text-blue-700">Matched</p>
-            <p className="mt-2 text-2xl font-bold text-blue-700">
-              {matchedCount}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-8">
-          <p className="mb-3 text-sm font-semibold text-slate-800">
-            Filter by Report Type
+    <AdminLayout>
+      <div className="mx-auto max-w-7xl space-y-6">
+        <div className="rounded-2xl border border-slate-200/50 bg-white/80 p-6 md:p-8 shadow-sm backdrop-blur-md">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">
+            Admin Panel
           </p>
 
-          <div className="flex flex-wrap gap-3">
-            {typeFilters.map((type) => (
-              <button
-                key={type.key}
-                onClick={() => handleTypeFilter(type.key)}
-                className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-                  activeType === type.key
-                    ? "bg-blue-600 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
-                }`}
-              >
-                {type.label} ({type.count})
-              </button>
-            ))}
-          </div>
-        </div>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">
+            Report Approval Center
+          </h1>
 
-        <div className="mt-8">
-          <p className="mb-3 text-sm font-semibold text-slate-800">
-            Filter by Status
+          <p className="mt-2 text-sm text-slate-500">
+            Review and approve lost item, found item, suspicious item, missing pet and missing person reports.
           </p>
 
-          <div className="flex flex-wrap gap-3">
-            {["all", "pending", "active", "rejected", "matched"].map(
-              (status) => (
+          <div className="mt-6 grid gap-4 sm:grid-cols-4">
+            <div className="rounded-2xl border border-orange-100 bg-orange-50/50 p-4">
+              <p className="text-sm font-semibold text-orange-700">Pending</p>
+              <p className="mt-2 text-2xl font-bold text-orange-700">
+                {pendingCount}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4">
+              <p className="text-sm font-semibold text-emerald-700">Active</p>
+              <p className="mt-2 text-2xl font-bold text-emerald-700">
+                {activeCount}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-red-100 bg-red-50/50 p-4">
+              <p className="text-sm font-semibold text-red-700">Rejected</p>
+              <p className="mt-2 text-2xl font-bold text-red-700">
+                {rejectedCount}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
+              <p className="text-sm font-semibold text-blue-700">Matched</p>
+              <p className="mt-2 text-2xl font-bold text-blue-700">
+                {matchedCount}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <p className="mb-2.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+              Filter by Report Type
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              {typeFilters.map((type) => (
                 <button
-                  key={status}
-                  onClick={() => handleStatusFilter(status)}
-                  className={`rounded-full px-5 py-2 text-sm font-semibold capitalize ${
-                    activeStatus === status
+                  key={type.key}
+                  onClick={() => handleTypeFilter(type.key)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${
+                    activeType === type.key
                       ? "bg-blue-600 text-white"
                       : "bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
                   }`}
                 >
-                  {status}
+                  {type.label} ({type.count})
                 </button>
-              )
-            )}
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <p className="mb-2.5 text-xs font-bold uppercase tracking-wider text-slate-400">
+              Filter by Status
+            </p>
+
+            <div className="flex flex-wrap gap-2">
+              {["all", "pending", "active", "rejected", "matched"].map(
+                (status) => (
+                  <button
+                    key={status}
+                    onClick={() => handleStatusFilter(status)}
+                    className={`rounded-full px-4 py-1.5 text-xs font-semibold capitalize transition ${
+                      activeStatus === status
+                        ? "bg-blue-600 text-white"
+                        : "bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700"
+                    }`}
+                  >
+                    {status}
+                  </button>
+                )
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {filteredReports.length === 0 ? (
-        <div className="rounded-4xl bg-white p-8 text-center text-slate-500 shadow-xl ring-1 ring-slate-200">
-          No {activeType === "all" ? "reports" : getReportTypeLabel(activeType)}{" "}
-          found.
-        </div>
-      ) : (
-        <div className="grid gap-6 xl:grid-cols-2">
-          {filteredReports.map((report) => {
-            const imageUrl = getImageUrl(report.image_path);
-            const updateKey = `${report.report_type}-${report.report_id}`;
-            const isUpdating = updatingId === updateKey;
+        {filteredReports.length === 0 ? (
+          <div className="rounded-2xl border border-slate-200/50 bg-white/80 p-8 text-center text-slate-500 shadow-sm backdrop-blur-md">
+            No {activeType === "all" ? "reports" : getReportTypeLabel(activeType)} found.
+          </div>
+        ) : (
+          <div className="grid gap-6 xl:grid-cols-2">
+            {filteredReports.map((report) => {
+              const imageUrl = getImageUrl(report.image_path);
+              const updateKey = `${report.report_type}-${report.report_id}`;
+              const isUpdating = updatingId === updateKey;
 
-            return (
-              <div
-                key={updateKey}
-                className="rounded-4xl bg-white p-6 shadow-xl ring-1 ring-slate-200"
-              >
-                <div className="flex gap-5">
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt={report.title}
-                      className="h-36 w-36 shrink-0 rounded-3xl object-cover"
-                    />
-                  ) : (
-                    <div className="flex h-36 w-36 shrink-0 items-center justify-center rounded-3xl bg-slate-100 text-sm text-slate-400">
-                      No Image
-                    </div>
-                  )}
+              return (
+                <div
+                  key={updateKey}
+                  className="rounded-2xl border border-slate-200/50 bg-white/80 p-5 md:p-6 shadow-sm backdrop-blur-md flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex gap-4">
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={report.title}
+                          className="h-28 w-28 shrink-0 rounded-xl object-cover border border-slate-100"
+                        />
+                      ) : (
+                        <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-400">
+                          No Image
+                        </div>
+                      )}
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getTypeStyle(
-                            report.report_type
-                          )}`}
-                        >
-                          {getReportTypeLabel(report.report_type)}
-                        </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span
+                              className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getTypeStyle(
+                                report.report_type
+                              )}`}
+                            >
+                              {getReportTypeLabel(report.report_type)}
+                            </span>
 
-                        <h2 className="mt-3 text-lg font-bold text-slate-950">
-                          {report.title}
-                        </h2>
+                            <h2 className="mt-2 text-base font-bold text-slate-950 line-clamp-1">
+                              {report.title}
+                            </h2>
 
-                        <p className="mt-1 text-sm text-slate-500">
-                          {report.category || "No category"} •{" "}
-                          {report.district || "No district"}
+                            <p className="mt-0.5 text-xs text-slate-400">
+                              {report.category || "No category"} •{" "}
+                              {report.district || "No district"}
+                            </p>
+                          </div>
+
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${getStatusStyle(
+                              report.status
+                            )}`}
+                          >
+                            {report.status}
+                          </span>
+                        </div>
+
+                        <p className="mt-2.5 line-clamp-2 text-xs text-slate-500">
+                          {report.description}
                         </p>
                       </div>
-
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusStyle(
-                          report.status
-                        )}`}
-                      >
-                        {report.status}
-                      </span>
                     </div>
 
-                    <p className="mt-3 line-clamp-2 text-sm text-slate-600">
-                      {report.description}
-                    </p>
+                    <div className="mt-4 grid gap-2.5 text-xs text-slate-500 sm:grid-cols-2 border-t border-slate-100 pt-4">
+                      <p>
+                        <span className="font-semibold text-slate-800">User:</span>{" "}
+                        {report.user_name || "Not available"}
+                      </p>
+
+                      <p>
+                        <span className="font-semibold text-slate-800">Email:</span>{" "}
+                        {report.user_email || "Not available"}
+                      </p>
+
+                      <p>
+                        <span className="font-semibold text-slate-800">Contact:</span>{" "}
+                        {report.contact_no || "Not specified"}
+                      </p>
+
+                      <p>
+                        <span className="font-semibold text-slate-800">Date:</span>{" "}
+                        {report.report_date || "Not specified"}
+                      </p>
+
+                      <p>
+                        <span className="font-semibold text-slate-800">Time:</span>{" "}
+                        {report.report_time || "Not specified"}
+                      </p>
+
+                      <p>
+                        <span className="font-semibold text-slate-800">Location:</span>{" "}
+                        {report.location || "Not specified"}
+                      </p>
+
+                      {report.nearest_town && (
+                        <p>
+                          <span className="font-semibold text-slate-800">Nearest Town:</span>{" "}
+                          {report.nearest_town}
+                        </p>
+                      )}
+
+                      {report.age && (
+                        <p>
+                          <span className="font-semibold text-slate-800">Age:</span>{" "}
+                          {report.age}
+                        </p>
+                      )}
+
+                      {report.gender && (
+                        <p>
+                          <span className="font-semibold text-slate-800">Gender:</span>{" "}
+                          {report.gender}
+                        </p>
+                      )}
+                    </div>
+
+                    {report.unique_identifiers && (
+                      <div className="mt-3.5 rounded-xl border border-slate-100 bg-slate-50/50 p-3 text-xs text-slate-500">
+                        <span className="font-semibold text-slate-800">Identifiers:</span>{" "}
+                        {report.unique_identifiers}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap justify-end gap-2 border-t border-slate-100 pt-4">
+                    <button
+                      onClick={() => updateReportStatus(report, "active")}
+                      disabled={isUpdating || report.status === "matched"}
+                      className="rounded-full bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Approve
+                    </button>
+
+                    <button
+                      onClick={() => updateReportStatus(report, "rejected")}
+                      disabled={isUpdating || report.status === "matched"}
+                      className="rounded-full bg-rose-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Reject
+                    </button>
+
+                    <button
+                      onClick={() => updateReportStatus(report, "pending")}
+                      disabled={isUpdating || report.status === "matched"}
+                      className="rounded-full bg-slate-600 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      Pending
+                    </button>
                   </div>
                 </div>
-
-                <div className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-2">
-                  <p>
-                    <span className="font-semibold text-slate-800">User:</span>{" "}
-                    {report.user_name || "Not available"}
-                  </p>
-
-                  <p>
-                    <span className="font-semibold text-slate-800">
-                      Email:
-                    </span>{" "}
-                    {report.user_email || "Not available"}
-                  </p>
-
-                  <p>
-                    <span className="font-semibold text-slate-800">
-                      Contact:
-                    </span>{" "}
-                    {report.contact_no || "Not specified"}
-                  </p>
-
-                  <p>
-                    <span className="font-semibold text-slate-800">Date:</span>{" "}
-                    {report.report_date || "Not specified"}
-                  </p>
-
-                  <p>
-                    <span className="font-semibold text-slate-800">Time:</span>{" "}
-                    {report.report_time || "Not specified"}
-                  </p>
-
-                  <p>
-                    <span className="font-semibold text-slate-800">
-                      Location:
-                    </span>{" "}
-                    {report.location || "Not specified"}
-                  </p>
-
-                  {report.nearest_town && (
-                    <p>
-                      <span className="font-semibold text-slate-800">
-                        Nearest Town:
-                      </span>{" "}
-                      {report.nearest_town}
-                    </p>
-                  )}
-
-                  {report.age && (
-                    <p>
-                      <span className="font-semibold text-slate-800">Age:</span>{" "}
-                      {report.age}
-                    </p>
-                  )}
-
-                  {report.gender && (
-                    <p>
-                      <span className="font-semibold text-slate-800">
-                        Gender:
-                      </span>{" "}
-                      {report.gender}
-                    </p>
-                  )}
-                </div>
-
-                {report.unique_identifiers && (
-                  <div className="mt-4 rounded-3xl bg-slate-50 p-4 text-sm text-slate-600">
-                    <span className="font-semibold text-slate-800">
-                      Identifiers:
-                    </span>{" "}
-                    {report.unique_identifiers}
-                  </div>
-                )}
-
-                <div className="mt-5 flex flex-wrap justify-end gap-3">
-                  <button
-                    onClick={() => updateReportStatus(report, "active")}
-                    disabled={isUpdating || report.status === "matched"}
-                    className="rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Approve
-                  </button>
-
-                  <button
-                    onClick={() => updateReportStatus(report, "rejected")}
-                    disabled={isUpdating || report.status === "matched"}
-                    className="rounded-full bg-red-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Reject
-                  </button>
-
-                  <button
-                    onClick={() => updateReportStatus(report, "pending")}
-                    disabled={isUpdating || report.status === "matched"}
-                    className="rounded-full bg-slate-600 px-5 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    Pending
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </AdminLayout>
   );
 }
 

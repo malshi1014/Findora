@@ -1,5 +1,19 @@
 import { Link, useLocation } from "react-router-dom";
 import { logout } from "../../services/session";
+import { 
+  LayoutDashboard, 
+  Search, 
+  PackageCheck, 
+  UserX, 
+  Dog, 
+  FileText, 
+  GitCompare, 
+  Bell, 
+  HeartHandshake, 
+  Award, 
+  Settings, 
+  LogOut 
+} from "lucide-react";
 
 function Sidebar() {
   const { pathname } = useLocation();
@@ -10,356 +24,158 @@ function Sidebar() {
     if (extraPaths.some((item) => pathname.startsWith(item))) {
       return true;
     }
-
     if (exact) {
       return pathname === path;
     }
-
     return pathname === path || pathname.startsWith(path + "/");
   };
 
-  const linkClass = (path, exact = false, extraPaths = []) =>
-    `flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all ${
-      isActive(path, exact, extraPaths)
-        ? "bg-blue-600/10 text-blue-700 font-semibold"
-        : "text-slate-500 hover:bg-blue-600/5 hover:text-blue-700"
+  const linkClass = (path, exact = false, extraPaths = []) => {
+    const active = isActive(path, exact, extraPaths);
+    return `flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-[14px] font-medium transition-all duration-200 ${
+      active
+        ? "bg-blue-50 text-blue-600 font-semibold shadow-xs"
+        : "text-slate-600 hover:bg-slate-100/80 hover:text-slate-900"
     }`;
+  };
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200 bg-white/90 px-4 py-6 shadow-sm backdrop-blur">
-      <Link to="/" className="mb-8 flex items-center gap-3 px-3">
-        <div className="w-10 h-10 flex items-center justify-center">
-              <img
-                  src="/favicon.png"
-                  alt="Findora Logo"
-                  className="h-full w-full rounded-full object-cover"
-                />
-            </div>
-
+    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white/90 px-4 py-6 backdrop-blur-md sticky top-0">
+      <Link to="/" className="mb-8 flex items-center gap-3 px-2 group">
+        <div className="h-10 w-10 flex items-center justify-center overflow-hidden rounded-xl bg-blue-50 transition-transform group-hover:scale-105">
+          <img
+            src="/favicon.png"
+            alt="Findora Logo"
+            className="h-full w-full object-cover"
+          />
+        </div>
         <div>
-          <h1 className="text-2xl font-bold text-blue-700">Findora</h1>
-          <p className="text-xs text-slate-400">Recovery Platform</p>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+            Findora
+          </h1>
+          <p className="text-[11px] font-medium text-slate-400">User Dashboard</p>
         </div>
       </Link>
 
-      <nav className="flex-1 space-y-1 overflow-y-auto">
+      <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
         <Link to="/user-dashboard" className={linkClass("/user-dashboard", true)}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <rect
-              x="3"
-              y="3"
-              width="8"
-              height="8"
-              rx="2"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            />
-            <rect
-              x="13"
-              y="3"
-              width="8"
-              height="4"
-              rx="2"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            />
-            <rect
-              x="13"
-              y="10"
-              width="8"
-              height="11"
-              rx="2"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            />
-            <rect
-              x="3"
-              y="14"
-              width="8"
-              height="7"
-              rx="2"
-              stroke="currentColor"
-              strokeWidth="1.8"
-            />
-          </svg>
+          <LayoutDashboard className="h-4.5 w-4.5" />
           Dashboard
         </Link>
 
-        <div className="mt-6 border-t border-slate-200 pt-4">
-          <p className="mb-3 px-4 text-xs font-semibold uppercase tracking-widest text-slate-400">
+        <div className="pt-5 pb-2">
+          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             Submit Report
           </p>
+          <div className="mt-2 space-y-1">
+            <Link
+              to="/user-dashboard/report-lost"
+              className={linkClass("/user-dashboard/report-lost")}
+            >
+              <Search className="h-4.5 w-4.5" />
+              Report Lost Item
+            </Link>
 
-          <Link
-            to="/user-dashboard/report-lost"
-            className={linkClass("/user-dashboard/report-lost")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="11"
-                cy="11"
-                r="7"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <path
-                d="M16.5 16.5L21 21"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            Report Lost Item
-          </Link>
+            <Link
+              to="/user-dashboard/report-found"
+              className={linkClass("/user-dashboard/report-found")}
+            >
+              <PackageCheck className="h-4.5 w-4.5" />
+              Report Found Item
+            </Link>
 
-          <Link
-            to="/user-dashboard/report-found"
-            className={linkClass("/user-dashboard/report-found")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M4 7L12 3L20 7V17L12 21L4 17V7Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M9 12L11 14L15.5 9.5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Report Found Item
-          </Link>
+            <Link
+              to="/user-dashboard/report-person"
+              className={linkClass("/user-dashboard/report-person")}
+            >
+              <UserX className="h-4.5 w-4.5" />
+              Missing Person
+            </Link>
 
-          <Link
-            to="/user-dashboard/report-person"
-            className={linkClass("/user-dashboard/report-person")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="12"
-                cy="8"
-                r="4"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <path
-                d="M4 21C4.8 16.8 7.8 14.5 12 14.5C16.2 14.5 19.2 16.8 20 21"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            Report Missing Person
-          </Link>
-
-          <Link
-            to="/user-dashboard/report-pet"
-            className={linkClass("/user-dashboard/report-pet")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="7"
-                cy="8"
-                r="2"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <circle
-                cx="17"
-                cy="8"
-                r="2"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <circle
-                cx="9"
-                cy="15"
-                r="2"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <circle
-                cx="15"
-                cy="15"
-                r="2"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <path
-                d="M12 11C10.5 11 9.5 12.2 9.5 13.6C9.5 15.3 10.8 17 12 17C13.2 17 14.5 15.3 14.5 13.6C14.5 12.2 13.5 11 12 11Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-            </svg>
-            Report Missing Pet
-          </Link>
+            <Link
+              to="/user-dashboard/report-pet"
+              className={linkClass("/user-dashboard/report-pet")}
+            >
+              <Dog className="h-4.5 w-4.5" />
+              Missing Pet
+            </Link>
+          </div>
         </div>
 
-        <div className="mt-6 border-t border-slate-200 pt-4">
-          <p className="mb-3 px-4 text-xs font-semibold uppercase tracking-widest text-slate-400">
-            Reports
+        <div className="pt-4 pb-2">
+          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            Manage
           </p>
+          <div className="mt-2 space-y-1">
+            <Link
+              to="/user-dashboard/my-reports"
+              className={linkClass("/user-dashboard/my-reports", false, [
+                "/user-dashboard/edit-report",
+              ])}
+            >
+              <FileText className="h-4.5 w-4.5" />
+              My Reports
+            </Link>
 
-          <Link
-            to="/user-dashboard/my-reports"
-            className={linkClass("/user-dashboard/my-reports", false, [
-              "/user-dashboard/edit-report",
-            ])}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M6 3H15L20 8V21H6V3Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M15 3V8H20"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M9 13H16"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-              <path
-                d="M9 17H14"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            My Reports
-          </Link>
-
-          <Link
-            to="/user-dashboard/matches"
-            className={linkClass("/user-dashboard/matches")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M7 7H17M7 17H17"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-              <path
-                d="M8 7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-              <path
-                d="M16 17C16 19.2 14.2 21 12 21C9.8 21 8 19.2 8 17"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            Matches
-          </Link>
+            <Link
+              to="/user-dashboard/matches"
+              className={linkClass("/user-dashboard/matches")}
+            >
+              <GitCompare className="h-4.5 w-4.5" />
+              Matches
+            </Link>
+          </div>
         </div>
 
-        <div className="mt-6 border-t border-slate-200 pt-4">
-          <p className="mb-3 px-4 text-xs font-semibold uppercase tracking-widest text-slate-400">
+        <div className="pt-4 pb-2">
+          <p className="px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
             Account
           </p>
+          <div className="mt-2 space-y-1">
+            <Link
+              to="/user-dashboard/notifications"
+              className={linkClass("/user-dashboard/notifications")}
+            >
+              <Bell className="h-4.5 w-4.5" />
+              Notifications
+            </Link>
 
-          <Link
-            to="/user-dashboard/notifications"
-            className={linkClass("/user-dashboard/notifications")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M18 9C18 6 16 4 12 4C8 4 6 6 6 9V14L4 17H20L18 14V9Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M10 20H14"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-            </svg>
-            Notifications
-          </Link>
+            <Link
+              to="/user-dashboard/donation"
+              className={linkClass("/user-dashboard/donation")}
+            >
+              <HeartHandshake className="h-4.5 w-4.5" />
+              Donation
+            </Link>
 
-          <Link
-            to="/user-dashboard/donation"
-            className={linkClass("/user-dashboard/donation")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M12 21C12 21 4 16.5 4 9.5C4 6.5 6.2 4.5 8.8 4.5C10.3 4.5 11.3 5.2 12 6.2C12.7 5.2 13.7 4.5 15.2 4.5C17.8 4.5 20 6.5 20 9.5C20 16.5 12 21 12 21Z"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Donation
-          </Link>
+            <Link
+              to="/user-dashboard/reward"
+              className={linkClass("/user-dashboard/reward")}
+            >
+              <Award className="h-4.5 w-4.5" />
+              Rewards
+            </Link>
 
-          <Link
-            to="/user-dashboard/reward"
-            className={linkClass("/user-dashboard/reward")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="12"
-                cy="8"
-                r="5"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <path
-                d="M8.5 13L7 21L12 18L17 21L15.5 13"
-                stroke="currentColor"
-                strokeWidth="1.8"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Reward
-          </Link>
-
-          <Link
-            to="/user-dashboard/settings"
-            className={linkClass("/user-dashboard/settings")}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle
-                cx="12"
-                cy="12"
-                r="3"
-                stroke="currentColor"
-                strokeWidth="1.8"
-              />
-              <path
-                d="M19.4 15A8.4 8.4 0 0 0 20 12A8.4 8.4 0 0 0 19.4 9L21 6.8L18.8 4.6L16.6 6.2A8.4 8.4 0 0 0 12 5A8.4 8.4 0 0 0 7.4 6.2L5.2 4.6L3 6.8L4.6 9A8.4 8.4 0 0 0 4 12A8.4 8.4 0 0 0 4.6 15L3 17.2L5.2 19.4L7.4 17.8A8.4 8.4 0 0 0 12 19A8.4 8.4 0 0 0 16.6 17.8L18.8 19.4L21 17.2L19.4 15Z"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Settings
-          </Link>
+            <Link
+              to="/user-dashboard/settings"
+              className={linkClass("/user-dashboard/settings")}
+            >
+              <Settings className="h-4.5 w-4.5" />
+              Settings
+            </Link>
+          </div>
         </div>
       </nav>
 
-      <button
-        onClick={handleLogout}
-        className="mt-6 flex items-center justify-center gap-2 rounded-2xl bg-red-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-600"
-      >
-        Logout
-      </button>
+      <div className="pt-4 border-t border-slate-200/80">
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-[14px] font-medium text-white shadow-xs transition-all hover:bg-slate-800 hover:shadow-sm"
+        >
+          <LogOut className="h-4 w-4" />
+          Log out
+        </button>
+      </div>
     </aside>
   );
 }

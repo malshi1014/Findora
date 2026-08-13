@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
+import { User, Store, ArrowRight, CheckCircle2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 function ChooseRole() {
   const navigate = useNavigate();
@@ -9,119 +11,125 @@ function ChooseRole() {
   const roles = {
     user: {
       title: "Normal User",
-      desc: "Report lost and found items, search posts, help others, receive rewards, and connect with the community.",
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 sm:w-9 sm:h-9">
-          <circle cx="24" cy="14" r="8" stroke="#3B82F6" strokeWidth="3" />
-          <path d="M8 42C8 33.1634 15.1634 26 24 26C32.8366 26 40 33.1634 40 42" stroke="#3B82F6" strokeWidth="3" strokeLinecap="round" />
-        </svg>
-      ),
+      desc: "Report lost and found items, search posts, help others, and connect with the community.",
+      icon: <User className="w-8 h-8" />,
+      features: ["Report lost items", "Claim found items", "Community rewards"],
     },
     shop: {
       title: "Shop Owner",
       desc: "Register your business and help connect users with found items and recovery support.",
-      icon: (
-        <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 sm:w-9 sm:h-9">
-          <path d="M6 14L10 6H38L42 14" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          <rect x="8" y="14" width="32" height="28" rx="2" stroke="#8B5CF6" strokeWidth="3" />
-          <path d="M18 14V22H30V14" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M18 28H30" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" />
-          <path d="M18 34H26" stroke="#8B5CF6" strokeWidth="3" strokeLinecap="round" />
-        </svg>
-      ),
+      icon: <Store className="w-8 h-8" />,
+      features: ["Report suspicious items", "Store verification badge", "Admin priority support"],
     },
   };
 
-  const selectedStyles = {
-    user: {
-      card: "bg-blue-100 border-blue-400 ring-2 ring-blue-400",
-      icon: "bg-blue-200",
-      btn: "bg-blue-500",
-    },
-    shop: {
-      card: "bg-purple-100 border-purple-400 ring-2 ring-purple-400",
-      icon: "bg-purple-200",
-      btn: "bg-purple-600",
-    },
+  const handleContinue = () => {
+    if (selectedRole === "shop") {
+      navigate(`/shop-register`);
+    } else if (selectedRole === "user") {
+      navigate(`/register`);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-blue-200 to-blue-500 flex flex-col font-[Outfit]">
+    <div className="min-h-screen bg-transparent flex flex-col">
       <Navbar />
 
-      <div className="relative flex-1 overflow-hidden">
-        <div className="absolute -left-40 -top-52 w-[400px] sm:w-[600px] h-[400px] sm:h-[600px] rounded-full bg-blue-400/20 blur-[100px] sm:blur-[120px]" />
-        <div className="absolute -right-40 -bottom-40 w-[400px] sm:w-[550px] h-[400px] sm:h-[550px] rounded-full bg-purple-400/20 blur-[100px] sm:blur-[120px]" />
-        <div className="absolute left-1/3 top-1/3 w-[300px] sm:w-[400px] h-[300px] sm:h-[400px] rounded-full bg-indigo-300/10 blur-[80px] sm:blur-[100px]" />
+      <div className="relative flex-1 flex flex-col items-center justify-center p-4 sm:p-8 overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-full pointer-events-none">
+          <div className="absolute top-20 left-10 w-96 h-96 bg-blue-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+          <div className="absolute top-20 right-10 w-96 h-96 bg-purple-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-96 h-96 bg-indigo-200/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+        </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 pt-10 sm:pt-16 pb-6 flex flex-col items-center gap-6 sm:gap-10 h-full justify-center">
-          <div className="flex flex-col items-center gap-1 sm:gap-2 max-w-[520px]">
-            <h1 className="text-[#0F1523] text-2xl sm:text-[40px] font-bold leading-tight sm:leading-[55px] text-center">
-              Create Your Account
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="relative z-10 w-full max-w-4xl mx-auto"
+        >
+          <div className="text-center mb-12">
+            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
+              Join Findora Today
             </h1>
-            <p className="text-[#6B7A9F] text-sm sm:text-2xl font-normal leading-snug sm:leading-[34px] text-center">
-              Choose how you want to join Findora.
+            <p className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto">
+              Choose how you want to use the platform. You can always change your account settings later.
             </p>
           </div>
 
-          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 w-full max-w-[900px]">
-            {Object.entries(roles).map(([key, role]) => {
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {Object.entries(roles).map(([key, role], index) => {
               const isSelected = selectedRole === key;
-              const sel = selectedStyles[key];
+              
               return (
-                <div
+                <motion.div
                   key={key}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
                   onClick={() => setSelectedRole(key)}
-                  className={`flex-1 backdrop-blur rounded-2xl sm:rounded-[20px] border p-4 sm:p-7 flex flex-col justify-center gap-3 sm:gap-5 cursor-pointer transition-all duration-300
-                    ${isSelected ? `${sel.card} scale-[1.02] shadow-xl` : "bg-white/70 border-white/60 hover:scale-[1.02] hover:shadow-lg hover:bg-gray-50"}`}
+                  className={`relative group cursor-pointer rounded-2xl border-2 p-6 sm:p-8 transition-all duration-300 bg-white
+                    ${isSelected 
+                      ? "border-blue-600 shadow-lg shadow-blue-900/5" 
+                      : "border-slate-200 hover:border-blue-300 hover:shadow-md"
+                    }`}
                 >
-                  <div className={`w-10 h-10 sm:w-16 sm:h-16 rounded-2xl sm:rounded-[24px] flex items-center justify-center transition-all duration-300 ${isSelected ? sel.icon : "bg-gray-100"}`}>
+                  <div className={`inline-flex p-4 rounded-xl mb-6 transition-colors duration-300
+                    ${isSelected ? "bg-blue-600 text-white" : "bg-blue-50 text-blue-600 group-hover:bg-blue-100"}
+                  `}>
                     {role.icon}
                   </div>
-                  <div>
-                    <h2 className="text-[#0F1523] text-base sm:text-2xl font-semibold leading-snug sm:leading-[32px]">
-                      {role.title}
-                    </h2>
-                    <p className="text-[#6B7A9F] text-xs sm:text-base font-medium leading-relaxed sm:leading-[24px] max-w-[400px] pt-1">
-                      {role.desc}
-                    </p>
+
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">{role.title}</h3>
+                  <p className="text-slate-600 mb-6 text-sm leading-relaxed min-h-[60px]">{role.desc}</p>
+
+                  <ul className="space-y-3 mb-8">
+                    {role.features.map((feature, i) => (
+                      <li key={i} className="flex items-start gap-3 text-sm text-slate-700">
+                        <CheckCircle2 className={`w-5 h-5 shrink-0 ${isSelected ? "text-blue-600" : "text-slate-400"}`} />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className={`absolute top-6 right-6 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors duration-300
+                    ${isSelected ? "border-blue-600 bg-blue-600" : "border-slate-300"}
+                  `}>
+                    {isSelected && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-2 h-2 bg-white rounded-full" />}
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // Route shop owners to the shop register flow, normal users to regular register
-                      if (key === "shop") {
-                        navigate(`/shop-register`);
-                      } else {
-                        navigate(`/register`);
-                      }
-                    }}
-                    className={`w-full px-4 sm:px-6 py-2 sm:py-3.5 rounded-full sm:rounded-[26px] flex items-center justify-center gap-2 sm:gap-3 text-white text-xs sm:text-base font-semibold transition-all duration-300
-                      ${isSelected ? `${sel.btn} hover:opacity-90` : "bg-blue-400 hover:bg-blue-500"}`}
-                  >
-                    Continue as {role.title === "Normal User" ? "User" : "Shop Owner"}
-                    <svg width="18" height="18" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 sm:w-5 sm:h-5">
-                      <path d="M13.34 5.56L21.12 13.34L13.34 21.12" stroke="white" strokeWidth="2.45" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M5.56 13.34H21.12" stroke="white" strokeWidth="2.45" strokeLinecap="round"/>
-                    </svg>
-                  </button>
-                </div>
+                </motion.div>
               );
             })}
           </div>
 
-          <div className="flex flex-col items-center gap-1 sm:gap-1.5">
-            <p className="text-[#6B7A9F] text-xs sm:text-base font-normal text-center">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="mt-12 flex flex-col items-center gap-6"
+          >
+            <button
+              onClick={handleContinue}
+              disabled={!selectedRole}
+              className={`flex items-center justify-center gap-2 w-full max-w-sm rounded-full px-8 py-4 text-base font-semibold text-white shadow-sm transition-all duration-300
+                ${selectedRole 
+                  ? "bg-blue-600 hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5" 
+                  : "bg-slate-300 cursor-not-allowed opacity-70"
+                }`}
+            >
+              Continue
+              <ArrowRight className="w-5 h-5" />
+            </button>
+
+            <p className="text-slate-600 text-sm">
               Already have an account?{" "}
-              <Link to="/login" className="text-[#155DFC] text-sm sm:text-lg font-semibold hover:underline">
-                Login
+              <Link to="/login" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline">
+                Log in
               </Link>
             </p>
-            <p className="text-[rgba(38, 43, 56, 0.6)] text-[10px] sm:text-sm font-normal text-center">
-              You can change certain account settings later.
-            </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );

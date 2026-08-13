@@ -11,12 +11,12 @@ const activityItems = [
   {
     label: "New black Wallet report submitted.",
     time: "15 minutes ago",
-    color: "text-purple-600",
+    color: "text-indigo-600",
   },
   {
     label: "Claim #CLM-8422 approved by system.",
     time: "1 hour ago",
-    color: "text-teal-500",
+    color: "text-emerald-600",
   },
   {
     label: "Reward distributed to Malshi Navodya.",
@@ -124,7 +124,9 @@ function AdminDashboard() {
   if (loading) {
     return (
       <AdminLayout>
-        <p className="p-6 text-slate-700">Loading dashboard...</p>
+        <div className="flex h-full min-h-[400px] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+        </div>
       </AdminLayout>
     );
   }
@@ -132,12 +134,12 @@ function AdminDashboard() {
   if (error) {
     return (
       <AdminLayout>
-        <div className="p-6">
-          <p className="text-red-600">{error}</p>
-
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center max-w-lg mx-auto mt-12">
+          <h3 className="text-lg font-bold text-red-800">Connection Failed</h3>
+          <p className="mt-2 text-sm text-red-600">{error}</p>
           <button
             onClick={fetchDashboardStats}
-            className="mt-4 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            className="mt-5 rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition-all"
           >
             Try Again
           </button>
@@ -148,78 +150,70 @@ function AdminDashboard() {
 
   return (
     <AdminLayout>
-      <div className="mx-auto max-w-7xl space-y-8">
-        <section className="rounded-4xl bg-slate-950/95 p-8 text-white shadow-2xl shadow-slate-900/40">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.35em] text-sky-300/80">
-                Findora Admin
-              </p>
-
-              <h1 className="mt-4 text-4xl font-semibold">
-                Welcome Back, Admin
-              </h1>
-
-              <p className="mt-3 max-w-2xl text-sm text-slate-300">
-                Monitor platform activities and manage recovery operations from
-                a single dashboard.
-              </p>
-            </div>
-          </div>
+      <div className="mx-auto max-w-7xl space-y-6">
+        {/* Welcome Header */}
+        <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-6 md:p-8 text-slate-900 shadow-sm backdrop-blur-md">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-blue-600">
+            Findora Admin
+          </p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">
+            Welcome Back, Admin
+          </h1>
+          <p className="mt-2 text-sm text-slate-500 max-w-2xl">
+            Monitor platform activities and manage recovery operations from a single dashboard.
+          </p>
         </section>
 
         <div className="grid gap-6 xl:grid-cols-[1.6fr_0.9fr]">
           <div className="space-y-6">
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {/* Stats Grid */}
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {statsCards.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-[1.75rem] bg-white p-6 shadow-xl shadow-slate-200/60"
+                  className="rounded-2xl border border-slate-200/50 bg-white/80 p-5 shadow-xs backdrop-blur-md hover:shadow-sm transition-all"
                 >
-                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     {stat.label}
                   </p>
-
-                  <p className="mt-4 text-3xl font-semibold text-slate-900">
+                  <p className="mt-3 text-3xl font-bold text-slate-950">
                     {stat.value}
                   </p>
-
-                  <span className="mt-3 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                  <span className="mt-3.5 inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600">
                     {stat.change}
                   </span>
                 </div>
               ))}
             </div>
 
-            <section className="rounded-4xl bg-slate-950/90 p-8 text-white shadow-2xl shadow-slate-900/30">
-              <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
+            {/* Performance Graph Section */}
+            <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-6 md:p-8 text-slate-900 shadow-sm backdrop-blur-md">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm uppercase tracking-[0.24em] text-slate-400">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     Recovery Performance
                   </p>
-
-                  <h2 className="mt-4 text-4xl font-semibold">
+                  <h2 className="mt-2 text-3xl font-bold text-slate-950">
                     {dashboardStats?.verified_matches ?? 0}
                   </h2>
-
-                  <p className="mt-3 max-w-xl text-sm text-slate-300">
+                  <p className="mt-1 text-sm text-slate-500">
                     Total verified matches approved by admins.
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-slate-900/70 px-5 py-4 text-center">
-                  <p className="text-sm uppercase tracking-[0.24em] text-slate-400">
+                <div className="rounded-2xl border border-slate-100 bg-slate-50/50 px-4 py-3 text-center">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     Pending Reviews
                   </p>
-
-                  <p className="mt-3 text-3xl font-semibold text-sky-400">
+                  <p className="mt-1 text-2xl font-bold text-blue-600">
                     {dashboardStats?.pending_matches ?? 0}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-8 overflow-hidden rounded-[1.75rem] bg-slate-900/80 p-4">
-                <svg viewBox="0 0 600 220" className="h-48 w-full">
+              {/* Chart */}
+              <div className="mt-6 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
+                <svg viewBox="0 0 600 220" className="h-44 w-full">
                   <defs>
                     <linearGradient
                       id="lineGradient"
@@ -228,43 +222,49 @@ function AdminDashboard() {
                       x2="100%"
                       y2="0%"
                     >
-                      <stop offset="0%" stopColor="#38bdf8" />
-                      <stop offset="100%" stopColor="#7c3aed" />
+                      <stop offset="0%" stopColor="#3b82f6" />
+                      <stop offset="100%" stopColor="#818cf8" />
                     </linearGradient>
                   </defs>
+
+                  {/* Simple grid lines for light theme */}
+                  <line x1="20" y1="40" x2="580" y2="40" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />
+                  <line x1="20" y1="100" x2="580" y2="100" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />
+                  <line x1="20" y1="160" x2="580" y2="160" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />
 
                   <path
                     d="M20 160 C 120 120 180 140 260 110 S 420 80 500 100 T 580 90"
                     fill="none"
                     stroke="url(#lineGradient)"
-                    strokeWidth="8"
+                    strokeWidth="6"
                     strokeLinecap="round"
                   />
 
-                  <circle cx="20" cy="160" r="5" fill="#38bdf8" />
-                  <circle cx="260" cy="110" r="5" fill="#7c3aed" />
-                  <circle cx="580" cy="90" r="5" fill="#38bdf8" />
+                  <circle cx="20" cy="160" r="5" fill="#3b82f6" stroke="#ffffff" strokeWidth="2" />
+                  <circle cx="260" cy="110" r="5" fill="#818cf8" stroke="#ffffff" strokeWidth="2" />
+                  <circle cx="580" cy="90" r="5" fill="#3b82f6" stroke="#ffffff" strokeWidth="2" />
                 </svg>
               </div>
 
-              <div className="mt-6 grid gap-4 text-sm text-slate-400 sm:grid-cols-3">
-                <div className="rounded-3xl bg-slate-900/80 p-4">
-                  <p className="font-semibold text-white">Lost Reports</p>
-                  <p className="mt-2">
+              {/* Stats Footer Box */}
+              <div className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                  <p className="font-semibold text-slate-800">Lost Reports</p>
+                  <p className="mt-1 text-slate-500">
                     {dashboardStats?.total_lost_reports ?? 0} reports submitted
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-slate-900/80 p-4">
-                  <p className="font-semibold text-white">Found Reports</p>
-                  <p className="mt-2">
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                  <p className="font-semibold text-slate-800">Found Reports</p>
+                  <p className="mt-1 text-slate-500">
                     {dashboardStats?.total_found_reports ?? 0} reports submitted
                   </p>
                 </div>
 
-                <div className="rounded-3xl bg-slate-900/80 p-4">
-                  <p className="font-semibold text-white">Total Matches</p>
-                  <p className="mt-2">
+                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
+                  <p className="font-semibold text-slate-800">Total Matches</p>
+                  <p className="mt-1 text-slate-500">
                     {dashboardStats?.total_matches ?? 0} matches detected
                   </p>
                 </div>
@@ -272,35 +272,36 @@ function AdminDashboard() {
             </section>
           </div>
 
+          {/* Right Side panel */}
           <aside className="space-y-6">
-            <section className="rounded-4xl bg-white p-6 shadow-xl shadow-slate-200/60">
+            {/* Recent Activity */}
+            <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-6 shadow-sm backdrop-blur-md">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
+                  <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
                     Recent Activity
                   </p>
-
-                  <p className="mt-2 text-xs text-slate-400">
+                  <p className="mt-1 text-[11px] text-slate-400">
                     Latest actions from the platform
                   </p>
                 </div>
 
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
                   4 updates
                 </span>
               </div>
 
-              <div className="mt-6 space-y-4">
-                {activityItems.map((item) => (
+              <div className="mt-6 space-y-3.5">
+                {activityItems.map((item, idx) => (
                   <div
-                    key={item.label}
-                    className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
+                    key={idx}
+                    className="rounded-xl border border-slate-100 bg-slate-50/30 p-3.5"
                   >
-                    <p className="text-sm font-medium text-slate-900">
+                    <p className="text-sm font-medium text-slate-800">
                       {item.label}
                     </p>
 
-                    <p className={`mt-2 text-xs font-semibold ${item.color}`}>
+                    <p className={`mt-1.5 text-xs font-semibold ${item.color}`}>
                       {item.time}
                     </p>
                   </div>
@@ -308,32 +309,33 @@ function AdminDashboard() {
               </div>
             </section>
 
-            <section className="rounded-4xl bg-slate-950/90 p-6 text-white shadow-2xl shadow-slate-900/30">
+            {/* Top Contributors */}
+            <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-6 shadow-sm backdrop-blur-md">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm uppercase tracking-[0.24em] text-slate-400">
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     Summary
                   </p>
 
-                  <h3 className="mt-3 text-3xl font-semibold">
+                  <h3 className="mt-1 text-lg font-bold text-slate-950">
                     Top Contributors
                   </h3>
                 </div>
 
-                <div className="rounded-full bg-slate-800 px-4 py-2 text-sm text-slate-300">
-                  View full rankings
+                <div className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
+                  Rankings
                 </div>
               </div>
 
-              <div className="mt-6 space-y-4">
+              <div className="mt-6 space-y-3.5">
                 {topContributors.map((contributor) => (
                   <div
                     key={contributor.name}
-                    className="rounded-3xl bg-slate-900/80 p-4"
+                    className="rounded-xl border border-slate-100 bg-slate-50/30 p-3.5"
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div>
-                        <p className="font-semibold text-white">
+                        <p className="font-semibold text-slate-800">
                           {contributor.name}
                         </p>
 
@@ -342,7 +344,7 @@ function AdminDashboard() {
                         </p>
                       </div>
 
-                      <p className="text-sm font-semibold text-sky-400">
+                      <p className="text-sm font-bold text-blue-600">
                         {contributor.points} pts
                       </p>
                     </div>
