@@ -65,6 +65,16 @@ if (!empty($missing)) {
     exit();
 }
 
+require_once __DIR__ . "/../helpers/date_validation.php";
+
+if (!validateNotFutureDateTime($report_date, $report_time)) {
+    echo json_encode(array(
+        "status" => "error",
+        "message" => "Date and time cannot be in the future."
+    ));
+    exit();
+}
+
 if ($report_type !== "lost" && $report_type !== "found") {
     echo json_encode(array(
         "status" => "error",

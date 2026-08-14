@@ -53,6 +53,16 @@ if (!empty($missing)) {
     exit();
 }
 
+require_once __DIR__ . "/../helpers/date_validation.php";
+
+if (!validateNotFutureDateTime($found_date, $found_time)) {
+    echo json_encode(array(
+        "status" => "error",
+        "message" => "Date and time cannot be in the future."
+    ));
+    exit();
+}
+
 $conn->begin_transaction();
 
 try {
@@ -135,9 +145,6 @@ try {
 );
 
     $conn->commit();
-    
-    // Dispatch email notifications (non-blocking, failures won't break the response)
-    sendLocationNotifications($conn, 'found_item', $report_id, $nearest_town, $user_id, $title, $description);
 
     echo json_encode(array(
         "status" => "success",

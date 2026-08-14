@@ -73,6 +73,16 @@ if (!empty($missing_fields)) {
     exit();
 }
 
+require_once __DIR__ . "/../helpers/date_validation.php";
+
+if (!validateNotFutureDateTime($missing_date, $missing_time)) {
+    echo json_encode(array(
+        "status" => "error",
+        "message" => "Date and time cannot be in the future."
+    ));
+    exit();
+}
+
 $userCheck = $conn->prepare("
     SELECT user_id, role
     FROM users

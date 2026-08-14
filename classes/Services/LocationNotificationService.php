@@ -41,8 +41,18 @@ class LocationNotificationService
         string $reportTitle,
         string $reportDescription
     ): void {
+        // STRICT REQUIREMENT: Only Missing Person and Missing Pet reports generate location-based emails.
+        // Lost Item, Found Item, and Suspicious Item reports MUST NOT email nearby users.
+        if ($reportType !== 'missing_person' && $reportType !== 'missing_pet') {
+            return;
+        }
+
+        if (empty(trim($nearestTown))) {
+            return;
+        }
+
         try {
-            // Find matched users
+            // Find registered users matching nearest_town (excluding report creator)
             $matchedUsers = $this->userRepo->findUsersByNearestTown($nearestTown, $reporterId);
 
             if (empty($matchedUsers)) {
@@ -51,18 +61,27 @@ class LocationNotificationService
 
             $subject = $this->buildSubject($reportType, $nearestTown);
 
+            $sentEmails = [];
+
             foreach ($matchedUsers as $user) {
-                // Record the notification idempotently
+                $emailKey = strtolower(trim($user['email']));
+                if (empty($emailKey) || isset($sentEmails[$emailKey])) {
+                    continue; // Prevent duplicate emails to the same address
+                }
+
+                // Record the notification idempotently in the database
                 if (!$this->recordNotification($reportType, $reportId, $user['user_id'], $user['email'])) {
                     continue; // Already sent, or DB error
                 }
 
-                // Send email
+                $sentEmails[$emailKey] = true;
+
+                // Send email notification
                 $htmlBody = $this->buildEmailBody($user['first_name'], $reportType, $reportTitle, $reportDescription, $nearestTown);
                 $this->emailService->send($user['email'], $subject, $htmlBody);
             }
         } catch (\Exception $e) {
-            // Catch all exceptions so the main thread (report saving) is never blocked
+            // Non-blocking catch
             error_log("LocationNotificationService Error: " . $e->getMessage());
         }
     }
@@ -82,7 +101,6 @@ class LocationNotificationService
         $stmt->bind_param("siis", $reportType, $reportId, $userId, $email);
         $result = $stmt->execute();
         
-        // Affected rows will be 0 if the INSERT IGNORE triggered due to UNIQUE key (already sent)
         $affectedRows = $stmt->affected_rows;
         $stmt->close();
         
@@ -91,42 +109,33 @@ class LocationNotificationService
 
     private function buildSubject(string $reportType, string $nearestTown): string
     {
-        $typeLabels = [
-            'lost_item' => 'New Lost Item',
-            'found_item' => 'New Found Item',
-            'missing_person' => 'Missing Person Report',
-            'missing_pet' => 'Missing Pet Report'
-        ];
-        
-        $typeStr = $typeLabels[$reportType] ?? 'New Report';
-        
-        return "Findora Alert: {$typeStr} near {$nearestTown}";
+        if ($reportType === 'missing_person') {
+            return "Findora Urgent Alert: Missing Person near {$nearestTown}";
+        }
+        if ($reportType === 'missing_pet') {
+            return "Findora Alert: Missing Pet near {$nearestTown}";
+        }
+        return "Findora Alert: Report near {$nearestTown}";
     }
 
     private function buildEmailBody(string $userName, string $reportType, string $reportTitle, string $description, string $town): string
     {
         $loginUrl = rtrim($this->frontendUrl, '/') . '/login';
         
-        $typeLabels = [
-            'lost_item' => 'A lost item',
-            'found_item' => 'A found item',
-            'missing_person' => 'A missing person',
-            'missing_pet' => 'A missing pet'
-        ];
-        $typeStr = $typeLabels[$reportType] ?? 'A new report';
+        $typeStr = ($reportType === 'missing_person') ? 'A missing person' : 'A missing pet';
 
         return "
         <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;'>
             <h2 style='color: #2563eb;'>Findora Location Alert</h2>
             <p>Hi <strong>{$userName}</strong>,</p>
-            <p>{$typeStr} has just been reported near your town of <strong>{$town}</strong>.</p>
+            <p>{$typeStr} has just been reported in/near your registered town of <strong>{$town}</strong>.</p>
             
             <div style='background-color: #f8fafc; padding: 15px; border-left: 4px solid #2563eb; margin: 20px 0;'>
                 <h3 style='margin-top: 0; color: #0f172a;'>{$reportTitle}</h3>
                 <p style='color: #475569; font-size: 14px;'>{$description}</p>
             </div>
             
-            <p>You might be able to help! Please log in to Findora to view more details, check images, or contact the reporter if you have any information.</p>
+            <p>You might be able to help! Please log in to Findora to view more details, check images, or contact the guardian if you have any information.</p>
             
             <div style='text-align: center; margin: 30px 0;'>
                 <a href='{$loginUrl}' style='background-color: #2563eb; color: white; text-decoration: none; padding: 12px 24px; border-radius: 5px; font-weight: bold;'>Open Findora</a>
@@ -134,8 +143,7 @@ class LocationNotificationService
             
             <hr style='border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;' />
             <p style='font-size: 12px; color: #64748b; text-align: center;'>
-                You received this email because your nearest town is set to {$town}. 
-                You can turn off email notifications in your account settings.
+                You received this alert because your registered nearest town is {$town}.
             </p>
         </div>";
     }

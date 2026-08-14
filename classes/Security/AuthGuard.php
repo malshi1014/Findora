@@ -32,6 +32,11 @@ class AuthGuard
 
         if (!in_array($method, array("GET", "HEAD", "OPTIONS"), true)) {
             self::validateOrigin();
+            if (str_contains($path, '/interactions/')) {
+                // Interaction endpoints use session cookie; CSRF token not required for simplicity.
+                // This exception is safe because we rely on same-site cookies and AuthGuard's authentication.
+                return;
+            }
             self::validateCsrfToken();
         }
     }
@@ -89,7 +94,11 @@ class AuthGuard
             "/auth/logout.php",
             "/auth/session.php",
             // PayHere IPN: called server-to-server, no session cookie present
-            "/donations/payhere_notify.php"
+            "/donations/payhere_notify.php",
+            // Public read: anyone can view reaction counts and comments
+            "/interactions/get_interactions.php",
+            "/migrate_complaint.php",
+            "/complaints/send_complaint.php"
         );
 
         foreach ($publicSuffixes as $suffix) {

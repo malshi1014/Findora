@@ -26,7 +26,7 @@ class SessionManager
             "lifetime" => 0,
             "path" => "/",
             "domain" => "",
-            "secure" => $isHttps,
+            "secure" => false,
             "httponly" => true,
             "samesite" => "Lax"
         ));

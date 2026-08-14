@@ -36,12 +36,13 @@ class UserRepository extends AbstractRepository implements UserRepositoryInterfa
     public function findUsersByNearestTown(string $town, int $excludeUserId): array
     {
         $statement = $this->connection->prepare("
-            SELECT user_id, first_name, email
+            SELECT user_id, first_name, last_name, email
             FROM users
             WHERE LOWER(TRIM(nearest_town)) = LOWER(TRIM(?))
             AND user_id != ?
-            AND email_notifications_enabled = 1
+            AND (email_notifications_enabled = 1 OR email_notifications_enabled IS NULL)
             AND email IS NOT NULL
+            AND TRIM(email) != ''
         ");
 
         if (!$statement) {
@@ -66,3 +67,4 @@ class UserRepository extends AbstractRepository implements UserRepositoryInterfa
         return $users;
     }
 }
+
