@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { Eye } from "lucide-react";
 import API_BASE_URL from "../../config/api";
 import AdminLayout from "../../layouts/AdminLayout";
+import ImagePreviewModal from "../../components/Admin/ImagePreviewModal";
 
 function AdminReports() {
   const [reports, setReports] = useState([]);
@@ -9,6 +11,7 @@ function AdminReports() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [error, setError] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
 
   const getCurrentUser = () => {
     const storedUser = localStorage.getItem("findora_user");
@@ -391,13 +394,22 @@ function AdminReports() {
                   <div>
                     <div className="flex gap-4">
                       {imageUrl ? (
-                        <img
-                          src={imageUrl}
-                          alt={report.title}
-                          className="h-28 w-28 shrink-0 rounded-xl object-cover border border-slate-100"
-                        />
+                        <button
+                          type="button"
+                          onClick={() => setPreviewImage({ src: imageUrl, title: report.title })}
+                          className="group relative h-28 w-28 shrink-0 overflow-hidden rounded-xl border border-slate-200 shadow-xs transition hover:ring-2 hover:ring-blue-500"
+                        >
+                          <img
+                            src={imageUrl}
+                            alt={report.title}
+                            className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Eye className="h-5 w-5 text-white drop-shadow-md" />
+                          </div>
+                        </button>
                       ) : (
-                        <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-xs text-slate-400">
+                        <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-400 font-semibold">
                           No Image
                         </div>
                       )}
@@ -529,6 +541,12 @@ function AdminReports() {
             })}
           </div>
         )}
+
+        <ImagePreviewModal
+          src={previewImage?.src}
+          title={previewImage?.title}
+          onClose={() => setPreviewImage(null)}
+        />
       </div>
     </AdminLayout>
   );

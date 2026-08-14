@@ -48,15 +48,15 @@ function Footer() {
   return (
     <footer className="bg-gray-900 text-white py-10">
       <div className="max-w-7xl mx-auto px-6 grid gap-8 md:grid-cols-3">
-        
+
         <div>
           <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 flex items-center justify-center">
               <img
-                  src="/favicon.png"
-                  alt="Findora Logo"
-                  className="h-full w-full rounded-full object-cover"
-                />
+                src="/favicon.png"
+                alt="Findora Logo"
+                className="h-full w-full rounded-full object-cover"
+              />
             </div>
             <span className="text-2xl font-bold text-blue-400">Findora</span>
           </Link>
@@ -68,7 +68,7 @@ function Footer() {
         <div>
           <h3 className="font-semibold mb-3">Quick Links</h3>
           <ul className="space-y-2 text-gray-400">
-          
+
             <li>
               <button
                 type="button"
@@ -136,8 +136,8 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <a href="mailto:support@findora.lk" className="hover:text-blue-400 transition">
-                Email: support@findora.lk
+              <a href="mailto:findooora@gmail.com" className="hover:text-blue-400 transition">
+                Email: findooora@gmail.com
               </a>
             </li>
             <li className="text-gray-500">Location: Sri Lanka</li>

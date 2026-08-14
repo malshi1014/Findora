@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import API_BASE_URL from "../../config/api";
 import TownSelect from "../../components/TownSelect";
+import { getMaxDate, validateNotFuture } from "../../utils/dateValidation";
+import { SRI_LANKA_DISTRICTS } from "../../data/sriLankaDistricts";
 
 function ReportMissingPet() {
   const navigate = useNavigate();
@@ -75,7 +77,7 @@ function ReportMissingPet() {
 
     if (!petCategory) errors.petCategory = "Pet category is required.";
     if (!petName.trim()) errors.petName = "Pet name is required.";
-    if (!district.trim()) errors.district = "District is required.";
+    // District is optional
     if (!nearestTown.trim()) errors.nearestTown = "Nearest town is required.";
     if (!lastSeenLocation.trim()) {
       errors.lastSeenLocation = "Last seen location is required.";
@@ -85,7 +87,14 @@ function ReportMissingPet() {
     } else if (!validatePhone(guardianContactNo)) {
       errors.guardianContactNo = "Invalid contact number.";
     }
-    if (!lostDate) errors.lostDate = "Lost date is required.";
+    if (!lostDate) {
+      errors.lostDate = "Lost date is required.";
+    } else {
+      const timeError = validateNotFuture(lostDate, lostTime, lostTimePeriod);
+      if (timeError) {
+        errors.lostDate = timeError;
+      }
+    }
     if (lostTime.trim() && !validateManualTime(lostTime)) {
       errors.lostTime = "Use time format like 02:30.";
     }
@@ -283,24 +292,18 @@ function ReportMissingPet() {
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">
-                    District <span className="text-red-500">*</span>
+                    District
                   </span>
-                  <input
-                    type="text"
+                  <select
                     value={district}
                     onChange={(e) => setDistrict(e.target.value)}
-                    placeholder="Example: Badulla"
-                    className={`mt-3 w-full rounded-3xl border ${
-                      fieldErrors.district
-                        ? "border-red-400"
-                        : "border-slate-200"
-                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
-                  />
-                  {fieldErrors.district && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {fieldErrors.district}
-                    </p>
-                  )}
+                    className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  >
+                    <option value="">Select District (Optional)</option>
+                    {SRI_LANKA_DISTRICTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="block">
@@ -350,6 +353,7 @@ function ReportMissingPet() {
                   <input
                     type="date"
                     value={lostDate}
+                    max={getMaxDate()}
                     onChange={(e) => setLostDate(e.target.value)}
                     className={`mt-3 w-full rounded-3xl border ${
                       fieldErrors.lostDate

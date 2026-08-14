@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import API_BASE_URL from "../../config/api";
+import { getMaxDate, validateNotFuture } from "../../utils/dateValidation";
 
 function EditReport() {
   const navigate = useNavigate();
@@ -150,41 +151,32 @@ function EditReport() {
       return;
     }
 
+    setLoading(true);
+
     try {
       const response = await fetch(
-        `${API_BASE_URL}/reports/get_single_report.php?user_id=${user.user_id}&report_id=${reportId}&report_type=${reportType}`
+        `${API_BASE_URL}/reports/get_single_report.php?type=${reportType}&id=${reportId}`
       );
 
-      const text = await response.text();
-      console.log("Raw single report response:", text);
+      const data = await response.json();
 
-      let data;
+      if (data.status === "success" && data.report) {
+        const item = data.report;
 
-      try {
-        data = JSON.parse(text);
-      } catch {
-        throw new Error("Backend did not return valid JSON.");
-      }
+        setTitle(item.title || "");
+        setCategory(item.category || "");
+        setDistrict(item.district || item.nearest_town || "");
+        setLocation(item.location || "");
+        setContact(item.contact_no || "");
+        setReportDate(item.report_date || item.found_date || item.lost_date || "");
+        setKeywords(item.unique_identifiers || "");
+        setDescription(item.description || "");
+        setStatus(item.status || "Pending");
+        setCreatedAt(item.created_at || "");
 
-      console.log("Single report:", data);
-
-      if (data.status === "success") {
-        const report = data.report;
-
-        setTitle(report.title || "");
-        setCategory(report.category || "");
-        setDistrict(report.district || "");
-        setLocation(report.location || "");
-        setContact(report.contact_no || "");
-        setReportDate(report.report_date || "");
-        setKeywords(report.unique_identifiers || "");
-        setDescription(report.description || "");
-        setStatus(report.status || "");
-        setCreatedAt(report.created_at || "");
-
-        parseReportTime(report.report_time || "");
+        parseReportTime(item.report_time || item.found_time || item.lost_time || "");
       } else {
-        setError(data.message || "Failed to load report.");
+        setError(data.message || "Report not found.");
       }
     } catch (err) {
       console.error("Fetch report error:", err);
@@ -232,6 +224,12 @@ function EditReport() {
 
     if (!validateManualTime(timeTo)) {
       setError("Time To must be in correct format. Example: 03:45");
+      return;
+    }
+
+    const futureErr = validateNotFuture(reportDate, timeFrom, timeFromPeriod) || validateNotFuture(reportDate, timeTo, timeToPeriod);
+    if (futureErr) {
+      setError("Date and time cannot be in the future.");
       return;
     }
 
@@ -430,6 +428,7 @@ function EditReport() {
                     <input
                       type="date"
                       value={reportDate}
+                      max={getMaxDate()}
                       onChange={(e) => setReportDate(e.target.value)}
                       className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                     />

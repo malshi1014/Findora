@@ -181,6 +181,15 @@ function Notifications() {
       };
     }
 
+    if (type === "complaint_reply") {
+      return {
+        icon: "💬",
+        title: "Admin Reply to Complaint",
+        color: "bg-blue-100",
+        textColor: "text-blue-600",
+      };
+    }
+
     return {
       icon: "🔔",
       title: "Notification",

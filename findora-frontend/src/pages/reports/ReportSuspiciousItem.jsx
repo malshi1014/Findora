@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import ShopLayout from "../../layouts/ShopLayout";
-
+import { getMaxDate, validateNotFuture } from "../../utils/dateValidation";
+import { SRI_LANKA_DISTRICTS } from "../../data/sriLankaDistricts";
 
 function ReportSuspiciousItem() {
   const navigate = useNavigate();
@@ -55,13 +56,12 @@ function ReportSuspiciousItem() {
     return `${formattedHour}:${minute} ${period}`;
   };
 
-  // Client-side report validation.
   const validateForm = () => {
     const errors = {};
 
     if (!title.trim()) errors.title = "Report title is required";
     if (!category.trim()) errors.category = "Item category is required";
-    if (!district.trim()) errors.district = "District is required";
+    // District is optional
     if (!location.trim()) errors.location = "Found location is required";
 
     if (!contactNumber.trim()) {
@@ -70,7 +70,15 @@ function ReportSuspiciousItem() {
       errors.contactNumber = "Invalid phone number format";
     }
 
-    if (!foundDate) errors.foundDate = "Found date is required";
+    if (!foundDate) {
+      errors.foundDate = "Found date is required";
+    } else {
+      const timeFromErr = validateNotFuture(foundDate, timeFrom, timeFromPeriod);
+      const timeToErr = validateNotFuture(foundDate, timeTo, timeToPeriod);
+      if (timeFromErr || timeToErr) {
+        errors.foundDate = timeFromErr || timeToErr;
+      }
+    }
 
     if (timeFrom && !validateManualTime(timeFrom)) {
       errors.timeFrom = "Use format --:--. Example: 02:30";
@@ -124,9 +132,8 @@ function ReportSuspiciousItem() {
 
     setLoading(true);
 
-    // Handle submission and upload errors.
     try {
-            const fromTimeAMPM = formatManualTime(
+      const fromTimeAMPM = formatManualTime(
         timeFrom,
         timeFromPeriod
       );
@@ -226,12 +233,12 @@ function ReportSuspiciousItem() {
 
             <div className="flex items-center gap-3 rounded-full bg-white px-4 py-3 shadow-sm shadow-slate-200">
               <div className="w-10 h-10 flex items-center justify-center">
-              <img
+                <img
                   src="/favicon.png"
                   alt="Findora Logo"
                   className="h-full w-full rounded-full object-cover"
                 />
-            </div>
+              </div>
 
               <div>
                 <p className="text-sm font-semibold text-slate-950">Findora</p>
@@ -303,26 +310,19 @@ function ReportSuspiciousItem() {
 
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">
-                  District <span className="text-red-500">*</span>
+                  District
                 </span>
 
-                <input
-                  type="text"
+                <select
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
-                  placeholder="Example: Badulla"
-                  className={`mt-3 w-full rounded-3xl border ${
-                    fieldErrors.district
-                      ? "border-red-400"
-                      : "border-slate-200"
-                  } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
-                />
-
-                {fieldErrors.district && (
-                  <p className="mt-1 text-xs text-red-600">
-                    {fieldErrors.district}
-                  </p>
-                )}
+                  className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                >
+                  <option value="">Select District (Optional)</option>
+                  {SRI_LANKA_DISTRICTS.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
               </label>
 
               <label className="block">
@@ -374,111 +374,112 @@ function ReportSuspiciousItem() {
               </label>
 
               <div className="grid gap-4 lg:grid-cols-[1.2fr_0.7fr_0.35fr_0.7fr_0.35fr]">
-  <label className="block">
-    <span className="text-sm font-semibold text-slate-700">
-      Found Date <span className="text-red-500">*</span>
-    </span>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700">
+                    Found Date <span className="text-red-500">*</span>
+                  </span>
 
-    <input
-      type="date"
-      value={foundDate}
-      onChange={(e) => setFoundDate(e.target.value)}
-      className={`mt-3 w-full rounded-3xl border ${
-        fieldErrors.foundDate
-          ? "border-red-400"
-          : "border-slate-200"
-      } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
-    />
+                  <input
+                    type="date"
+                    value={foundDate}
+                    max={getMaxDate()}
+                    onChange={(e) => setFoundDate(e.target.value)}
+                    className={`mt-3 w-full rounded-3xl border ${
+                      fieldErrors.foundDate
+                        ? "border-red-400"
+                        : "border-slate-200"
+                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                  />
 
-    {fieldErrors.foundDate && (
-      <p className="mt-1 text-xs text-red-600">
-        {fieldErrors.foundDate}
-      </p>
-    )}
-  </label>
+                  {fieldErrors.foundDate && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {fieldErrors.foundDate}
+                    </p>
+                  )}
+                </label>
 
-  <label className="block">
-    <span className="text-sm font-semibold text-slate-700">
-      Time From
-    </span>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700">
+                    Time From
+                  </span>
 
-    <input
-      type="text"
-      value={timeFrom}
-      onChange={(e) =>
-        handleTimeInput(e.target.value, setTimeFrom)
-      }
-      placeholder="--:--"
-      className={`mt-3 w-full rounded-3xl border ${
-        fieldErrors.timeFrom
-          ? "border-red-400"
-          : "border-slate-200"
-      } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
-    />
+                  <input
+                    type="text"
+                    value={timeFrom}
+                    onChange={(e) =>
+                      handleTimeInput(e.target.value, setTimeFrom)
+                    }
+                    placeholder="--:--"
+                    className={`mt-3 w-full rounded-3xl border ${
+                      fieldErrors.timeFrom
+                        ? "border-red-400"
+                        : "border-slate-200"
+                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                  />
 
-    {fieldErrors.timeFrom && (
-      <p className="mt-1 text-xs text-red-600">
-        {fieldErrors.timeFrom}
-      </p>
-    )}
-  </label>
+                  {fieldErrors.timeFrom && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {fieldErrors.timeFrom}
+                    </p>
+                  )}
+                </label>
 
-  <label className="block">
-    <span className="text-sm font-semibold text-slate-700">
-      AM/PM
-    </span>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700">
+                    AM/PM
+                  </span>
 
-    <select
-      value={timeFromPeriod}
-      onChange={(e) => setTimeFromPeriod(e.target.value)}
-      className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-    >
-      <option value="AM">AM</option>
-      <option value="PM">PM</option>
-    </select>
-  </label>
+                  <select
+                    value={timeFromPeriod}
+                    onChange={(e) => setTimeFromPeriod(e.target.value)}
+                    className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </label>
 
-  <label className="block">
-    <span className="text-sm font-semibold text-slate-700">
-      Time To
-    </span>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700">
+                    Time To
+                  </span>
 
-    <input
-      type="text"
-      value={timeTo}
-      onChange={(e) =>
-        handleTimeInput(e.target.value, setTimeTo)
-      }
-      placeholder="--:--"
-      className={`mt-3 w-full rounded-3xl border ${
-        fieldErrors.timeTo
-          ? "border-red-400"
-          : "border-slate-200"
-      } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
-    />
+                  <input
+                    type="text"
+                    value={timeTo}
+                    onChange={(e) =>
+                      handleTimeInput(e.target.value, setTimeTo)
+                    }
+                    placeholder="--:--"
+                    className={`mt-3 w-full rounded-3xl border ${
+                      fieldErrors.timeTo
+                        ? "border-red-400"
+                        : "border-slate-200"
+                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                  />
 
-    {fieldErrors.timeTo && (
-      <p className="mt-1 text-xs text-red-600">
-        {fieldErrors.timeTo}
-      </p>
-    )}
-  </label>
+                  {fieldErrors.timeTo && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {fieldErrors.timeTo}
+                    </p>
+                  )}
+                </label>
 
-  <label className="block">
-    <span className="text-sm font-semibold text-slate-700">
-      AM/PM
-    </span>
+                <label className="block">
+                  <span className="text-sm font-semibold text-slate-700">
+                    AM/PM
+                  </span>
 
-    <select
-      value={timeToPeriod}
-      onChange={(e) => setTimeToPeriod(e.target.value)}
-      className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-    >
-      <option value="AM">AM</option>
-      <option value="PM">PM</option>
-    </select>
-  </label>
-</div>
+                  <select
+                    value={timeToPeriod}
+                    onChange={(e) => setTimeToPeriod(e.target.value)}
+                    className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </label>
+              </div>
 
               <label className="block">
                 <span className="text-sm font-semibold text-slate-700">

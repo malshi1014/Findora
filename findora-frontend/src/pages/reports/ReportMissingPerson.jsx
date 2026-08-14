@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import API_BASE_URL from "../../config/api";
 import TownSelect from "../../components/TownSelect";
+import { getMaxDate, validateNotFuture } from "../../utils/dateValidation";
+import { SRI_LANKA_DISTRICTS } from "../../data/sriLankaDistricts";
 
 function ReportMissingPerson() {
   const navigate = useNavigate();
@@ -81,7 +83,7 @@ function ReportMissingPerson() {
       errors.age = "Please enter a valid age.";
     }
     if (!gender) errors.gender = "Gender is required.";
-    if (!district.trim()) errors.district = "District is required.";
+    // District is optional
     if (!nearestTown.trim()) errors.nearestTown = "Nearest town is required.";
     if (!lastSeenLocation.trim()) {
       errors.lastSeenLocation = "Last seen location is required.";
@@ -91,7 +93,14 @@ function ReportMissingPerson() {
     } else if (!validatePhone(guardianContactNo)) {
       errors.guardianContactNo = "Invalid contact number.";
     }
-    if (!missingDate) errors.missingDate = "Missing date is required.";
+    if (!missingDate) {
+      errors.missingDate = "Missing date is required.";
+    } else {
+      const timeError = validateNotFuture(missingDate, missingTime, missingTimePeriod);
+      if (timeError) {
+        errors.missingDate = timeError;
+      }
+    }
     if (missingTime.trim() && !validateManualTime(missingTime)) {
       errors.missingTime = "Use time format like 02:30.";
     }
@@ -334,24 +343,18 @@ function ReportMissingPerson() {
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
                   <span className="text-sm font-semibold text-slate-700">
-                    District <span className="text-red-500">*</span>
+                    District
                   </span>
-                  <input
-                    type="text"
+                  <select
                     value={district}
                     onChange={(e) => setDistrict(e.target.value)}
-                    placeholder="Example: Badulla"
-                    className={`mt-3 w-full rounded-3xl border ${
-                      fieldErrors.district
-                        ? "border-red-400"
-                        : "border-slate-200"
-                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
-                  />
-                  {fieldErrors.district && (
-                    <p className="mt-1 text-xs text-red-600">
-                      {fieldErrors.district}
-                    </p>
-                  )}
+                    className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  >
+                    <option value="">Select District (Optional)</option>
+                    {SRI_LANKA_DISTRICTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
                 </label>
 
                 <label className="block">
@@ -401,6 +404,7 @@ function ReportMissingPerson() {
                   <input
                     type="date"
                     value={missingDate}
+                    max={getMaxDate()}
                     onChange={(e) => setMissingDate(e.target.value)}
                     className={`mt-3 w-full rounded-3xl border ${
                       fieldErrors.missingDate

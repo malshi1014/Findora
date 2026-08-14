@@ -1,6 +1,7 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
+import API_BASE_URL from "../../config/api";
 
 const contactItems = [
   {
@@ -11,13 +12,13 @@ const contactItems = [
   },
   {
     title: "Email Us",
-    description: ["Our team typically replies within 2 hours.", "support@findora.com"],
+    description: ["Our team typically replies within 2 hours.", "findooora@gmail.com"],
     icon: "✉️",
     accent: "from-emerald-500 to-teal-600",
   },
   {
     title: "Call Us",
-    description: ["Mon-Fri from 8am to 5pm.", "+94 xx xxx xxxx"],
+    description: ["Mon-Fri from 8am to 5pm.", "+94 77 101 7843"],
     icon: "📞",
     accent: "from-violet-500 to-fuchsia-600",
   },
@@ -89,7 +90,7 @@ function Contact() {
     return nextErrors;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const validationErrors = validateForm();
@@ -103,14 +104,37 @@ function Contact() {
     setIsSubmitting(true);
     setStatus({ type: "info", message: "Sending your message..." });
 
-    window.setTimeout(() => {
-      setIsSubmitting(false);
-      setStatus({
-        type: "success",
-        message: "Thanks! Your message has been received and our team will get back to you shortly.",
+    try {
+      const response = await fetch(`${API_BASE_URL}/complaints/send_complaint.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(formData),
       });
-      setFormData(initialFormState);
-    }, 1200);
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        setStatus({
+          type: "success",
+          message: data.message || "Thanks! Your message has been received and our team will get back to you shortly.",
+        });
+        setFormData(initialFormState);
+      } else {
+        setStatus({
+          type: "error",
+          message: data.message || "Failed to submit message. Please try again.",
+        });
+      }
+    } catch (err) {
+      console.error("Complaint submit error:", err);
+      setStatus({
+        type: "error",
+        message: "Network error — please check your connection and try again.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -264,13 +288,12 @@ function Contact() {
               {status.message ? (
                 <div
                   aria-live="polite"
-                  className={`rounded-2xl border px-4 py-3 text-sm ${
-                    status.type === "success"
-                      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                      : status.type === "error"
-                        ? "border-red-200 bg-red-50 text-red-700"
-                        : "border-blue-200 bg-blue-50 text-blue-700"
-                  }`}
+                  className={`rounded-2xl border px-4 py-3 text-sm ${status.type === "success"
+                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                    : status.type === "error"
+                      ? "border-red-200 bg-red-50 text-red-700"
+                      : "border-blue-200 bg-blue-50 text-blue-700"
+                    }`}
                 >
                   {status.message}
                 </div>

@@ -54,6 +54,102 @@ function ReportFoundItem() {
     return `${formattedHour}:${minute} ${period}`;
   };
 
+  /*
+   * Get the current date and time in Sri Lanka.
+   * This avoids relying on the user's computer timezone.
+   */
+  const getSriLankaNow = () => {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Colombo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    const parts = formatter.formatToParts(new Date());
+
+    const values = {};
+
+    parts.forEach(({ type, value }) => {
+      values[type] = value;
+    });
+
+    return {
+      date: `${values.year}-${values.month}-${values.day}`,
+      hour: Number(values.hour),
+      minute: Number(values.minute),
+    };
+  };
+
+  /*
+   * Returns today's date in Sri Lankan time.
+   * Used for the max attribute of the date input.
+   */
+  const getMaxDate = () => {
+    return getSriLankaNow().date;
+  };
+
+  /*
+   * Convert 12-hour AM/PM time to minutes from midnight.
+   */
+  const convertToMinutes = (time, period) => {
+    if (!time.trim()) return null;
+
+    const [hourString, minuteString] = time.trim().split(":");
+
+    let hour = Number(hourString);
+    const minute = Number(minuteString);
+
+    if (period === "AM") {
+      if (hour === 12) {
+        hour = 0;
+      }
+    } else {
+      if (hour !== 12) {
+        hour += 12;
+      }
+    }
+
+    return hour * 60 + minute;
+  };
+
+  /*
+   * Check whether a selected date/time is in the future.
+   */
+  const validateNotFuture = (date, time, period, fieldName) => {
+    if (!date || !time.trim()) return null;
+
+    const now = getSriLankaNow();
+
+    // Selected date is in the past.
+    if (date < now.date) {
+      return null;
+    }
+
+    // Selected date is after today.
+    if (date > now.date) {
+      return `${fieldName} cannot be in the future.`;
+    }
+
+    // Selected date is today.
+    const enteredMinutes = convertToMinutes(time, period);
+
+    if (enteredMinutes === null) {
+      return null;
+    }
+
+    const currentMinutes = now.hour * 60 + now.minute;
+
+    if (enteredMinutes > currentMinutes) {
+      return `${fieldName} cannot be in the future.`;
+    }
+
+    return null;
+  };
+
   // Client-side report validation.
   const validateForm = () => {
     const errors = {};
@@ -69,7 +165,15 @@ function ReportFoundItem() {
       errors.contactNumber = "Invalid phone number format";
     }
 
-    if (!foundDate) errors.foundDate = "Found date is required";
+    if (!foundDate) {
+      errors.foundDate = "Found date is required";
+    } else {
+      const now = getSriLankaNow();
+
+      if (foundDate > now.date) {
+        errors.foundDate = "Found date cannot be in the future.";
+      }
+    }
 
     if (timeFrom && !validateManualTime(timeFrom)) {
       errors.timeFrom = "Use format --:--. Example: 02:30";
@@ -79,6 +183,34 @@ function ReportFoundItem() {
       errors.timeTo = "Use format --:--. Example: 03:45";
     }
 
+    // Validate Time From against the current date/time.
+    if (!errors.timeFrom && timeFrom && foundDate) {
+      const timeFromError = validateNotFuture(
+        foundDate,
+        timeFrom,
+        timeFromPeriod,
+        "Start time"
+      );
+
+      if (timeFromError) {
+        errors.timeFrom = timeFromError;
+      }
+    }
+
+    // Validate Time To against the current date/time.
+    if (!errors.timeTo && timeTo && foundDate) {
+      const timeToError = validateNotFuture(
+        foundDate,
+        timeTo,
+        timeToPeriod,
+        "End time"
+      );
+
+      if (timeToError) {
+        errors.timeTo = timeToError;
+      }
+    }
+
     if (!description.trim()) {
       errors.description = "Description is required";
     } else if (description.trim().length < 10) {
@@ -86,9 +218,14 @@ function ReportFoundItem() {
     }
 
     setFieldErrors(errors);
+
     return Object.keys(errors).length === 0;
   };
 
+  /*
+   * Handle manual time input.
+   * Only numbers and ":" are allowed.
+   */
   const handleTimeInput = (value, setter) => {
     let cleanedValue = value.replace(/[^0-9:]/g, "");
 
@@ -118,7 +255,6 @@ function ReportFoundItem() {
 
     setLoading(true);
 
-    // Handle submission and upload errors.
     try {
       const fromTimeAMPM = formatManualTime(timeFrom, timeFromPeriod);
       const toTimeAMPM = formatManualTime(timeTo, timeToPeriod);
@@ -127,10 +263,10 @@ function ReportFoundItem() {
         fromTimeAMPM && toTimeAMPM
           ? `${fromTimeAMPM} - ${toTimeAMPM}`
           : fromTimeAMPM
-          ? fromTimeAMPM
-          : toTimeAMPM
-          ? toTimeAMPM
-          : "";
+            ? fromTimeAMPM
+            : toTimeAMPM
+              ? toTimeAMPM
+              : "";
 
       const formData = new FormData();
 
@@ -185,7 +321,8 @@ function ReportFoundItem() {
     } catch (err) {
       console.error("Report submission error:", err);
       setError(
-        err.message || "Backend connection failed. Please check Apache and MySQL."
+        err.message ||
+        "Backend connection failed. Please check Apache and MySQL."
       );
     } finally {
       setLoading(false);
@@ -215,16 +352,20 @@ function ReportFoundItem() {
 
             <div className="flex items-center gap-3 rounded-full bg-white px-4 py-3 shadow-sm shadow-slate-200">
               <div className="w-10 h-10 flex items-center justify-center">
-              <img
+                <img
                   src="/favicon.png"
                   alt="Findora Logo"
                   className="h-full w-full rounded-full object-cover"
                 />
-            </div>
+              </div>
 
               <div>
-                <p className="text-sm font-semibold text-slate-950">Findora</p>
-                <p className="text-sm text-slate-500">Report Found Item</p>
+                <p className="text-sm font-semibold text-slate-950">
+                  Findora
+                </p>
+                <p className="text-sm text-slate-500">
+                  Report Found Item
+                </p>
               </div>
             </div>
           </div>
@@ -249,9 +390,10 @@ function ReportFoundItem() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Example: Found black iPhone 11"
-                  className={`mt-3 w-full rounded-3xl border ${
-                    fieldErrors.title ? "border-red-400" : "border-slate-200"
-                  } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                  className={`mt-3 w-full rounded-3xl border ${fieldErrors.title
+                    ? "border-red-400"
+                    : "border-slate-200"
+                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
                 />
 
                 {fieldErrors.title && (
@@ -269,11 +411,10 @@ function ReportFoundItem() {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className={`mt-3 w-full rounded-3xl border ${
-                    fieldErrors.category
-                      ? "border-red-400"
-                      : "border-slate-200"
-                  } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                  className={`mt-3 w-full rounded-3xl border ${fieldErrors.category
+                    ? "border-red-400"
+                    : "border-slate-200"
+                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
                 >
                   <option value="">Select Category</option>
                   <option value="Electronics">Electronics</option>
@@ -294,7 +435,8 @@ function ReportFoundItem() {
                 <span className="text-sm font-semibold text-slate-700 block mb-3">
                   Nearest Town <span className="text-red-500">*</span>
                 </span>
-                <TownSelect 
+
+                <TownSelect
                   value={nearestTown}
                   onChange={setNearestTown}
                   hasIcon={false}
@@ -311,11 +453,10 @@ function ReportFoundItem() {
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="Where was it found?"
-                  className={`mt-3 w-full rounded-3xl border ${
-                    fieldErrors.location
-                      ? "border-red-400"
-                      : "border-slate-200"
-                  } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                  className={`mt-3 w-full rounded-3xl border ${fieldErrors.location
+                    ? "border-red-400"
+                    : "border-slate-200"
+                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
                 />
 
                 {fieldErrors.location && (
@@ -335,11 +476,10 @@ function ReportFoundItem() {
                   value={contactNumber}
                   onChange={(e) => setContactNumber(e.target.value)}
                   placeholder="+94 xx xxxx xxx"
-                  className={`mt-3 w-full rounded-3xl border ${
-                    fieldErrors.contactNumber
-                      ? "border-red-400"
-                      : "border-slate-200"
-                  } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                  className={`mt-3 w-full rounded-3xl border ${fieldErrors.contactNumber
+                    ? "border-red-400"
+                    : "border-slate-200"
+                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
                 />
 
                 {fieldErrors.contactNumber && (
@@ -358,12 +498,34 @@ function ReportFoundItem() {
                   <input
                     type="date"
                     value={foundDate}
-                    onChange={(e) => setFoundDate(e.target.value)}
-                    className={`mt-3 w-full rounded-3xl border ${
-                      fieldErrors.foundDate
-                        ? "border-red-400"
-                        : "border-slate-200"
-                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                    max={getMaxDate()}
+                    onChange={(e) => {
+                      const selectedDate = e.target.value;
+                      const today = getMaxDate();
+
+                      if (selectedDate > today) {
+                        setFoundDate(today);
+
+                        setFieldErrors((prev) => ({
+                          ...prev,
+                          foundDate: "Found date cannot be in the future.",
+                        }));
+
+                        return;
+                      }
+
+                      setFoundDate(selectedDate);
+
+                      setFieldErrors((prev) => {
+                        const updated = { ...prev };
+                        delete updated.foundDate;
+                        return updated;
+                      });
+                    }}
+                    className={`mt-3 w-full rounded-3xl border ${fieldErrors.foundDate
+                      ? "border-red-400"
+                      : "border-slate-200"
+                      } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
                   />
 
                   {fieldErrors.foundDate && (
@@ -385,11 +547,12 @@ function ReportFoundItem() {
                       handleTimeInput(e.target.value, setTimeFrom)
                     }
                     placeholder="--:--"
-                    className={`mt-3 w-full rounded-3xl border ${
-                      fieldErrors.timeFrom
-                        ? "border-red-400"
-                        : "border-slate-200"
-                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                    maxLength={5}
+                    inputMode="numeric"
+                    className={`mt-3 w-full rounded-3xl border ${fieldErrors.timeFrom
+                      ? "border-red-400"
+                      : "border-slate-200"
+                      } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
                   />
 
                   {fieldErrors.timeFrom && (
@@ -426,11 +589,12 @@ function ReportFoundItem() {
                       handleTimeInput(e.target.value, setTimeTo)
                     }
                     placeholder="--:--"
-                    className={`mt-3 w-full rounded-3xl border ${
-                      fieldErrors.timeTo
-                        ? "border-red-400"
-                        : "border-slate-200"
-                    } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                    maxLength={5}
+                    inputMode="numeric"
+                    className={`mt-3 w-full rounded-3xl border ${fieldErrors.timeTo
+                      ? "border-red-400"
+                      : "border-slate-200"
+                      } bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
                   />
 
                   {fieldErrors.timeTo && (
@@ -480,11 +644,10 @@ function ReportFoundItem() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows="4"
                   placeholder="Provide details about the item's condition, unique marks, etc."
-                  className={`mt-3 w-full rounded-3xl border ${
-                    fieldErrors.description
-                      ? "border-red-400"
-                      : "border-slate-200"
-                  } bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
+                  className={`mt-3 w-full rounded-3xl border ${fieldErrors.description
+                    ? "border-red-400"
+                    : "border-slate-200"
+                    } bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100`}
                 />
 
                 {fieldErrors.description && (

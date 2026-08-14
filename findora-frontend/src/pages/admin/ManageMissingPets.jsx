@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import API_BASE_URL from "../../config/api";
-import { Search, Filter, RefreshCw } from "lucide-react";
+import { Search, Filter, RefreshCw, Eye } from "lucide-react";
+import ImagePreviewModal from "../../components/Admin/ImagePreviewModal";
 
 const statusStyles = {
   pending: "bg-amber-50 text-amber-700 border-amber-250 border-amber-200",
@@ -16,6 +17,7 @@ function ManageMissingPets() {
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
   const [error, setError] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
 
   const getCurrentUser = () => {
     const storedUser = localStorage.getItem("findora_user");
@@ -416,13 +418,22 @@ function ManageMissingPets() {
                         <td className="py-4 pr-4">
                           <div className="flex items-center gap-3">
                             {imageUrl ? (
-                              <img
-                                src={imageUrl}
-                                alt={report.title}
-                                className="h-10 w-10 shrink-0 rounded-full object-cover border border-slate-100 shadow-xs"
-                              />
+                              <button
+                                type="button"
+                                onClick={() => setPreviewImage({ src: imageUrl, title: report.title })}
+                                className="group relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-slate-200 shadow-xs transition hover:ring-2 hover:ring-blue-500"
+                              >
+                                <img
+                                  src={imageUrl}
+                                  alt={report.title}
+                                  className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center bg-slate-900/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Eye className="h-4 w-4 text-white drop-shadow-md" />
+                                </div>
+                              </button>
                             ) : (
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-50 border border-slate-100 text-[10px] text-slate-400 font-semibold shadow-xs">
+                              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-slate-50 border border-slate-200 text-[10px] text-slate-400 font-semibold shadow-xs">
                                 N/A
                               </div>
                             )}
@@ -531,6 +542,12 @@ function ManageMissingPets() {
             </p>
           </div>
         </section>
+
+        <ImagePreviewModal
+          src={previewImage?.src}
+          title={previewImage?.title}
+          onClose={() => setPreviewImage(null)}
+        />
       </div>
     </AdminLayout>
   );

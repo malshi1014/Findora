@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import RoleBasedLayout from "../../layouts/RoleBasedLayout";
 import TownSelect from "../../components/TownSelect";
+import { getMaxDate, validateNotFuture } from "../../utils/dateValidation";
 
 function ReportLostItem() {
   const navigate = useNavigate();
@@ -61,6 +62,12 @@ function ReportLostItem() {
       !description
     ) {
       setError("Please fill in all required fields.");
+      return;
+    }
+
+    const futureDateError = validateNotFuture(lostDate, timeFrom) || validateNotFuture(lostDate, timeTo);
+    if (futureDateError) {
+      setError("Date and time cannot be in the future.");
       return;
     }
 
@@ -263,6 +270,7 @@ function ReportLostItem() {
                   <input
                     type="date"
                     value={lostDate}
+                    max={getMaxDate()}
                     onChange={(e) => setLostDate(e.target.value)}
                     className="mt-3 w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                   />
