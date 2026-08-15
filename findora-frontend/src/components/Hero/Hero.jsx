@@ -79,7 +79,7 @@ function Hero() {
         >
           <motion.div variants={itemVariants} className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50/50 px-4 py-1.5 mb-8">
             <span className="text-[13px] font-semibold uppercase tracking-widest text-blue-600">
-              🚀 Live CI/CD Recovery Platform
+              Trusted Recovery Platform
             </span>
           </motion.div>
 
