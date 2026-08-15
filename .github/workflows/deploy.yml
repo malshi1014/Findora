@@ -41,7 +41,7 @@ jobs:
         run: |
           lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" ftpupload.net <<EOF
           set ftp:ssl-allow no
-          set ftp:use-chmod false
+          set mirror:set-permissions false
           set net:timeout 30
           set net:max-retries 3
           mirror --reverse --delete --verbose \
