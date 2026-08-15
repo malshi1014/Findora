@@ -1,0 +1,10 @@
+# Frontend
+findora-frontend/node_modules/
+findora-frontend/dist/
+findora-frontend/.env
+
+# Backend sensitive config
+findora-backend/config/db.php
+
+# Uploaded user files
+findora-backend/uploads/

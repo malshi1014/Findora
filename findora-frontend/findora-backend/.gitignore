@@ -1,0 +1,17 @@
+# Local database credentials
+/config/db.php
+
+# User-uploaded runtime files
+/uploads/
+
+# Local environment and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
