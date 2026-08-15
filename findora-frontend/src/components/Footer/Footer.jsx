@@ -136,6 +136,16 @@ function Footer() {
               </Link>
             </li>
             <li>
+              <Link to="/terms" className="hover:text-blue-400 transition">
+                Terms of Service
+              </Link>
+            </li>
+            <li>
+              <Link to="/privacy" className="hover:text-blue-400 transition">
+                Privacy Policy
+              </Link>
+            </li>
+            <li>
               <a href="mailto:findooora@gmail.com" className="hover:text-blue-400 transition">
                 Email: findooora@gmail.com
               </a>

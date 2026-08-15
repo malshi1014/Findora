@@ -250,12 +250,12 @@ function ShopRegister() {
                     onChange={() => setAgree(!agree)}
                     className="h-4 w-4"
                   />
-                  I agree to the{" "}
-                  <Link to="#" className="text-blue-700 font-medium">
+                  I have read and agree to the{" "}
+                  <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-700 font-medium hover:underline">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link to="#" className="text-blue-700 font-medium">
+                  <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-700 font-medium hover:underline">
                     Privacy Policy
                   </Link>
                   .

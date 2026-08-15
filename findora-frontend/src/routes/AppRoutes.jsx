@@ -3,6 +3,8 @@ import ScrollToTop from "../components/ScrollToTop";
 import Home from "../pages/public/Home";
 import About from "../pages/public/About";
 import Contact from "../pages/public/Contact";
+import TermsOfService from "../pages/public/TermsOfService";
+import PrivacyPolicy from "../pages/public/PrivacyPolicy";
 
 import Login from "../pages/auth/Login";
 import ChooseRole from "../pages/auth/ChooseRole";
@@ -51,6 +53,8 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
 
         {/* Authentication */}
         <Route path="/choose-role" element={<ChooseRole />} />

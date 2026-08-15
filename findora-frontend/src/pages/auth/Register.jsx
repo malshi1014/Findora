@@ -297,10 +297,10 @@ function Register() {
                     </svg>
                   </div>
                   <span className="text-xs text-slate-600 leading-relaxed">
-                    I agree to the{" "}
-                    <Link to="#" className="text-blue-600 font-medium hover:underline">Terms of Service</Link>
+                    I have read and agree to the{" "}
+                    <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline">Terms of Service</Link>
                     {" "}and{" "}
-                    <Link to="#" className="text-blue-600 font-medium hover:underline">Privacy Policy</Link>
+                    <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline">Privacy Policy</Link>
                     .
                   </span>
                 </label>
