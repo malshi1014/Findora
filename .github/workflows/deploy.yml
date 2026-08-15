@@ -37,7 +37,7 @@ jobs:
       - name: Install lftp
         run: sudo apt-get install -y lftp
 
-      - name: Deploy via FTP
+      - name: Deploy Frontend via FTP
         run: |
           lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" ftpupload.net <<EOF
           set ftp:ssl-allow no
@@ -46,6 +46,20 @@ jobs:
           set net:max-retries 3
           mirror --reverse --delete --verbose \
             --exclude .git \
+            --exclude findora-backend \
             findora-frontend/dist/ htdocs/
+          bye
+          EOF
+
+      - name: Deploy Backend via FTP
+        run: |
+          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" ftpupload.net <<EOF
+          set ftp:ssl-allow no
+          set mirror:set-permissions false
+          set net:timeout 30
+          set net:max-retries 3
+          mirror --reverse --delete --verbose \
+            --exclude .git \
+            findora-backend/ htdocs/findora-backend/
           bye
           EOF
