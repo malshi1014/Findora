@@ -1,0 +1,14 @@
+{
+    "name": "findora/backend",
+    "description": "Findora backend API",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Malshi",
+            "email": "malshinavodya14@gmail.com"
+        }
+    ],
+    "require": {
+        "phpmailer/phpmailer": "*"
+    }
+}

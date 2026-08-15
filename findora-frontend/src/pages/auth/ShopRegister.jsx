@@ -4,6 +4,7 @@ import API_BASE_URL from "../../config/api";
 import logo from "../../assets/logo/registration.svg";
 import TownSelect from "../../components/TownSelect";
 import { SRI_LANKA_DISTRICTS } from "../../data/sriLankaDistricts";
+import { DISTRICT_TOWNS } from "../../data/districtTowns";
 
 function ShopRegister() {
   const navigate = useNavigate();
@@ -24,6 +25,9 @@ function ShopRegister() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
+
+  // Derive town list whenever district changes
+  const filteredTowns = district ? (DISTRICT_TOWNS[district] || []) : [];
 
   const validateForm = () => {
     const newErrors = {};
@@ -302,23 +306,11 @@ function ShopRegister() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <div className="bg-white/50 backdrop-blur-xl rounded-2xl border border-white/40 animate-fade-up" style={{ animationDelay: "0.26s" }}>
-                      <TownSelect 
-                        value={city}
-                        onChange={(val) => { setCity(val); if(errors.city) setErrors({...errors, city: null}); }}
-                        placeholder="Nearest Town"
-                        hasIcon={false}
-                      />
-                    </div>
-                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
-                  </div>
-                  
-                  <div>
                     <select
                       value={district}
-                      onChange={(e) => { setDistrict(e.target.value); if(errors.district) setErrors({...errors, district: null}); }}
+                      onChange={(e) => { setDistrict(e.target.value); setCity(""); if(errors.district) setErrors({...errors, district: null, city: null}); }}
                       className={`w-full rounded-2xl border ${errors.district ? 'border-red-400' : 'border-white/40 focus:border-blue-400'} bg-white/50 backdrop-blur-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200 animate-fade-up appearance-none`}
-                      style={{ animationDelay: "0.27s" }}
+                      style={{ animationDelay: "0.26s" }}
                     >
                       <option value="" disabled>Select District</option>
                       {SRI_LANKA_DISTRICTS.map((d) => (
@@ -326,6 +318,20 @@ function ShopRegister() {
                       ))}
                     </select>
                     {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
+                  </div>
+
+                  <div>
+                    <div className={`backdrop-blur-xl rounded-2xl border ${errors.city ? 'border-red-400' : 'border-white/40'} animate-fade-up overflow-hidden`} style={{ animationDelay: "0.27s" }}>
+                      <TownSelect
+                        value={city}
+                        onChange={(val) => { setCity(val); if(errors.city) setErrors({...errors, city: null}); }}
+                        towns={filteredTowns}
+                        disabled={!district}
+                        placeholder="Nearest Town"
+                        hasIcon={false}
+                      />
+                    </div>
+                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                   </div>
                 </div>
 

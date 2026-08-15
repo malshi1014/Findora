@@ -6,6 +6,7 @@ import { UserPlus, ArrowRight, ShieldCheck, Mail, Phone, Lock, Hash } from "luci
 import { motion } from "framer-motion";
 import TownSelect from "../../components/TownSelect";
 import { SRI_LANKA_DISTRICTS } from "../../data/sriLankaDistricts";
+import { DISTRICT_TOWNS } from "../../data/districtTowns";
 
 function Register() {
   const navigate = useNavigate();
@@ -24,6 +25,9 @@ function Register() {
   
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
+
+  // Derive town list whenever district changes
+  const filteredTowns = district ? (DISTRICT_TOWNS[district] || []) : [];
 
   const validateForm = () => {
     const newErrors = {};
@@ -321,18 +325,10 @@ function Register() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <motion.div variants={itemVariants} className="space-y-1">
-                  <label className="text-xs font-medium text-slate-700">Nearest Town</label>
-                  <TownSelect 
-                    value={city}
-                    onChange={(val) => { setCity(val); if(errors.city) setErrors({...errors, city: null}); }}
-                  />
-                  {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
-                </motion.div>
-                <motion.div variants={itemVariants} className="space-y-1">
                   <label className="text-xs font-medium text-slate-700">District</label>
                   <select
                     value={district}
-                    onChange={(e) => { setDistrict(e.target.value); if(errors.district) setErrors({...errors, district: null}); }}
+                    onChange={(e) => { setDistrict(e.target.value); setCity(""); if(errors.district) setErrors({...errors, district: null, city: null}); }}
                     className={`w-full px-3 py-2.5 text-sm rounded-lg border ${errors.district ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white appearance-none`}
                   >
                     <option value="" disabled>Select District</option>
@@ -341,6 +337,16 @@ function Register() {
                     ))}
                   </select>
                   {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
+                </motion.div>
+                <motion.div variants={itemVariants} className="space-y-1">
+                  <label className="text-xs font-medium text-slate-700">Nearest Town</label>
+                  <TownSelect
+                    value={city}
+                    onChange={(val) => { setCity(val); if(errors.city) setErrors({...errors, city: null}); }}
+                    towns={filteredTowns}
+                    disabled={!district}
+                  />
+                  {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                 </motion.div>
               </div>
 
