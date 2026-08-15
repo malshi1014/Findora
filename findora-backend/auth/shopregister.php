@@ -12,55 +12,70 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 include __DIR__ . "/../config/db.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Only POST method is allowed"
-    ));
+    echo json_encode(array("status" => "error", "message" => "Only POST method is allowed"));
     exit();
 }
 
 $data = json_decode(file_get_contents("php://input"), true);
-
 if ($data === null) {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Invalid JSON input"
-    ));
+    echo json_encode(array("status" => "error", "message" => "Invalid JSON input"));
     exit();
 }
 
 $first_name = isset($data["first_name"]) ? trim($data["first_name"]) : "";
 $last_name = isset($data["last_name"]) ? trim($data["last_name"]) : "";
-$nic = isset($data["nic"]) ? trim($data["nic"]) : "";
-$email = isset($data["email"]) ? trim($data["email"]) : "";
+$nic = isset($data["nic"]) ? strtoupper(trim($data["nic"])) : "";
+$email = isset($data["email"]) ? strtolower(trim($data["email"])) : "";
 $mobile = isset($data["mobile"]) ? trim($data["mobile"]) : "";
 $password = isset($data["password"]) ? trim($data["password"]) : "";
 $district = isset($data["district"]) ? trim($data["district"]) : "";
 $nearest_town = isset($data["nearest_town"]) ? trim($data["nearest_town"]) : "";
-
 $role = "shop_owner";
 
-// Server-side input validation.
-if (
-    empty($first_name) ||
-    empty($last_name) ||
-    empty($nic) ||
-    empty($email) ||
-    empty($mobile) ||
-    empty($password)
-) {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Please fill all required fields"
-    ));
+// Additional shop fields
+$shop_name = isset($data["shop_name"]) ? trim($data["shop_name"]) : "";
+$shop_address = isset($data["shop_address"]) ? trim($data["shop_address"]) : "";
+
+// Required fields check
+if (empty($first_name) || empty($last_name) || empty($nic) || empty($email) || empty($mobile) || empty($password) || empty($district) || empty($nearest_town) || empty($shop_name) || empty($shop_address)) {
+    echo json_encode(array("status" => "error", "message" => "Please fill all required fields"));
     exit();
 }
 
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Invalid email address"
-    ));
+// First/Last Name validation
+if (!preg_match("/^[a-zA-Z\s\-']{2,50}$/", $first_name) || !preg_match("/^[a-zA-Z\s\-']{2,50}$/", $last_name)) {
+    echo json_encode(array("status" => "error", "message" => "Invalid name format"));
+    exit();
+}
+
+// Email validation
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 254) {
+    echo json_encode(array("status" => "error", "message" => "Invalid email format"));
+    exit();
+}
+
+// NIC validation (Sri Lankan formats)
+if (!preg_match("/^([0-9]{9}[VX]|[0-9]{12})$/", $nic)) {
+    echo json_encode(array("status" => "error", "message" => "Invalid NIC format"));
+    exit();
+}
+
+// Mobile validation (Starts with 07 and 10 digits)
+if (!preg_match("/^07[0-9]{8}$/", $mobile)) {
+    echo json_encode(array("status" => "error", "message" => "Invalid mobile number format"));
+    exit();
+}
+
+// Password validation
+if (strlen($password) < 8 || strlen($password) > 72 || !preg_match("/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/", $password)) {
+    echo json_encode(array("status" => "error", "message" => "Password does not meet complexity requirements"));
+    exit();
+}
+
+// District Validation
+$valid_districts = ["Ampara","Anuradhapura","Badulla","Batticaloa","Colombo","Galle","Gampaha","Hambantota","Jaffna","Kalutara","Kandy","Kegalle","Kilinochchi","Kurunegala","Mannar","Matale","Matara","Monaragala","Mullaitivu","Nuwara Eliya","Polonnaruwa","Puttalam","Ratnapura","Trincomalee","Vavuniya"];
+if (!in_array($district, $valid_districts)) {
+    echo json_encode(array("status" => "error", "message" => "Invalid district selected"));
     exit();
 }
 
@@ -69,17 +84,24 @@ $conn->begin_transaction();
 
 // Roll back safely on errors.
 try {
-    $check = $conn->prepare("SELECT user_id FROM users WHERE nic = ? OR email = ? LIMIT 1");
+    $check = $conn->prepare("SELECT email, nic, mobile FROM users WHERE email = ? OR nic = ? OR mobile = ? LIMIT 1");
     if (!$check) {
         throw new Exception("Database query preparation failed");
     }
 
-    $check->bind_param("ss", $nic, $email);
+    $check->bind_param("sss", $email, $nic, $mobile);
     $check->execute();
     $result = $check->get_result();
 
     if ($result->num_rows > 0) {
-        throw new Exception("NIC or email already exists");
+        $row = $result->fetch_assoc();
+        if ($row['email'] === $email) {
+            throw new Exception("Email is already registered");
+        } else if ($row['nic'] === $nic) {
+            throw new Exception("NIC is already registered");
+        } else if ($row['mobile'] === $mobile) {
+            throw new Exception("Mobile number is already registered");
+        }
     }
 
     // Secure one-way password hashing.
@@ -92,7 +114,7 @@ try {
     ");
 
     if (!$stmt) {
-        throw new Exception("User registration failed");
+        throw new Exception("User registration statement failed");
     }
 
     $stmt->bind_param(
@@ -129,7 +151,7 @@ try {
 
         if (in_array("shop_name", $shop_columns)) {
             $shop_fields[] = "shop_name";
-            $shop_values[] = $first_name . " " . $last_name . "'s Shop";
+            $shop_values[] = $shop_name ? $shop_name : ($first_name . " " . $last_name . "'s Shop");
         }
 
         if (in_array("owner_name", $shop_columns)) {
@@ -161,6 +183,11 @@ try {
             $shop_fields[] = "nic";
             $shop_values[] = $nic;
         }
+        
+        if (in_array("shop_address", $shop_columns)) {
+            $shop_fields[] = "shop_address";
+            $shop_values[] = $shop_address;
+        }
 
         if (in_array("district", $shop_columns)) {
             $shop_fields[] = "district";
@@ -178,7 +205,7 @@ try {
             $shop_stmt = $conn->prepare($sql);
 
             if (!$shop_stmt) {
-                throw new Exception("Shop owner registration failed");
+                throw new Exception("Shop owner statement preparation failed");
             }
 
             $types = str_repeat("s", count($shop_values));

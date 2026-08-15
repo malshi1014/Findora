@@ -2,9 +2,10 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/api";
 import logo from "../../assets/logo/registration.svg";
-import { UserPlus, ArrowRight, ShieldCheck, Mail, MapPin, Phone, Lock, Hash } from "lucide-react";
+import { UserPlus, ArrowRight, ShieldCheck, Mail, Phone, Lock, Hash } from "lucide-react";
 import { motion } from "framer-motion";
 import TownSelect from "../../components/TownSelect";
+import { SRI_LANKA_DISTRICTS } from "../../data/sriLankaDistricts";
 
 function Register() {
   const navigate = useNavigate();
@@ -14,30 +15,108 @@ function Register() {
   const [email, setEmail] = useState("");
   const [nic, setNic] = useState("");
   const [phone, setPhone] = useState("");
-  const [city, setCity] = useState("");
-  const [address, setAddress] = useState("");
+  const [city, setCity] = useState(""); // nearest_town
+  const [district, setDistrict] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [agree, setAgree] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  
+  const [errors, setErrors] = useState({});
+  const [serverError, setServerError] = useState("");
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // First Name
+    const fName = firstName.trim();
+    if (!fName) {
+      newErrors.firstName = "First name is required.";
+    } else if (fName.length < 2 || fName.length > 50) {
+      newErrors.firstName = "First name must be between 2 and 50 characters.";
+    } else if (!/^[a-zA-Z\s\-']+$/.test(fName)) {
+      newErrors.firstName = "First name can only contain letters, spaces, hyphens, and apostrophes.";
+    }
+
+    // Last Name
+    const lName = lastName.trim();
+    if (!lName) {
+      newErrors.lastName = "Last name is required.";
+    } else if (lName.length < 2 || lName.length > 50) {
+      newErrors.lastName = "Last name must be between 2 and 50 characters.";
+    } else if (!/^[a-zA-Z\s\-']+$/.test(lName)) {
+      newErrors.lastName = "Last name can only contain letters, spaces, hyphens, and apostrophes.";
+    }
+
+    // Email
+    const emailVal = email.trim().toLowerCase();
+    if (!emailVal) {
+      newErrors.email = "Email is required.";
+    } else if (emailVal.length > 254) {
+      newErrors.email = "Email must be less than 255 characters.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    // NIC
+    const nicVal = nic.trim().toUpperCase();
+    if (!nicVal) {
+      newErrors.nic = "NIC is required.";
+    } else if (!/^([0-9]{9}[VX]|[0-9]{12})$/.test(nicVal)) {
+      newErrors.nic = "Please enter a valid Sri Lankan NIC (e.g., 123456789V or 200012345678).";
+    }
+
+    // Phone
+    const phoneVal = phone.trim();
+    if (!phoneVal) {
+      newErrors.phone = "Phone number is required.";
+    } else if (!/^07[0-9]{8}$/.test(phoneVal)) {
+      newErrors.phone = "Please enter a valid 10-digit mobile number starting with 07.";
+    }
+
+    // Nearest Town
+    if (!city || city.trim() === "") {
+      newErrors.city = "Nearest town is required.";
+    }
+
+    // District
+    if (!district || district === "") {
+      newErrors.district = "Please select a district.";
+    } else if (!SRI_LANKA_DISTRICTS.includes(district)) {
+      newErrors.district = "Invalid district selected.";
+    }
+
+    // Password
+    const pwd = password.trim();
+    if (!pwd) {
+      newErrors.password = "Password is required.";
+    } else if (pwd.length < 8 || pwd.length > 72) {
+      newErrors.password = "Password must be between 8 and 72 characters.";
+    } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(pwd)) {
+      newErrors.password = "Password must contain at least one uppercase, lowercase, number, and special character.";
+    }
+
+    // Confirm Password
+    if (!confirm) {
+      newErrors.confirm = "Please confirm your password.";
+    } else if (pwd !== confirm.trim()) {
+      newErrors.confirm = "Passwords do not match.";
+    }
+
+    // Agree
+    if (!agree) {
+      newErrors.agree = "You must agree to the Terms of Service and Privacy Policy.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
-    if (!agree) {
-      setError("Please agree to the Terms of Service and Privacy Policy.");
-      return;
-    }
-
-    if (password !== confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
-
-    if (!firstName || !lastName || !email || !nic || !phone || !city || !address || !password) {
-      setError("Please fill in all required fields.");
+    setServerError("");
+    
+    if (!validateForm()) {
       return;
     }
 
@@ -50,14 +129,14 @@ function Register() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          first_name: firstName,
-          last_name: lastName,
-          email: email,
-          nic: nic,
-          mobile: phone,
-          district: address,
-          nearest_town: city,
-          password: password,
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          email: email.trim().toLowerCase(),
+          nic: nic.trim().toUpperCase(),
+          mobile: phone.trim(),
+          district: district,
+          nearest_town: city.trim(),
+          password: password.trim(),
         }),
       });
 
@@ -68,10 +147,10 @@ function Register() {
         alert("Account created successfully! Please login.");
         navigate("/login");
       } else {
-        setError(data.message || "Registration failed. Please try again.");
+        setServerError(data.message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      setError("Backend connection failed. Please check your connection.");
+      setServerError("Backend connection failed. Please check your connection.");
       console.error("Register error:", err);
     } finally {
       setLoading(false);
@@ -160,11 +239,12 @@ function Register() {
               animate="visible"
               onSubmit={handleSubmit} 
               className="space-y-4"
+              noValidate
             >
-              {error && (
+              {serverError && (
                 <motion.div variants={itemVariants} className="bg-red-50 text-red-600 p-3 rounded-lg border border-red-100 text-xs flex items-start gap-2">
                   <div className="shrink-0 mt-0.5">⚠️</div>
-                  <p>{error}</p>
+                  <p>{serverError}</p>
                 </motion.div>
               )}
 
@@ -175,9 +255,10 @@ function Register() {
                     type="text"
                     placeholder="John"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                    onChange={(e) => { setFirstName(e.target.value); if(errors.firstName) setErrors({...errors, firstName: null}); }}
+                    className={`w-full px-3 py-2.5 text-sm rounded-lg border ${errors.firstName ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white`}
                   />
+                  {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
                 </motion.div>
                 <motion.div variants={itemVariants} className="space-y-1">
                   <label className="text-xs font-medium text-slate-700">Last Name</label>
@@ -185,9 +266,10 @@ function Register() {
                     type="text"
                     placeholder="Doe"
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                    onChange={(e) => { setLastName(e.target.value); if(errors.lastName) setErrors({...errors, lastName: null}); }}
+                    className={`w-full px-3 py-2.5 text-sm rounded-lg border ${errors.lastName ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white`}
                   />
+                  {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
                 </motion.div>
               </div>
 
@@ -199,10 +281,11 @@ function Register() {
                     type="email"
                     placeholder="john@example.com"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                    onChange={(e) => { setEmail(e.target.value); if(errors.email) setErrors({...errors, email: null}); }}
+                    className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border ${errors.email ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white`}
                   />
                 </div>
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </motion.div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -214,10 +297,11 @@ function Register() {
                       type="text"
                       placeholder="Enter NIC"
                       value={nic}
-                      onChange={(e) => setNic(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                      onChange={(e) => { setNic(e.target.value); if(errors.nic) setErrors({...errors, nic: null}); }}
+                      className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border ${errors.nic ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white uppercase`}
                     />
                   </div>
+                  {errors.nic && <p className="text-red-500 text-xs mt-1">{errors.nic}</p>}
                 </motion.div>
                 <motion.div variants={itemVariants} className="space-y-1">
                   <label className="text-xs font-medium text-slate-700">Phone Number</label>
@@ -227,10 +311,11 @@ function Register() {
                       type="tel"
                       placeholder="07X XXX XXXX"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                      onChange={(e) => { setPhone(e.target.value); if(errors.phone) setErrors({...errors, phone: null}); }}
+                      className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border ${errors.phone ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white`}
                     />
                   </div>
+                  {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                 </motion.div>
               </div>
 
@@ -239,18 +324,23 @@ function Register() {
                   <label className="text-xs font-medium text-slate-700">Nearest Town</label>
                   <TownSelect 
                     value={city}
-                    onChange={setCity}
+                    onChange={(val) => { setCity(val); if(errors.city) setErrors({...errors, city: null}); }}
                   />
+                  {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                 </motion.div>
                 <motion.div variants={itemVariants} className="space-y-1">
                   <label className="text-xs font-medium text-slate-700">District</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Western"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="w-full px-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
-                  />
+                  <select
+                    value={district}
+                    onChange={(e) => { setDistrict(e.target.value); if(errors.district) setErrors({...errors, district: null}); }}
+                    className={`w-full px-3 py-2.5 text-sm rounded-lg border ${errors.district ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white appearance-none`}
+                  >
+                    <option value="" disabled>Select District</option>
+                    {SRI_LANKA_DISTRICTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                  {errors.district && <p className="text-red-500 text-xs mt-1">{errors.district}</p>}
                 </motion.div>
               </div>
 
@@ -263,10 +353,11 @@ function Register() {
                       type="password"
                       placeholder="••••••••"
                       value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                      onChange={(e) => { setPassword(e.target.value); if(errors.password) setErrors({...errors, password: null}); }}
+                      className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border ${errors.password ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white`}
                     />
                   </div>
+                  {errors.password && <p className="text-red-500 text-xs mt-1 leading-tight">{errors.password}</p>}
                 </motion.div>
                 <motion.div variants={itemVariants} className="space-y-1">
                   <label className="text-xs font-medium text-slate-700">Confirm Password</label>
@@ -276,10 +367,11 @@ function Register() {
                       type="password"
                       placeholder="••••••••"
                       value={confirm}
-                      onChange={(e) => setConfirm(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all bg-slate-50/50 hover:bg-white"
+                      onChange={(e) => { setConfirm(e.target.value); if(errors.confirm) setErrors({...errors, confirm: null}); }}
+                      className={`w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border ${errors.confirm ? 'border-red-400 focus:ring-red-500/10' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/10'} focus:ring-4 outline-none transition-all bg-slate-50/50 hover:bg-white`}
                     />
                   </div>
+                  {errors.confirm && <p className="text-red-500 text-xs mt-1 leading-tight">{errors.confirm}</p>}
                 </motion.div>
               </div>
 
@@ -289,20 +381,23 @@ function Register() {
                     <input
                       type="checkbox"
                       checked={agree}
-                      onChange={() => setAgree(!agree)}
-                      className="peer w-4 h-4 appearance-none rounded border-2 border-slate-300 checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer"
+                      onChange={() => { setAgree(!agree); if(errors.agree) setErrors({...errors, agree: null}); }}
+                      className={`peer w-4 h-4 appearance-none rounded border-2 ${errors.agree ? 'border-red-500' : 'border-slate-300'} checked:bg-blue-600 checked:border-blue-600 transition-all cursor-pointer`}
                     />
                     <svg className="absolute w-2.5 h-2.5 text-white pointer-events-none opacity-0 peer-checked:opacity-100 transition-opacity" viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M1 5L4.5 8.5L13 1.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
-                  <span className="text-xs text-slate-600 leading-relaxed">
-                    I have read and agree to the{" "}
-                    <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline">Terms of Service</Link>
-                    {" "}and{" "}
-                    <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline">Privacy Policy</Link>
-                    .
-                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-xs text-slate-600 leading-relaxed">
+                      I have read and agree to the{" "}
+                      <Link to="/terms" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline">Terms of Service</Link>
+                      {" "}and{" "}
+                      <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-600 font-medium hover:underline">Privacy Policy</Link>
+                      .
+                    </span>
+                    {errors.agree && <span className="text-red-500 text-xs mt-1">{errors.agree}</span>}
+                  </div>
                 </label>
               </motion.div>
 
