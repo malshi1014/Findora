@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'findora-frontend/**'
 
 jobs:
   build-and-deploy:
@@ -36,14 +34,17 @@ jobs:
         working-directory: findora-frontend
         run: npm run build
 
-      - name: Deploy to InfinityFree via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./findora-frontend/dist/
-          server-dir: htdocs/
-          exclude: |
-            **/.git*
-            **/.git*/**
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
+      - name: Deploy via FTP
+        run: |
+          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" ftpupload.net <<EOF
+          set ftp:ssl-allow no
+          set net:timeout 30
+          set net:max-retries 3
+          mirror --reverse --delete --verbose \
+            --exclude .git \
+            findora-frontend/dist/ htdocs/
+          bye
+          EOF
