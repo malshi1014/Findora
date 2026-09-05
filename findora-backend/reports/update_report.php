@@ -1,5 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: https://findora.freehosting.dev");
+$origin = $_SERVER['HTTP_ORIGIN'] ?? ''; if ($origin === 'https://findora.freehosting.dev' || $origin === 'http://localhost:5173') { header('Access-Control-Allow-Origin: ' . $origin); } header('Access-Control-Allow-Headers: Content-Type'); header('Access-Control-Allow-Methods: POST, OPTIONS'); header('Content-Type: application/json');
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json");
@@ -65,6 +65,7 @@ if (!empty($missing)) {
     exit();
 }
 
+require_once __DIR__ . '/../helpers/date_validation.php'; if (!validateNotFutureDateTime($report_date, $report_time)) { echo json_encode(array('status' => 'error', 'message' => 'Date and time cannot be in the future.')); exit(); }
 if ($report_type !== "lost" && $report_type !== "found") {
     echo json_encode(array(
         "status" => "error",

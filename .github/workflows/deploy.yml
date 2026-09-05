@@ -1,0 +1,65 @@
+name: 🚀 Build & Deploy Frontend to InfinityFree
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: findora-frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: findora-frontend
+        run: npm ci
+
+      - name: Create .env file
+        working-directory: findora-frontend
+        run: |
+          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" > .env
+
+      - name: Build Application
+        working-directory: findora-frontend
+        run: npm run build
+
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
+      - name: Deploy Frontend via FTP
+        run: |
+          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" ftpupload.net <<EOF
+          set ftp:ssl-allow no
+          set mirror:set-permissions false
+          set net:timeout 30
+          set net:max-retries 3
+          mirror --reverse --delete --verbose \
+            --exclude .git \
+            --exclude findora-backend \
+            findora-frontend/dist/ htdocs/
+          bye
+          EOF
+
+      - name: Deploy Backend via FTP
+        run: |
+          lftp -u "${{ secrets.FTP_USERNAME }}","${{ secrets.FTP_PASSWORD }}" ftpupload.net <<EOF
+          set ftp:ssl-allow no
+          set mirror:set-permissions false
+          set net:timeout 30
+          set net:max-retries 3
+          mirror --reverse --delete --verbose \
+            --exclude .git \
+            findora-backend/ htdocs/findora-backend/
+          bye
+          EOF

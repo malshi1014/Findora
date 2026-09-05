@@ -1,13 +1,15 @@
 import AppRoutes from "./routes/AppRoutes";
-//import Home from "./pages/Home";
+import AuroraBackground from "./components/Background/AuroraBackground";
 
 function App() {
-  return <AppRoutes />;
- // return <Home />;
+  return (
+    <>
+      <AuroraBackground />
+      <div className="relative z-10">
+        <AppRoutes />
+      </div>
+    </>
+  );
 }
 
 export default App;
-
-
-
-

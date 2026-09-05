@@ -1,140 +1,332 @@
-import { useState } from "react";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import { useCallback, useEffect, useRef, useState } from "react";
+import API_BASE_URL from "../../config/api";
+import RoleBasedLayout from "../../layouts/RoleBasedLayout";
+
+const getCurrentUser = () => {
+  const storedUser = localStorage.getItem("findora_user");
+
+  if (!storedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedUser);
+  } catch {
+    return null;
+  }
+};
 
 function Notifications() {
-  const [notifications] = useState([
-    {
-      id: 1,
-      type: "match",
-      icon: "✓",
-      title: "Possible match found",
-      message: "A few minutes ago, we found a match for your Vivid Neon report.",
-      timestamp: "2d ago",
-      action: "View Details",
-      color: "bg-green-100",
-      textColor: "text-green-600",
-      badge: "bg-green-50"
-    },
-    {
-      id: 2,
-      type: "claim",
-      icon: "📋",
-      title: "New claim request",
-      message: "Someone has submitted a claim for your The Backpack found item.",
-      timestamp: "5h ago",
-      action: "Review Request",
-      color: "bg-blue-100",
-      textColor: "text-blue-600",
-      badge: "bg-blue-50"
-    },
-    {
-      id: 3,
-      type: "comment",
-      icon: "💬",
-      title: "Sarah Chen",
-      message: "commented on your lost pet post.",
-      timestamp: "6h ago",
-      action: "View Post",
-      color: "bg-purple-100",
-      textColor: "text-purple-600",
-      badge: "bg-purple-50",
-      avatar: "S"
-    },
-    {
-      id: 4,
-      type: "verified",
-      icon: "✓",
-      title: "Report Verified",
-      message: "Your Archius Pro report has been verified by the system and is now public.",
-      timestamp: "Yesterday",
-      action: "View Report",
-      color: "bg-indigo-100",
-      textColor: "text-indigo-600",
-      badge: "bg-indigo-50"
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [markingId, setMarkingId] = useState(null);
+  const [error, setError] = useState("");
+  const hasFetched = useRef(false);
+
+  const fetchNotifications = useCallback(async () => {
+    const user = getCurrentUser();
+
+    if (!user) {
+      setError("Please login to view notifications.");
+      setLoading(false);
+      return;
     }
-  ]);
+
+    try {
+      setError("");
+
+      const response = await fetch(
+        `${API_BASE_URL}/notifications/get_notifications.php?user_id=${user.user_id}`
+      );
+
+      const text = await response.text();
+      console.log("Raw notifications response:", text);
+
+      if (!text) {
+        throw new Error("Server returned an empty response.");
+      }
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Backend did not return valid JSON.");
+      }
+
+      console.log("Notifications:", data);
+
+      if (data.status === "success") {
+        setNotifications(data.notifications || []);
+      } else {
+        setError(data.message || "Failed to load notifications.");
+      }
+    } catch (err) {
+      console.error("Notification error:", err);
+      setError(
+        err.message ||
+          "Backend connection failed. Please check get_notifications.php."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Prevent StrictMode from sending the request twice.
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const markAsRead = async (notificationId) => {
+    const user = getCurrentUser();
+
+    if (!user) {
+      alert("Please login again.");
+      return;
+    }
+
+    setMarkingId(notificationId);
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/notifications/mark_notification_read.php`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            notification_id: notificationId,
+            user_id: user.user_id,
+          }),
+        }
+      );
+
+      const text = await response.text();
+      console.log("Raw mark read response:", text);
+
+      if (!text) {
+        throw new Error("Server returned an empty response.");
+      }
+
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error("Backend did not return valid JSON.");
+      }
+
+      console.log("Mark read response:", data);
+
+      if (data.status === "success") {
+        setNotifications((prevNotifications) =>
+          prevNotifications.map((item) =>
+            item.notification_id === notificationId
+              ? { ...item, is_read: 1 }
+              : item
+          )
+        );
+      } else {
+        alert(data.message || "Failed to update notification.");
+      }
+    } catch (err) {
+      console.error("Mark read error:", err);
+      alert(
+        err.message ||
+          "Backend connection failed. Please check mark_notification_read.php."
+      );
+    } finally {
+      setMarkingId(null);
+    }
+  };
+
+  const unreadCount = notifications.filter(
+    (item) => Number(item.is_read) === 0
+  ).length;
+
+  const matchCount = notifications.filter(
+    (item) => item.type === "match_verified"
+  ).length;
+
+  const rejectedCount = notifications.filter(
+    (item) => item.type === "match_rejected"
+  ).length;
 
   const stats = [
-    { label: "Unread Alerts", value: "3", icon: "🔔" },
-    { label: "Pending Claims", value: "1", icon: "⏳" },
-    { label: "New Comments", value: "4", icon: "💬" }
+    { label: "Unread Alerts", value: unreadCount, icon: "🔔" },
+    { label: "Verified Matches", value: matchCount, icon: "✅" },
+    { label: "Rejected Matches", value: rejectedCount, icon: "❌" },
   ];
 
-  const handleAction = (notificationId, action) => {
-    console.log(`Notification ${notificationId} action: ${action}`);
-    alert(`Action: ${action} (stub)`);
+  const getNotificationStyle = (type) => {
+    if (type === "match_verified") {
+      return {
+        icon: "✓",
+        title: "Match Verified",
+        color: "bg-green-100",
+        textColor: "text-green-600",
+      };
+    }
+
+    if (type === "match_rejected") {
+      return {
+        icon: "!",
+        title: "Match Rejected",
+        color: "bg-red-100",
+        textColor: "text-red-600",
+      };
+    }
+
+    if (type === "complaint_reply") {
+      return {
+        icon: "💬",
+        title: "Admin Reply to Complaint",
+        color: "bg-blue-100",
+        textColor: "text-blue-600",
+      };
+    }
+
+    return {
+      icon: "🔔",
+      title: "Notification",
+      color: "bg-blue-100",
+      textColor: "text-blue-600",
+    };
   };
 
   return (
-    <DashboardLayout>
+    <RoleBasedLayout>
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
-        {/* Main Notifications List */}
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-8">Notifications</h1>
+          <h1 className="mb-8 text-3xl font-bold text-slate-900">
+            Notifications
+          </h1>
 
           <div className="space-y-4">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className="rounded-4xl bg-white p-6 shadow-lg ring-1 ring-slate-200 hover:shadow-xl transition-shadow"
-              >
-                <div className="flex gap-4">
-                  {/* Avatar/Icon */}
-                  <div
-                    className={`h-12 w-12 rounded-full ${notification.color} flex items-center justify-center text-lg font-bold shrink-0 ${notification.textColor}`}
-                  >
-                    {notification.avatar || notification.icon}
-                  </div>
+            {loading ? (
+              <div className="rounded-4xl bg-white p-8 text-center text-slate-500 shadow-lg ring-1 ring-slate-200">
+                Loading notifications...
+              </div>
+            ) : error ? (
+              <div className="rounded-4xl bg-white p-8 text-center shadow-lg ring-1 ring-red-200">
+                <p className="text-red-600">{error}</p>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <h3 className="text-sm font-semibold text-slate-900">
-                          {notification.title}
-                        </h3>
-                        <p className="mt-1 text-sm text-slate-600">
-                          {notification.message}
-                        </p>
+                <button
+                  onClick={() => {
+                    setLoading(true);
+                    fetchNotifications();
+                  }}
+                  className="mt-4 rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : notifications.length === 0 ? (
+              <div className="rounded-4xl bg-white p-8 text-center text-slate-500 shadow-lg ring-1 ring-slate-200">
+                No notifications yet.
+              </div>
+            ) : (
+              notifications.map((notification) => {
+                const style = getNotificationStyle(notification.type);
+                const isRead = Number(notification.is_read) === 1;
+
+                return (
+                  <div
+                    key={notification.notification_id}
+                    className={`rounded-4xl p-6 shadow-lg ring-1 transition-shadow hover:shadow-xl ${
+                      isRead
+                        ? "bg-white ring-slate-200"
+                        : "bg-blue-50 ring-blue-200"
+                    }`}
+                  >
+                    <div className="flex gap-4">
+                      <div
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-lg font-bold ${style.color} ${style.textColor}`}
+                      >
+                        {style.icon}
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-xs font-medium text-slate-500">
-                          {notification.timestamp}
-                        </p>
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-4">
+                          <div>
+                            <h3 className="text-sm font-semibold text-slate-900">
+                              {style.title}
+                            </h3>
+
+                            <p className="mt-1 text-sm text-slate-600">
+                              {notification.message}
+                            </p>
+
+                            {notification.match_id && (
+                              <p className="mt-2 text-xs text-slate-400">
+                                Match ID: #{notification.match_id}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="shrink-0 text-right">
+                            <p className="text-xs font-medium text-slate-500">
+                              {notification.created_at || "No date"}
+                            </p>
+
+                            {isRead ? (
+                              <span className="mt-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                Read
+                              </span>
+                            ) : (
+                              <span className="mt-2 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                                Unread
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {!isRead && (
+                          <button
+                            onClick={() =>
+                              markAsRead(notification.notification_id)
+                            }
+                            disabled={markingId === notification.notification_id}
+                            className="mt-3 inline-flex text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline disabled:opacity-50"
+                          >
+                            {markingId === notification.notification_id
+                              ? "Updating..."
+                              : "Mark as Read →"}
+                          </button>
+                        )}
                       </div>
                     </div>
-
-                    {/* Action Button */}
-                    <button
-                      onClick={() => handleAction(notification.id, notification.action)}
-                      className="mt-3 inline-flex text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline"
-                    >
-                      {notification.action} →
-                    </button>
                   </div>
-                </div>
-              </div>
-            ))}
+                );
+              })
+            )}
           </div>
         </div>
 
-        {/* Right Sidebar Stats */}
         <div className="space-y-4 lg:sticky lg:top-24">
-          {stats.map((stat, idx) => (
+          {stats.map((stat) => (
             <div
-              key={idx}
-              className="rounded-4xl bg-linear-to-br from-blue-50 to-blue-100 p-6 shadow-lg ring-1 ring-blue-200"
+              key={stat.label}
+              className="rounded-4xl bg-gradient-to-br from-blue-50 to-blue-100 p-6 shadow-lg ring-1 ring-blue-200"
             >
-              <div className="text-3xl mb-2">{stat.icon}</div>
-              <p className="text-xs font-medium text-slate-600 uppercase tracking-wide">
+              <div className="mb-2 text-3xl">{stat.icon}</div>
+
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-600">
                 {stat.label}
               </p>
-              <p className="mt-2 text-3xl font-bold text-blue-600">{stat.value}</p>
+
+              <p className="mt-2 text-3xl font-bold text-blue-600">
+                {stat.value}
+              </p>
             </div>
           ))}
         </div>
       </div>
-    </DashboardLayout>
+    </RoleBasedLayout>
   );
 }
 

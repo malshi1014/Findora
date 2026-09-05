@@ -1,15 +1,62 @@
-import { Link } from "react-router-dom";
-import logo from "../../assets/logo/favicon.ico";
+import { Link, useNavigate } from "react-router-dom";
 
 function Footer() {
+  const navigate = useNavigate();
+
+  const getCurrentUser = () => {
+    try {
+      const storedUser = localStorage.getItem("findora_user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleReportClick = (link, allowedRoles = null) => {
+    const user = getCurrentUser();
+
+    if (!user) {
+      navigate("/login", {
+        state: {
+          from: link,
+          requiredRole: allowedRoles ? "shop_owner" : null,
+          message: allowedRoles
+            ? "Please sign in with shop owner credentials to report a suspicious item."
+            : "Please sign in to continue to the report form.",
+        },
+      });
+      return;
+    }
+
+    if (allowedRoles && !allowedRoles.includes(user.role)) {
+      navigate("/login", {
+        state: {
+          from: link,
+          requiredRole: "shop_owner",
+          message:
+            "Suspicious item reports are restricted to shop owners. Please sign in with shop owner credentials.",
+        },
+      });
+      return;
+    }
+
+    navigate(link);
+  };
+
+  const reportLinkClass = "hover:text-blue-400 transition";
+
   return (
     <footer className="bg-gray-900 text-white py-10">
       <div className="max-w-7xl mx-auto px-6 grid gap-8 md:grid-cols-3">
-        
+
         <div>
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold overflow-hidden">
-              <img src={logo} alt="Findora Logo" className="w-10 h-10 object-contain" />
+            <div className="w-10 h-10 flex items-center justify-center">
+              <img
+                src="/favicon.png"
+                alt="Findora Logo"
+                className="h-full w-full rounded-full object-cover"
+              />
             </div>
             <span className="text-2xl font-bold text-blue-400">Findora</span>
           </Link>
@@ -21,30 +68,56 @@ function Footer() {
         <div>
           <h3 className="font-semibold mb-3">Quick Links</h3>
           <ul className="space-y-2 text-gray-400">
+
             <li>
-              <Link to="/l" className="hover:text-blue-400 transition">
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
+              <button
+                type="button"
+                onClick={() => handleReportClick("/report-lost")}
+                className={reportLinkClass}
+              >
                 Report Lost Item
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
+              <button
+                type="button"
+                onClick={() => handleReportClick("/report-found")}
+                className={reportLinkClass}
+              >
                 Report Found Item
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
+              <button
+                type="button"
+                onClick={() =>
+                  handleReportClick("/report-suspicious", [
+                    "shop_owner",
+                    "admin",
+                  ])
+                }
+                className={reportLinkClass}
+              >
+                Report Suspicious Item
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={() => handleReportClick("/report-pet")}
+                className={reportLinkClass}
+              >
                 Report Missing Pet
-              </Link>
+              </button>
             </li>
             <li>
-              <Link to="/login" className="hover:text-blue-400 transition">
+              <button
+                type="button"
+                onClick={() => handleReportClick("/report-person")}
+                className={reportLinkClass}
+              >
                 Report Missing Person
-              </Link>
+              </button>
             </li>
           </ul>
         </div>
@@ -63,8 +136,18 @@ function Footer() {
               </Link>
             </li>
             <li>
-              <a href="mailto:support@findora.lk" className="hover:text-blue-400 transition">
-                Email: support@findora.lk
+              <Link to="/terms" className="hover:text-blue-400 transition">
+                Terms of Service
+              </Link>
+            </li>
+            <li>
+              <Link to="/privacy" className="hover:text-blue-400 transition">
+                Privacy Policy
+              </Link>
+            </li>
+            <li>
+              <a href="mailto:findooora@gmail.com" className="hover:text-blue-400 transition">
+                Email: findooora@gmail.com
               </a>
             </li>
             <li className="text-gray-500">Location: Sri Lanka</li>

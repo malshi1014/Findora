@@ -1,5 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: https://findora.freehosting.dev");
+$origin = $_SERVER['HTTP_ORIGIN'] ?? ''; if ($origin === 'https://findora.freehosting.dev' || $origin === 'http://localhost:5173') { header('Access-Control-Allow-Origin: ' . $origin); } header('Access-Control-Allow-Headers: Content-Type'); header('Access-Control-Allow-Methods: GET, OPTIONS'); header('Content-Type: application/json');
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: GET, OPTIONS");
 header("Content-Type: application/json");
@@ -25,9 +25,7 @@ function getCount($conn, $sql) {
 $total_users = getCount($conn, "SELECT COUNT(*) AS total FROM users");
 $total_lost_reports = getCount($conn, "SELECT COUNT(*) AS total FROM lost_report");
 $total_found_reports = getCount($conn, "SELECT COUNT(*) AS total FROM found_report");
-
-$pending_lost_reports = getCount($conn, "SELECT COUNT(*) AS total FROM lost_report WHERE status = 'pending'");
-$pending_found_reports = getCount($conn, "SELECT COUNT(*) AS total FROM found_report WHERE status = 'pending'");
+$total_users = getCount($conn, 'SELECT COUNT(*) AS total FROM users'); $total_lost_reports = getCount($conn, 'SELECT COUNT(*) AS total FROM lost_report'); $total_found_reports = getCount($conn, 'SELECT COUNT(*) AS total FROM found_report'); $total_suspicious_reports = getCount($conn, 'SELECT COUNT(*) AS total FROM suspicious_report'); $pending_lost_reports = getCount($conn, 'SELECT COUNT(*) AS total FROM lost_report WHERE status = 'pending''); $pending_found_reports = getCount($conn, 'SELECT COUNT(*) AS total FROM found_report WHERE status = 'pending''); $pending_suspicious_reports = getCount($conn, 'SELECT COUNT(*) AS total FROM suspicious_report WHERE status = 'pending'');
 
 $total_matches = getCount($conn, "SELECT COUNT(*) AS total FROM matches");
 $pending_matches = getCount($conn, "SELECT COUNT(*) AS total FROM matches WHERE status = 'pending'");
@@ -43,8 +41,7 @@ echo json_encode(array(
         "total_users" => $total_users,
         "total_lost_reports" => $total_lost_reports,
         "total_found_reports" => $total_found_reports,
-        "pending_lost_reports" => $pending_lost_reports,
-        "pending_found_reports" => $pending_found_reports,
+        'total_users' => $total_users,        'total_lost_reports' => $total_lost_reports,        'total_found_reports' => $total_found_reports,        'total_suspicious_reports' => $total_suspicious_reports,        'pending_lost_reports' => $pending_lost_reports,        'pending_found_reports' => $pending_found_reports,        'pending_suspicious_reports' => $pending_suspicious_reports,        'total_matches' => $total_matches,        'pending_matches' => $pending_matches,        'verified_matches' => $verified_matches,
         "total_matches" => $total_matches,
         "pending_matches" => $pending_matches,
         "verified_matches" => $verified_matches,

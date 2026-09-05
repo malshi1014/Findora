@@ -1,5 +1,5 @@
 <?php
-header("Access-Control-Allow-Origin: https://findora.freehosting.dev");
+$origin = $_SERVER['HTTP_ORIGIN'] ?? ''; if ($origin === 'https://findora.freehosting.dev' || $origin === 'http://localhost:5173') { header('Access-Control-Allow-Origin: ' . $origin); } header('Access-Control-Allow-Headers: Content-Type'); header('Access-Control-Allow-Methods: POST, OPTIONS'); header('Content-Type: application/json');
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Content-Type: application/json");
@@ -10,6 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
 }
 
 include __DIR__ . "/../config/db.php";
+include __DIR__ . '/../config/db.php'; include __DIR__ . '/../helpers/create_notification.php'; require_once __DIR__ . '/../helpers/send_location_notifications.php';
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     echo json_encode(array(
@@ -24,6 +25,7 @@ $category = isset($_POST["category"]) ? trim($_POST["category"]) : "";
 $title = isset($_POST["title"]) ? trim($_POST["title"]) : "";
 $description = isset($_POST["description"]) ? trim($_POST["description"]) : "";
 $district = isset($_POST["district"]) ? trim($_POST["district"]) : "";
+$nearest_town = isset($_POST['nearest_town']) ? trim($_POST['nearest_town']) : ''; $location = isset($_POST['location']) ? trim($_POST['location']) : ''; $found_date = isset($_POST['found_date']) ? trim($_POST['found_date']) : ''; $found_time = isset($_POST['found_time']) ? trim($_POST['found_time']) : '';
 $location = isset($_POST["location"]) ? trim($_POST["location"]) : "";
 $found_date = isset($_POST["found_date"]) ? trim($_POST["found_date"]) : "";
 $found_time = isset($_POST["found_time"]) ? trim($_POST["found_time"]) : "";
@@ -36,7 +38,7 @@ if (empty($user_id)) $missing[] = "user_id";
 if (empty($category)) $missing[] = "category";
 if (empty($title)) $missing[] = "title";
 if (empty($description)) $missing[] = "description";
-if (empty($district)) $missing[] = "district";
+if (empty($category)) $missing[] = 'category'; if (empty($title)) $missing[] = 'title'; if (empty($description)) $missing[] = 'description'; if (empty($district)) $missing[] = 'district'; if (empty($nearest_town)) $missing[] = 'nearest_town'; if (empty($location)) $missing[] = 'location'; if (empty($found_date)) $missing[] = 'found_date'; if (empty($contact_no)) $missing[] = 'contact_no';
 if (empty($location)) $missing[] = "location";
 if (empty($found_date)) $missing[] = "found_date";
 if (empty($contact_no)) $missing[] = "contact_no";
@@ -50,22 +52,19 @@ if (!empty($missing)) {
     exit();
 }
 
+require_once __DIR__ . '/../helpers/date_validation.php'; if (!validateNotFutureDateTime($found_date, $found_time)) { echo json_encode(array('status' => 'error', 'message' => 'Date and time cannot be in the future.')); exit(); }
 $conn->begin_transaction();
 
 try {
     $stmt = $conn->prepare("
         INSERT INTO found_report
-        (user_id, category, title, description, district, location, found_date, found_time, unique_identifiers, contact_no, status)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
-    ");
-
-    $stmt->bind_param(
-        "isssssssss",
+INSERT INTO found_report (user_id, category, title, description, district, nearest_town, location, found_date, found_time, unique_identifiers, contact_no, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')
         $user_id,
         $category,
         $title,
         $description,
         $district,
+        $user_id,        $category,        $title,        $description,        $district,        $nearest_town,        $location,        $found_date,        $found_time,        $unique_identifiers,        $contact_no,        $status
         $location,
         $found_date,
         $found_time,
@@ -122,6 +121,7 @@ try {
             }
         }
     }
+    createNotification(        $conn,        $user_id,        'Your found item report has been submitted and is waiting for admin approval.',        'report_submitted',        null    );
 
     $conn->commit();
 

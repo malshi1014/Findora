@@ -1,4 +1,6 @@
-﻿const steps = [
+import { motion } from "framer-motion";
+
+const steps = [
   {
     number: "01",
     title: "Report a Case",
@@ -21,38 +23,66 @@
   },
 ];
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] }
+  },
+};
+
 function HowItWorks() {
   return (
-    <section className="bg-slate-50 py-16">
+    <section className="bg-white py-24">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
+        <div className="text-center max-w-2xl mx-auto">
+          <span className="text-[13px] font-semibold uppercase tracking-widest text-blue-600">
             Simple Recovery Process
-          </p>
-          <h2 className="mt-3 text-3xl font-bold text-slate-950 sm:text-4xl">
+          </span>
+          <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
             How Findora Works
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-600">
+          <p className="mt-6 text-lg leading-relaxed text-slate-600">
             Your journey from lost to found is powered by community intelligence and secure
             communication, making recovery faster and more reliable.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-4">
-          {steps.map((step) => (
-            <div key={step.number} className="rounded-[2rem] bg-white p-6 shadow-sm">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white text-lg font-bold">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4 relative"
+        >
+          {/* Connecting line for desktop */}
+          <div className="hidden lg:block absolute top-8 left-[10%] right-[10%] h-[2px] bg-slate-100 -z-10"></div>
+
+          {steps.map((step, index) => (
+            <motion.div key={step.number} variants={itemVariants} className="relative group">
+              <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-2xl bg-white text-blue-600 shadow-md ring-1 ring-slate-100 text-xl font-bold transition-transform group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white">
                 {step.number}
               </div>
-              <h3 className="mt-5 text-xl font-semibold text-slate-950">
-                {step.title}
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-slate-600">
-                {step.description}
-              </p>
-            </div>
+              <div className="mt-8 text-center">
+                <h3 className="text-xl font-semibold text-slate-900 mb-3">
+                  {step.title}
+                </h3>
+                <p className="text-[15px] leading-relaxed text-slate-600">
+                  {step.description}
+                </p>
+              </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
