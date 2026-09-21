@@ -34,8 +34,8 @@ function redirectToPayHere(checkoutUrl, params) {
   form.action = checkoutUrl;
   Object.entries(params).forEach(([name, value]) => {
     const input = document.createElement("input");
-    input.type  = "hidden";
-    input.name  = name;
+    input.type = "hidden";
+    input.name = name;
     input.value = value;
     form.appendChild(input);
   });
@@ -46,8 +46,8 @@ function redirectToPayHere(checkoutUrl, params) {
 // ── Status badge ──────────────────────────────────────────────────────────────
 const STATUS_STYLES = {
   completed: "bg-emerald-50 text-emerald-700 border-emerald-100",
-  pending:   "bg-amber-50 text-amber-700 border-amber-100",
-  failed:    "bg-red-50 text-red-700 border-red-100",
+  pending: "bg-amber-50 text-amber-700 border-amber-100",
+  failed: "bg-red-50 text-red-700 border-red-100",
   cancelled: "bg-slate-100 text-slate-600 border-slate-200",
 };
 
@@ -66,11 +66,10 @@ function Tab({ active, onClick, children }) {
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${
-        active
+      className={`rounded-full px-5 py-2 text-sm font-semibold transition-all ${active
           ? "bg-blue-600 text-white shadow-md shadow-blue-600/20"
           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-      }`}
+        }`}
     >
       {children}
     </button>
@@ -80,8 +79,8 @@ function Tab({ active, onClick, children }) {
 // ── Donation History sub-component ────────────────────────────────────────────
 function DonationHistory() {
   const [donations, setDonations] = useState([]);
-  const [loading,   setLoading]   = useState(true);
-  const [error,     setError]     = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   const fetchHistory = useCallback(async () => {
     try {
@@ -144,10 +143,10 @@ function DonationHistory() {
       {/* Summary strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
-          { label: "Total Donated",    value: formatRs(completedTotal), color: "text-blue-700" },
-          { label: "Donations Made",   value: donations.filter((d) => d.status === "completed").length, color: "text-emerald-700" },
-          { label: "Pending",          value: donations.filter((d) => d.status === "pending").length,   color: "text-amber-700"   },
-          { label: "All Transactions", value: donations.length,                                          color: "text-slate-800"   },
+          { label: "Total Donated", value: formatRs(completedTotal), color: "text-blue-700" },
+          { label: "Donations Made", value: donations.filter((d) => d.status === "completed").length, color: "text-emerald-700" },
+          { label: "Pending", value: donations.filter((d) => d.status === "pending").length, color: "text-amber-700" },
+          { label: "All Transactions", value: donations.length, color: "text-slate-800" },
         ].map((s) => (
           <div key={s.label} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-4">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-400">{s.label}</p>
@@ -195,27 +194,27 @@ function DonationHistory() {
 
 // ── Main component ────────────────────────────────────────────────────────────
 function Donation() {
-  const location    = useLocation();
-  const formRef     = useRef(null);
+  const location = useLocation();
+  const formRef = useRef(null);
   const currentUser = getCurrentUser();
 
-  const [activeTab,    setActiveTab]    = useState("donate"); // "donate" | "history"
-  const [amount,       setAmount]       = useState(2500);
+  const [activeTab, setActiveTab] = useState("donate"); // "donate" | "history"
+  const [amount, setAmount] = useState(2500);
   const [customAmount, setCustomAmount] = useState("");
-  const [donorName,    setDonorName]    = useState(
+  const [donorName, setDonorName] = useState(
     currentUser ? `${currentUser.first_name} ${currentUser.last_name}`.trim() : ""
   );
-  const [donorEmail,  setDonorEmail]   = useState(currentUser?.email || "");
-  const [anonymous,   setAnonymous]    = useState(false);
-  const [loading,     setLoading]      = useState(false);
-  const [error,       setError]        = useState("");
+  const [donorEmail, setDonorEmail] = useState(currentUser?.email || "");
+  const [anonymous, setAnonymous] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [paymentResult, setPaymentResult] = useState(null); // "success" | "cancelled" | null
 
   // Parse return-URL query params from PayHere redirect
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const payment = params.get("payment");
-    if (payment === "success")   { setPaymentResult("success");   setActiveTab("history"); }
+    if (payment === "success") { setPaymentResult("success"); setActiveTab("history"); }
     if (payment === "cancelled") { setPaymentResult("cancelled"); }
   }, [location.search]);
 
@@ -238,7 +237,7 @@ function Donation() {
     setLoading(true);
     try {
       const res = await fetch(`${API_BASE_URL}/donations/initiate_donation.php`, {
-        method:      "POST",
+        method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json", "X-CSRF-Token": getCsrfToken() },
         body: JSON.stringify({ amount, donor_name: donorName.trim(), donor_email: donorEmail.trim(), is_anonymous: anonymous }),
@@ -344,7 +343,7 @@ function Donation() {
 
         {/* Tab switcher */}
         <div className="flex gap-2">
-          <Tab active={activeTab === "donate"}  onClick={() => setActiveTab("donate")}>Make a Donation</Tab>
+          <Tab active={activeTab === "donate"} onClick={() => setActiveTab("donate")}>Make a Donation</Tab>
           <Tab active={activeTab === "history"} onClick={() => setActiveTab("history")}>My Donation History</Tab>
         </div>
 
@@ -374,11 +373,10 @@ function Donation() {
                           key={a}
                           type="button"
                           onClick={() => choosePreset(a)}
-                          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-                            amount === a && !customAmount
+                          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${amount === a && !customAmount
                               ? "bg-blue-600 text-white shadow-md shadow-blue-600/30"
                               : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                          }`}
+                            }`}
                         >
                           Rs {a.toLocaleString()}
                         </button>
@@ -388,9 +386,8 @@ function Donation() {
                         <button
                           type="button"
                           onClick={() => { setCustomAmount(""); setAmount(0); }}
-                          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-                            customAmount ? "bg-blue-600 text-white shadow-md shadow-blue-600/30" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                          }`}
+                          className={`rounded-full px-5 py-2.5 text-sm font-semibold transition ${customAmount ? "bg-blue-600 text-white shadow-md shadow-blue-600/30" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                            }`}
                         >
                           Custom
                         </button>
@@ -475,7 +472,7 @@ function Donation() {
                       </>
                     ) : (
                       <>
-                        Proceed to Payment — Rs {(amount || 0).toLocaleString()}
+                        Proceed to Payment - Rs {(amount || 0).toLocaleString()}
                         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                         </svg>
@@ -494,8 +491,8 @@ function Donation() {
                 <div className="mt-4 space-y-3">
                   {[
                     { label: "Platform Maintenance", pct: 45, color: "bg-blue-600" },
-                    { label: "Community Campaigns",  pct: 35, color: "bg-purple-400" },
-                    { label: "Emergency Grants",     pct: 20, color: "bg-slate-400" },
+                    { label: "Community Campaigns", pct: 35, color: "bg-purple-400" },
+                    { label: "Emergency Grants", pct: 20, color: "bg-slate-400" },
                   ].map((item) => (
                     <div key={item.label}>
                       <div className="mb-1 flex justify-between text-xs text-slate-600">
@@ -515,9 +512,9 @@ function Donation() {
                 <h3 className="text-sm font-bold text-slate-800">FAQ</h3>
                 <div className="mt-4 space-y-2">
                   {[
-                    { q: "Is my donation secure?",          a: "Yes. All payments are processed by PayHere. Findora never stores your card details." },
+                    { q: "Is my donation secure?", a: "Yes. All payments are processed by PayHere. Findora never stores your card details." },
                     { q: "Which payment methods accepted?", a: "PayHere supports Visa, Mastercard, Amex, eZCash, mCash, and most Sri Lankan bank cards." },
-                    { q: "Can I cancel a donation?",        a: "Donations are one-time payments and cannot be reversed after completion." },
+                    { q: "Can I cancel a donation?", a: "Donations are one-time payments and cannot be reversed after completion." },
                   ].map((faq) => (
                     <details key={faq.q} className="rounded-xl border border-slate-100 p-3">
                       <summary className="cursor-pointer text-xs font-semibold text-slate-700">{faq.q}</summary>

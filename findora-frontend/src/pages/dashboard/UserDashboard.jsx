@@ -158,12 +158,12 @@ function UserDashboard() {
 
   return (
     <RoleBasedLayout>
-      <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-5 sm:space-y-8 p-4 sm:p-6 lg:p-8">
         
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight break-words">
               Welcome back, {user?.first_name || "User"}
             </h1>
             <p className="mt-1 text-sm text-slate-500">
@@ -278,7 +278,7 @@ function UserDashboard() {
                       to={`/user-dashboard/my-reports`}
                       className="group rounded-xl bg-white border border-slate-200 p-4 shadow-sm transition-all hover:shadow-md hover:border-blue-200"
                     >
-                      <div className="flex gap-4">
+                      <div className="flex gap-3 sm:gap-4">
                         <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-slate-100 border border-slate-200/60">
                           {imageUrl ? (
                             <img src={imageUrl} alt={report.title} className="h-full w-full object-cover transition-transform group-hover:scale-105" />
@@ -288,10 +288,10 @@ function UserDashboard() {
                             </div>
                           )}
                         </div>
-                        <div className="flex flex-1 flex-col justify-between py-0.5">
+                        <div className="flex flex-1 flex-col justify-between py-0.5 min-w-0">
                           <div>
                             <div className="flex items-start justify-between gap-2">
-                              <p className="text-sm font-semibold text-slate-900 line-clamp-1">{report.title}</p>
+                              <p className="text-sm font-semibold text-slate-900 truncate">{report.title}</p>
                             </div>
                             <p className="text-xs text-slate-500 mt-0.5">{report.type} • {report.date}</p>
                           </div>

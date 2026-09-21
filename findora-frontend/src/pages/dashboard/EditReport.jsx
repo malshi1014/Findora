@@ -329,7 +329,7 @@ function EditReport() {
   };
 
   const getStatusStyle = () => {
-    if (status === "matched") return "bg-green-100 text-green-700";
+    if (status === "matched") return "bg-green-100 text-orange-700";
     if (status === "pending") return "bg-orange-100 text-orange-700";
     if (status === "rejected") return "bg-red-100 text-red-700";
     return "bg-slate-100 text-slate-700";
@@ -690,7 +690,7 @@ function EditReport() {
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
-                    disabled={saving || status === "matched"}
+                    disabled={saving || status !== "pending"}
                     className="flex-1 rounded-full bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {saving ? "Saving..." : "Save Changes"}
@@ -740,9 +740,9 @@ function EditReport() {
                 </div>
               </div>
 
-              {status === "matched" && (
-                <div className="mt-6 rounded-3xl bg-green-50 p-4 text-sm text-green-700">
-                  This report is already matched, so it cannot be edited.
+              {status !== "pending" && (
+                <div className="mt-6 rounded-3xl bg-orange-50 p-4 text-sm text-orange-700">
+                  Only pending reports can be edited.
                 </div>
               )}
             </div>

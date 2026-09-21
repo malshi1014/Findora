@@ -29,7 +29,7 @@ function DashboardLayout({ children }) {
 
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
-      <main className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto">
+      <main className="flex-1 min-w-0 w-full overflow-x-hidden overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}

@@ -325,16 +325,13 @@ function ShopRegister() {
                   </div>
 
                   <div>
-                    <div className={`backdrop-blur-xl rounded-2xl border ${errors.city ? 'border-red-400' : 'border-white/40'} animate-fade-up overflow-hidden`} style={{ animationDelay: "0.27s" }}>
-                      <TownSelect
-                        value={city}
-                        onChange={(val) => { setCity(val); if(errors.city) setErrors({...errors, city: null}); }}
-                        towns={filteredTowns}
-                        disabled={!district}
-                        placeholder="Nearest Town"
-                        hasIcon={false}
-                      />
-                    </div>
+                    <TownSelect
+                      value={city}
+                      onChange={(val) => { setCity(val); if(errors.city) setErrors({...errors, city: null}); }}
+                      towns={filteredTowns}
+                      disabled={!district}
+                      placeholder="Nearest City"
+                    />
                     {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                   </div>
                 </div>

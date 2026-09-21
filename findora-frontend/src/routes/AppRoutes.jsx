@@ -6,6 +6,7 @@ import Contact from "../pages/public/Contact";
 import TermsOfService from "../pages/public/TermsOfService";
 import PrivacyPolicy from "../pages/public/PrivacyPolicy";
 import PublicPost from "../pages/public/PublicPost";
+import Stories from "../pages/public/Stories";
 
 
 import Login from "../pages/auth/Login";
@@ -58,6 +59,7 @@ function AppRoutes() {
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/post/:type/:id" element={<PublicPost />} />
+        <Route path="/stories" element={<Stories />} />
 
 
         {/* Authentication */}

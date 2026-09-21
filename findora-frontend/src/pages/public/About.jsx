@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import aboutUsImage from "../../assets/logo/about us image.png";
@@ -301,12 +302,12 @@ function About() {
               </div>
 
               <div className="mt-10 text-right">
-                <a
-                  href="/stories"
+                <Link
+                  to="/stories"
                   className="inline-flex items-center rounded-full bg-blue-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-700/25 transition hover:bg-blue-800"
                 >
                   View All Stories
-                </a>
+                </Link>
               </div>
             </div>
           </section>

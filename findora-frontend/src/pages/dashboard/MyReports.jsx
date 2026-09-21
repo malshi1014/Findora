@@ -156,8 +156,8 @@ function MyReports() {
   };
 
   const handleEdit = (report) => {
-    if (report.status === "matched") {
-      alert("Matched reports cannot be edited.");
+    if (report.status !== "pending") {
+      alert("Only pending reports can be edited.");
       return;
     }
 
@@ -191,8 +191,8 @@ function MyReports() {
       return;
     }
 
-    if (report.status === "matched") {
-      alert("Matched reports cannot be deleted.");
+    if (report.status !== "pending") {
+      alert("Only pending reports can be deleted.");
       return;
     }
 
@@ -450,8 +450,8 @@ function MyReports() {
                   )}
 
                   <div className="mt-5 flex items-start justify-between gap-4">
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-950">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-bold text-slate-950 break-words">
                         {title}
                       </h3>
 
@@ -461,7 +461,7 @@ function MyReports() {
                     </div>
 
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusStyle(
+                      className={`rounded-full px-3 py-1 text-xs font-semibold shrink-0 ${getStatusStyle(
                         report.status
                       )}`}
                     >
@@ -539,33 +539,33 @@ function MyReports() {
                     )}
                   </div>
 
-                  <div className="mt-5 flex justify-end gap-3">
+                  <div className="mt-5 flex flex-wrap justify-end gap-3">
                     <button
                       onClick={() => handleEdit(report)}
-                      disabled={report.status === "matched"}
+                      disabled={report.status !== "pending"}
                       className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-                        report.status === "matched"
+                        report.status !== "pending"
                           ? "cursor-not-allowed bg-slate-100 text-slate-400"
                           : "bg-blue-600 text-white hover:bg-blue-700"
                       }`}
                     >
-                      {report.status === "matched" ? "Cannot Edit" : "Edit"}
+                      {report.status !== "pending" ? "Cannot Edit" : "Edit"}
                     </button>
 
                     <button
                       onClick={() => handleDelete(report)}
                       disabled={
-                        deletingKey === deleteKey || report.status === "matched"
+                        deletingKey === deleteKey || report.status !== "pending"
                       }
                       className={`rounded-full px-5 py-2 text-sm font-semibold transition ${
-                        report.status === "matched"
+                        report.status !== "pending"
                           ? "cursor-not-allowed bg-slate-100 text-slate-400"
                           : "bg-red-600 text-white hover:bg-red-700"
                       }`}
                     >
                       {deletingKey === deleteKey
                         ? "Deleting..."
-                        : report.status === "matched"
+                        : report.status !== "pending"
                         ? "Cannot Delete"
                         : "Delete"}
                     </button>
