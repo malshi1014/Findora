@@ -1,13 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit();
-}
+header("Content-Type: application/json");
 
 include __DIR__ . "/../config/db.php";
 
@@ -172,100 +165,225 @@ try {
 
     $conn->commit();
 
-    // ── Send Email Notifications only to relevant users (Lost Owner & Finder) for verified matches ──
+    // ── Send Email Notifications only to Lost Owner & Found Reporter for verified matches ──
+    // Only triggers on 'verified' action. Prevents duplicates via email_notifications table.
     if ($action === "verified") {
         try {
             require_once __DIR__ . "/../classes/Services/EmailService.php";
             $emailService = new EmailService();
 
-            // Fetch owner user details
+            $isProd = (!empty($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'findora.software') !== false);
+            $frontendBase = $isProd ? "https://findora.software" : "http://localhost:5173";
+
+            // Ensure email_notifications table exists (defensive for production)
+            $conn->query("
+                CREATE TABLE IF NOT EXISTS `email_notifications` (
+                    `notification_id` int NOT NULL AUTO_INCREMENT,
+                    `report_type` varchar(50) NOT NULL,
+                    `report_id` int NOT NULL,
+                    `user_id` int NOT NULL,
+                    `email` varchar(150) NOT NULL,
+                    `status` varchar(20) NOT NULL DEFAULT 'sent',
+                    `sent_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (`notification_id`),
+                    UNIQUE KEY `unique_notification` (`report_type`, `report_id`, `user_id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            ");
+
+            // Fetch additional report details for enriched emails
+            $lrStmt = $conn->prepare("
+                SELECT lr.category, lr.description, lr.location, lr.lost_date, lr.district
+                FROM lost_report lr
+                WHERE lr.report_id = ?
+                LIMIT 1
+            ");
+            $lostDetails = [];
+            if ($lrStmt) {
+                $lrStmt->bind_param("i", $match["lost_report_id"]);
+                $lrStmt->execute();
+                $lostDetails = $lrStmt->get_result()->fetch_assoc() ?? [];
+                $lrStmt->close();
+            }
+
+            $frStmt = $conn->prepare("
+                SELECT fr.category, fr.description, fr.location, fr.found_date, fr.district
+                FROM found_report fr
+                WHERE fr.report_id = ?
+                LIMIT 1
+            ");
+            $foundDetails = [];
+            if ($frStmt) {
+                $frStmt->bind_param("i", $match["found_report_id"]);
+                $frStmt->execute();
+                $foundDetails = $frStmt->get_result()->fetch_assoc() ?? [];
+                $frStmt->close();
+            }
+
+            $category = !empty($lostDetails['category']) ? htmlspecialchars($lostDetails['category']) : (!empty($foundDetails['category']) ? htmlspecialchars($foundDetails['category']) : 'Item');
+            $lostLocation = !empty($lostDetails['location']) ? htmlspecialchars($lostDetails['location']) : 'Unknown';
+            $foundLocation = !empty($foundDetails['location']) ? htmlspecialchars($foundDetails['location']) : 'Unknown';
+            $lostDate = !empty($lostDetails['lost_date']) ? htmlspecialchars($lostDetails['lost_date']) : 'Unknown';
+            $foundDate = !empty($foundDetails['found_date']) ? htmlspecialchars($foundDetails['found_date']) : 'Unknown';
+
+            error_log("[verify_match] Sending match emails. Match #$match_id. Lost owner: {$match['owner_id']}, Found reporter: {$match['finder_id']}");
+
+            $sentMatchEmails = array();
+
+            // ─── Email to Lost Item Owner ───
             $uStmt = $conn->prepare("SELECT user_id, first_name, email FROM users WHERE user_id = ? AND email IS NOT NULL AND TRIM(email) != '' LIMIT 1");
             $uStmt->bind_param("i", $match["owner_id"]);
             $uStmt->execute();
             $ownerUser = $uStmt->get_result()->fetch_assoc();
             $uStmt->close();
 
-            // Fetch finder user details
+            if ($ownerUser && !empty($ownerUser["email"])) {
+                $ownerEmail = strtolower(trim($ownerUser["email"]));
+                $reportTypeOwner = 'match_verified_owner';
+
+                $shouldSendOwner = true;
+                $chkStmt = $conn->prepare("SELECT status FROM email_notifications WHERE report_type = ? AND report_id = ? AND user_id = ? LIMIT 1");
+                if ($chkStmt) {
+                    $chkStmt->bind_param("sii", $reportTypeOwner, $match_id, $ownerUser["user_id"]);
+                    $chkStmt->execute();
+                    $res = $chkStmt->get_result()->fetch_assoc();
+                    $chkStmt->close();
+                    if ($res) {
+                        if ($res['status'] === 'sent') {
+                            $shouldSendOwner = false;
+                        } else {
+                            $upd = $conn->prepare("UPDATE email_notifications SET status='pending', email=? WHERE report_type=? AND report_id=? AND user_id=?");
+                            if ($upd) { $upd->bind_param("ssii", $ownerUser["email"], $reportTypeOwner, $match_id, $ownerUser["user_id"]); $upd->execute(); $upd->close(); }
+                        }
+                    } else {
+                        $ins = $conn->prepare("INSERT IGNORE INTO email_notifications (report_type, report_id, user_id, email, status) VALUES (?, ?, ?, ?, 'pending')");
+                        if ($ins) { $ins->bind_param("siis", $reportTypeOwner, $match_id, $ownerUser["user_id"], $ownerUser["email"]); $ins->execute(); $ins->close(); }
+                    }
+                }
+
+                if ($shouldSendOwner && !isset($sentMatchEmails[$ownerEmail])) {
+                    $sentMatchEmails[$ownerEmail] = true;
+                    $subject = "Findora Verified Match Notification - " . htmlspecialchars($match["lost_title"]);
+                    $body = "
+                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;'>
+                        <div style='background-color: #16a34a; color: white; padding: 15px; border-radius: 8px 8px 0 0; text-align: center;'>
+                            <h2 style='margin: 0;'>&#10003; Verified Match Found!</h2>
+                            <p style='margin: 5px 0 0 0; font-size: 14px;'>Your lost item may have been found</p>
+                        </div>
+                        <div style='padding: 20px;'>
+                            <p>Hi <strong>" . htmlspecialchars($ownerUser["first_name"]) . "</strong>,</p>
+                            <p>Great news! A verified match has been found for your lost item report on Findora.</p>
+
+                            <div style='background-color: #f0fdf4; padding: 15px; border-left: 4px solid #16a34a; margin: 20px 0; border-radius: 4px;'>
+                                <h3 style='margin-top: 0; color: #0f172a;'>Your Lost Report: " . htmlspecialchars($match["lost_title"]) . "</h3>
+                                <table style='width: 100%; font-size: 14px; color: #334155;'>
+                                    <tr><td><strong>Category:</strong></td><td>$category</td></tr>
+                                    <tr><td><strong>Lost Location:</strong></td><td>$lostLocation</td></tr>
+                                    <tr><td><strong>Lost Date:</strong></td><td>$lostDate</td></tr>
+                                </table>
+                            </div>
+
+                            <div style='background-color: #f8fafc; padding: 15px; border-left: 4px solid #2563eb; margin: 20px 0; border-radius: 4px;'>
+                                <h3 style='margin-top: 0; color: #0f172a;'>Matched Found Report: " . htmlspecialchars($match["found_title"]) . "</h3>
+                                <table style='width: 100%; font-size: 14px; color: #334155;'>
+                                    <tr><td><strong>Found Location:</strong></td><td>$foundLocation</td></tr>
+                                    <tr><td><strong>Found Date:</strong></td><td>$foundDate</td></tr>
+                                </table>
+                                <p style='color: #475569; font-size: 14px; margin-top: 10px;'>Log in to Findora to view full match details and contact the finder through the platform.</p>
+                            </div>
+
+                            <div style='text-align: center; margin: 30px 0;'>
+                                <a href='" . $frontendBase . "/login' style='background-color: #2563eb; color: white; text-decoration: none; padding: 12px 24px; border-radius: 5px; font-weight: bold;'>View Match in Findora</a>
+                            </div>
+                        </div>
+                    </div>";
+                    $result = $emailService->send($ownerUser["email"], $subject, $body);
+                    $newStatus = $result ? 'sent' : 'failed';
+                    $updStmt = $conn->prepare("UPDATE email_notifications SET status = ?, sent_at = CURRENT_TIMESTAMP WHERE report_type = ? AND report_id = ? AND user_id = ?");
+                    if ($updStmt) {
+                        $updStmt->bind_param("ssii", $newStatus, $reportTypeOwner, $match_id, $ownerUser["user_id"]);
+                        $updStmt->execute();
+                        $updStmt->close();
+                    }
+                    error_log("[verify_match] Owner email to {$ownerUser['email']}: " . $newStatus);
+                }
+            }
+
+            // ─── Email to Found Item Reporter ───
             $uStmt = $conn->prepare("SELECT user_id, first_name, email FROM users WHERE user_id = ? AND email IS NOT NULL AND TRIM(email) != '' LIMIT 1");
             $uStmt->bind_param("i", $match["finder_id"]);
             $uStmt->execute();
             $finderUser = $uStmt->get_result()->fetch_assoc();
             $uStmt->close();
 
-            $sentMatchEmails = array();
-
-            if ($ownerUser && !empty($ownerUser["email"])) {
-                $ownerEmail = strtolower(trim($ownerUser["email"]));
-                
-                $recStmt = $conn->prepare("INSERT IGNORE INTO email_notifications (report_type, report_id, user_id, email, status) VALUES ('match_verified', ?, ?, ?, 'sent')");
-                if ($recStmt) {
-                    $recStmt->bind_param("iis", $match_id, $ownerUser["user_id"], $ownerUser["email"]);
-                    $recStmt->execute();
-                    $inserted = $recStmt->affected_rows > 0;
-                    $recStmt->close();
-                } else {
-                    $inserted = true;
-                }
-
-                if ($inserted && !isset($sentMatchEmails[$ownerEmail])) {
-                    $sentMatchEmails[$ownerEmail] = true;
-                    $subject = "Findora Alert: Verified Match Found for Your Lost Item!";
-                    $body = "
-                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;'>
-                        <h2 style='color: #2563eb;'>Findora Match Verification Alert</h2>
-                        <p>Hi <strong>" . htmlspecialchars($ownerUser["first_name"]) . "</strong>,</p>
-                        <p>Great news! A match has been detected and verified for your lost item report <strong>'" . htmlspecialchars($match["lost_title"]) . "'</strong>.</p>
-                        
-                        <div style='background-color: #f8fafc; padding: 15px; border-left: 4px solid #2563eb; margin: 20px 0;'>
-                            <h3 style='margin-top: 0; color: #0f172a;'>Matched Report: " . htmlspecialchars($match["found_title"]) . "</h3>
-                            <p style='color: #475569; font-size: 14px;'>Please log in to your Findora dashboard to view full match details and contact the finder.</p>
-                        </div>
-                        
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <a href='http://localhost:5173/login' style='background-color: #2563eb; color: white; text-decoration: none; padding: 12px 24px; border-radius: 5px; font-weight: bold;'>View Match in Findora</a>
-                        </div>
-                    </div>";
-                    $emailService->send($ownerUser["email"], $subject, $body);
-                }
-            }
-
             if ($finderUser && !empty($finderUser["email"])) {
                 $finderEmail = strtolower(trim($finderUser["email"]));
+                $reportTypeFinder = 'match_verified_finder';
 
-                if (!isset($sentMatchEmails[$finderEmail])) {
-                    $recStmt = $conn->prepare("INSERT IGNORE INTO email_notifications (report_type, report_id, user_id, email, status) VALUES ('match_verified', ?, ?, ?, 'sent')");
-                    if ($recStmt) {
-                        $recStmt->bind_param("iis", $match_id, $finderUser["user_id"], $finderUser["email"]);
-                        $recStmt->execute();
-                        $inserted = $recStmt->affected_rows > 0;
-                        $recStmt->close();
+                $shouldSendFinder = true;
+                $chkStmt = $conn->prepare("SELECT status FROM email_notifications WHERE report_type = ? AND report_id = ? AND user_id = ? LIMIT 1");
+                if ($chkStmt) {
+                    $chkStmt->bind_param("sii", $reportTypeFinder, $match_id, $finderUser["user_id"]);
+                    $chkStmt->execute();
+                    $res = $chkStmt->get_result()->fetch_assoc();
+                    $chkStmt->close();
+                    if ($res) {
+                        if ($res['status'] === 'sent') {
+                            $shouldSendFinder = false;
+                        } else {
+                            $upd = $conn->prepare("UPDATE email_notifications SET status='pending', email=? WHERE report_type=? AND report_id=? AND user_id=?");
+                            if ($upd) { $upd->bind_param("ssii", $finderUser["email"], $reportTypeFinder, $match_id, $finderUser["user_id"]); $upd->execute(); $upd->close(); }
+                        }
                     } else {
-                        $inserted = true;
-                    }
-
-                    if ($inserted) {
-                        $sentMatchEmails[$finderEmail] = true;
-                        $subject = "Findora Alert: Verified Match Found for Your Found Item!";
-                        $body = "
-                        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;'>
-                            <h2 style='color: #2563eb;'>Findora Match Verification Alert</h2>
-                            <p>Hi <strong>" . htmlspecialchars($finderUser["first_name"]) . "</strong>,</p>
-                            <p>Your found item report <strong>'" . htmlspecialchars($match["found_title"]) . "'</strong> has been verified as a match for a lost item report!</p>
-                            
-                            <div style='background-color: #f8fafc; padding: 15px; border-left: 4px solid #2563eb; margin: 20px 0;'>
-                                <p style='color: #475569; font-size: 14px;'>Thank you for helping the community! Log in to Findora to view match status and reward information.</p>
-                            </div>
-                            
-                            <div style='text-align: center; margin: 30px 0;'>
-                                <a href='http://localhost:5173/login' style='background-color: #2563eb; color: white; text-decoration: none; padding: 12px 24px; border-radius: 5px; font-weight: bold;'>View Match in Findora</a>
-                            </div>
-                        </div>";
-                        $emailService->send($finderUser["email"], $subject, $body);
+                        $ins = $conn->prepare("INSERT IGNORE INTO email_notifications (report_type, report_id, user_id, email, status) VALUES (?, ?, ?, ?, 'pending')");
+                        if ($ins) { $ins->bind_param("siis", $reportTypeFinder, $match_id, $finderUser["user_id"], $finderUser["email"]); $ins->execute(); $ins->close(); }
                     }
                 }
+
+                if ($shouldSendFinder && !isset($sentMatchEmails[$finderEmail])) {
+                        $sentMatchEmails[$finderEmail] = true;
+                        $subject = "Findora Verified Match Notification - " . htmlspecialchars($match["found_title"]);
+                        $body = "
+                        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;'>
+                            <div style='background-color: #2563eb; color: white; padding: 15px; border-radius: 8px 8px 0 0; text-align: center;'>
+                                <h2 style='margin: 0;'>&#10003; Your Found Report Was Matched!</h2>
+                                <p style='margin: 5px 0 0 0; font-size: 14px;'>A verified match has been confirmed by admin</p>
+                            </div>
+                            <div style='padding: 20px;'>
+                                <p>Hi <strong>" . htmlspecialchars($finderUser["first_name"]) . "</strong>,</p>
+                                <p>Your found item report on Findora has been verified as a match for someone's lost item report. Thank you for helping our community!</p>
+
+                                <div style='background-color: #f8fafc; padding: 15px; border-left: 4px solid #2563eb; margin: 20px 0; border-radius: 4px;'>
+                                    <h3 style='margin-top: 0; color: #0f172a;'>Your Found Report: " . htmlspecialchars($match["found_title"]) . "</h3>
+                                    <table style='width: 100%; font-size: 14px; color: #334155;'>
+                                        <tr><td><strong>Category:</strong></td><td>$category</td></tr>
+                                        <tr><td><strong>Found Location:</strong></td><td>$foundLocation</td></tr>
+                                        <tr><td><strong>Found Date:</strong></td><td>$foundDate</td></tr>
+                                    </table>
+                                </div>
+
+                                <div style='background-color: #f0fdf4; padding: 15px; border-left: 4px solid #16a34a; margin: 20px 0; border-radius: 4px;'>
+                                    <h3 style='margin-top: 0; color: #0f172a;'>Matched Lost Report: " . htmlspecialchars($match["lost_title"]) . "</h3>
+                                    <p style='color: #475569; font-size: 14px;'>Log in to Findora to view the owner's details and coordinate the return. A reward may also be available for you!</p>
+                                </div>
+
+                                <div style='text-align: center; margin: 30px 0;'>
+                                    <a href='" . $frontendBase . "/login' style='background-color: #2563eb; color: white; text-decoration: none; padding: 12px 24px; border-radius: 5px; font-weight: bold;'>View Match in Findora</a>
+                                </div>
+                            </div>
+                        </div>";
+                        $result = $emailService->send($finderUser["email"], $subject, $body);
+                        $newStatus = $result ? 'sent' : 'failed';
+                        $updStmt = $conn->prepare("UPDATE email_notifications SET status = ?, sent_at = CURRENT_TIMESTAMP WHERE report_type = ? AND report_id = ? AND user_id = ?");
+                        if ($updStmt) {
+                            $updStmt->bind_param("ssii", $newStatus, $reportTypeFinder, $match_id, $finderUser["user_id"]);
+                            $updStmt->execute();
+                            $updStmt->close();
+                        }
+                        error_log("[verify_match] Finder email to {$finderUser['email']}: " . $newStatus);
+                }
             }
-        } catch (Exception $e) {
-            error_log("Match email notification error: " . $e->getMessage());
+        } catch (\Throwable $e) {
+            error_log("[verify_match] Error sending email: " . $e->getMessage());
         }
     }
 
@@ -275,12 +393,14 @@ try {
         "match_id" => $match_id
     ));
 
-} catch (Exception $e) {
-    $conn->rollback();
-
+} catch (\Throwable $e) {
+    if (isset($conn) && $conn->connect_errno === 0 && !$conn->autocommit(true)) {
+        $conn->rollback();
+    }
+    error_log("[verify_match] Critical Exception: " . $e->getMessage());
     echo json_encode(array(
         "status" => "error",
-        "message" => "Failed to update match",
+        "message" => "An error occurred while processing the request",
         "error" => $e->getMessage()
     ));
 }

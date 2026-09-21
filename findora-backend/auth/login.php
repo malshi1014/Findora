@@ -1,13 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type, X-CSRF-Token");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
+ob_start();
 header("Content-Type: application/json");
-
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(204);
-    exit();
-}
 
 require_once __DIR__ . "/../config/db.php";
 require_once __DIR__ . "/../classes/Repositories/UserRepository.php";
@@ -36,7 +29,6 @@ if ($loginId === "" || $password === "") {
     exit();
 }
 
-// Authenticate using OOP services.
 try {
     $authService = new AuthService(new UserRepository($conn));
     $user = $authService->authenticate($loginId, $password);
@@ -47,9 +39,16 @@ try {
         exit();
     }
 
+    if (isset($user['account_status']) && $user['account_status'] === 'suspended') {
+        http_response_code(403);
+        echo json_encode(array("status" => "error", "message" => "Your account has been suspended. Please contact support."));
+        exit();
+    }
+
     SessionManager::login($user);
     $safeUser = SessionManager::user();
 
+    ob_clean();
     echo json_encode(array(
         "status" => "success",
         "message" => "Login successful",
@@ -63,4 +62,3 @@ try {
     echo json_encode(array("status" => "error", "message" => "Login service is temporarily unavailable"));
 }
 exit();
-?>

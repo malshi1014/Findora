@@ -1,17 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    echo json_encode(array(
-        "status" => "success",
-        "message" => "Preflight OK"
-    ));
-    exit();
-}
+header("Content-Type: application/json");
 
 include __DIR__ . "/../config/db.php";
 include __DIR__ . "/../helpers/create_notification.php";
@@ -235,8 +224,7 @@ try {
 
     $conn->commit();
     
-    // Dispatch email notifications (non-blocking, failures won't break the response)
-    sendLocationNotifications($conn, 'missing_pet', $pet_post_id, $nearest_town, $user_id, $pet_name, $description);
+    // Removed sendLocationNotifications - it is now triggered by Admin approval.
 
     echo json_encode(array(
         "status" => "success",

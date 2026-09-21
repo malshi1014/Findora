@@ -1,13 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Content-Type: application/json; charset=utf-8");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(204);
-    exit();
-}
+header("Content-Type: application/json; charset=utf-8");
 
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     http_response_code(405);
@@ -121,7 +114,7 @@ try {
         FROM matches m
         INNER JOIN lost_report lr ON lr.report_id = m.lost_report_id
         INNER JOIN found_report fr ON fr.report_id = m.found_report_id
-        WHERE m.status IN ('verified', 'completed')
+        WHERE m.status IN ('pending', 'verified', 'completed')
           AND (lr.user_id = ? OR fr.user_id = ?)
         ORDER BY COALESCE(m.verified_at, m.matched_at) DESC, m.match_id DESC
     ");

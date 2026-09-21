@@ -1,13 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit();
-}
+header("Content-Type: application/json");
 
 include __DIR__ . "/../config/db.php";
 
@@ -19,38 +12,73 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     exit();
 }
 
-$data = json_decode(file_get_contents("php://input"), true);
+$rawInput = file_get_contents("php://input");
+$data = json_decode($rawInput, true);
 
-$user_id = isset($data["user_id"]) ? intval($data["user_id"]) : 0;
-$report_id = isset($data["report_id"]) ? intval($data["report_id"]) : 0;
-$report_type = isset($data["report_type"]) ? trim($data["report_type"]) : "";
-
-if ($user_id <= 0 || $report_id <= 0 || empty($report_type)) {
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "user_id, report_id and report_type are required"
-    ));
-    exit();
+if (!is_array($data)) {
+    $data = array_merge($_GET, $_POST);
+} else if (!empty($_POST) || !empty($_GET)) {
+    $data = array_merge($_GET, $_POST, $data);
 }
 
-if ($report_type !== "lost" && $report_type !== "found") {
+$user_id = 0;
+if (isset($data["user_id"])) $user_id = intval($data["user_id"]);
+else if (isset($data["userId"])) $user_id = intval($data["userId"]);
+
+$report_id = 0;
+if (isset($data["report_id"])) $report_id = intval($data["report_id"]);
+else if (isset($data["person_post_id"])) $report_id = intval($data["person_post_id"]);
+else if (isset($data["pet_post_id"])) $report_id = intval($data["pet_post_id"]);
+else if (isset($data["post_id"])) $report_id = intval($data["post_id"]);
+else if (isset($data["id"])) $report_id = intval($data["id"]);
+else if (isset($data["reportId"])) $report_id = intval($data["reportId"]);
+
+$report_type = "";
+if (isset($data["report_type"])) $report_type = trim($data["report_type"]);
+else if (isset($data["type"])) $report_type = trim($data["type"]);
+else if (isset($data["post_type"])) $report_type = trim($data["post_type"]);
+else if (isset($data["reportType"])) $report_type = trim($data["reportType"]);
+
+if ($report_type === "missing_person_post") $report_type = "missing_person";
+if ($report_type === "missing_pet_post") $report_type = "missing_pet";
+if ($report_type === "lost_report") $report_type = "lost";
+if ($report_type === "found_report") $report_type = "found";
+
+$valid_types = array("lost", "found", "missing_person", "missing_pet");
+
+if ($user_id <= 0 || $report_id <= 0 || empty($report_type) || !in_array($report_type, $valid_types)) {
     echo json_encode(array(
         "status" => "error",
-        "message" => "Invalid report type"
+        "message" => "user_id, report_id and report_type are required",
+        "received" => array(
+            "user_id" => $user_id,
+            "report_id" => $report_id,
+            "report_type" => $report_type
+        )
     ));
     exit();
 }
 
 if ($report_type === "lost") {
     $report_table = "lost_report";
+    $id_column = "report_id";
     $image_table = "lost_report_image";
-    $upload_folder = "uploads/lost_reports/";
     $match_column = "lost_report_id";
-} else {
+} else if ($report_type === "found") {
     $report_table = "found_report";
+    $id_column = "report_id";
     $image_table = "found_report_image";
-    $upload_folder = "uploads/found_reports/";
     $match_column = "found_report_id";
+} else if ($report_type === "missing_person") {
+    $report_table = "missing_person_post";
+    $id_column = "person_post_id";
+    $image_table = "missing_person_post_image";
+    $match_column = "";
+} else if ($report_type === "missing_pet") {
+    $report_table = "missing_pet_post";
+    $id_column = "pet_post_id";
+    $image_table = "missing_pet_post_image";
+    $match_column = "";
 }
 
 $conn->begin_transaction();
@@ -58,9 +86,9 @@ $conn->begin_transaction();
 try {
     // Check ownership and status
     $checkStmt = $conn->prepare("
-        SELECT report_id, status
+        SELECT $id_column AS report_id, status
         FROM $report_table
-        WHERE report_id = ? AND user_id = ?
+        WHERE $id_column = ? AND user_id = ?
         LIMIT 1
     ");
 
@@ -90,7 +118,7 @@ try {
     $imageStmt = $conn->prepare("
         SELECT image_path
         FROM $image_table
-        WHERE report_id = ?
+        WHERE $id_column = ?
     ");
 
     $imageStmt->bind_param("i", $report_id);
@@ -103,19 +131,20 @@ try {
         $imagePaths[] = $img["image_path"];
     }
 
-    // Delete related pending/rejected matches
-    $deleteMatchStmt = $conn->prepare("
-        DELETE FROM matches
-        WHERE $match_column = ? AND status != 'verified'
-    ");
-
-    $deleteMatchStmt->bind_param("i", $report_id);
-    $deleteMatchStmt->execute();
+    // Delete related pending/rejected matches if applicable
+    if (!empty($match_column)) {
+        $deleteMatchStmt = $conn->prepare("
+            DELETE FROM matches
+            WHERE $match_column = ? AND status != 'verified'
+        ");
+        $deleteMatchStmt->bind_param("i", $report_id);
+        $deleteMatchStmt->execute();
+    }
 
     // Delete image records
     $deleteImagesStmt = $conn->prepare("
         DELETE FROM $image_table
-        WHERE report_id = ?
+        WHERE $id_column = ?
     ");
 
     $deleteImagesStmt->bind_param("i", $report_id);
@@ -124,7 +153,7 @@ try {
     // Delete report
     $deleteReportStmt = $conn->prepare("
         DELETE FROM $report_table
-        WHERE report_id = ? AND user_id = ?
+        WHERE $id_column = ? AND user_id = ?
     ");
 
     $deleteReportStmt->bind_param("ii", $report_id, $user_id);

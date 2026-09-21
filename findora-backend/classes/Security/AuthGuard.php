@@ -5,16 +5,21 @@ require_once __DIR__ . "/SessionManager.php";
 // Central authentication and authorization.
 class AuthGuard
 {
-    private const FRONTEND_ORIGIN = "http://localhost:5173";
-
     public static function bootstrap(): void
     {
-        SessionManager::start();
-
         $path = str_replace("\\", "/", $_SERVER["SCRIPT_NAME"] ?? "");
         $method = strtoupper($_SERVER["REQUEST_METHOD"] ?? "GET");
 
-        if ($method === "OPTIONS" || self::isPublicPath($path)) {
+        // Start the session for all requests.
+        SessionManager::start();
+
+        if ($method === "OPTIONS") {
+            http_response_code(200);
+            exit();
+        }
+
+        // Public paths skip authentication entirely.
+        if (self::isPublicPath($path)) {
             return;
         }
 
@@ -22,7 +27,7 @@ class AuthGuard
         self::validateIdentityClaims();
 
         // Enforce role-based access.
-        if (str_contains($path, "/admin/") || str_ends_with($path, "/matching/match_reports.php")) {
+        if (str_contains($path, "/admin/")) {
             self::requireRole("admin");
         }
 
@@ -31,10 +36,7 @@ class AuthGuard
         }
 
         if (!in_array($method, array("GET", "HEAD", "OPTIONS"), true)) {
-            self::validateOrigin();
             if (str_contains($path, '/interactions/')) {
-                // Interaction endpoints use session cookie; CSRF token not required for simplicity.
-                // This exception is safe because we rely on same-site cookies and AuthGuard's authentication.
                 return;
             }
             self::validateCsrfToken();
@@ -74,7 +76,7 @@ class AuthGuard
         return $user;
     }
 
-    // Validate CSRF protection.
+    // Validate CSRF protection for mutating requests.
     public static function validateCsrfToken(): void
     {
         $provided = $_SERVER["HTTP_X_CSRF_TOKEN"] ?? "";
@@ -93,9 +95,7 @@ class AuthGuard
             "/auth/shopregister.php",
             "/auth/logout.php",
             "/auth/session.php",
-            // PayHere IPN: called server-to-server, no session cookie present
             "/donations/payhere_notify.php",
-            // Public read: anyone can view reaction counts and comments
             "/interactions/get_interactions.php",
             "/migrate_complaint.php",
             "/complaints/send_complaint.php"
@@ -108,15 +108,6 @@ class AuthGuard
         }
 
         return str_contains($path, "/public_posts/");
-    }
-
-    private static function validateOrigin(): void
-    {
-        $origin = $_SERVER["HTTP_ORIGIN"] ?? "";
-
-        if ($origin !== "" && !hash_equals(self::FRONTEND_ORIGIN, $origin)) {
-            self::deny(403, "Untrusted request origin");
-        }
     }
 
     // Prevent user ID impersonation.

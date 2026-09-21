@@ -11,25 +11,8 @@ header("Content-Type: text/plain; charset=utf-8");
 
 require_once __DIR__ . "/../config/payhere.php";
 
-// Bootstrap the database connection WITHOUT AuthGuard (this is a server-to-server callback).
-require_once __DIR__ . "/../classes/Security/SessionManager.php";
-SessionManager::start();
-
-$host     = "localhost";
-$username = "root";
-$password = "root";
-$database = "findora_db";
-
-$conn = new mysqli($host, $username, $password, $database);
-
-if ($conn->connect_error) {
-    error_log("[PayHere IPN] DB connection failed: " . $conn->connect_error);
-    http_response_code(500);
-    echo "DB_ERROR";
-    exit();
-}
-
-$conn->set_charset("utf8mb4");
+// Bootstrap the database connection via config/db.php (AuthGuard treats this endpoint as public)
+require_once __DIR__ . "/../config/db.php";
 
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     http_response_code(405);

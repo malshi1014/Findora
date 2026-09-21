@@ -407,6 +407,7 @@ CREATE TABLE `users` (
   `district` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `nearest_town` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `role` enum('general_user','verified_user','shop_owner','admin') COLLATE utf8mb4_unicode_ci DEFAULT 'general_user',
+  `account_status` enum('active','suspended') COLLATE utf8mb4_unicode_ci DEFAULT 'active',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

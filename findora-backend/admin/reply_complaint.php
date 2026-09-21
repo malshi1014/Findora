@@ -1,30 +1,21 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json; charset=utf-8");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(204);
-    exit();
-}
+header("Content-Type: application/json; charset=utf-8");
 
 require_once __DIR__ . "/../config/db.php";
 
-// Enforce Admin Authentication
-$role = SessionManager::role();
-if ($role !== 'admin') {
-    http_response_code(403);
-    echo json_encode(["status" => "error", "message" => "Unauthorized access. Admin privileges required."]);
-    exit();
-}
-
 $data = json_decode(file_get_contents("php://input"), true);
 
+$adminId     = isset($data['admin_id']) ? (int)$data['admin_id'] : 0;
 $complaintId = isset($data['complaint_id']) ? (int)$data['complaint_id'] : 0;
 $replyText   = isset($data['admin_reply'])  ? trim($data['admin_reply'])  : '';
 $newStatus   = isset($data['status'])       ? strtolower(trim($data['status'])) : 'resolved';
+
+if ($adminId <= 0) {
+    http_response_code(400);
+    echo json_encode(["status" => "error", "message" => "admin_id parameter is required."]);
+    exit();
+}
 
 if (!$complaintId || empty($replyText)) {
     http_response_code(400);
@@ -34,6 +25,19 @@ if (!$complaintId || empty($replyText)) {
 
 if (!in_array($newStatus, ['pending', 'reviewing', 'resolved', 'rejected'])) {
     $newStatus = 'resolved';
+}
+
+// Verify the caller is actually an admin
+$chk = $conn->prepare("SELECT role FROM users WHERE user_id = ? LIMIT 1");
+$chk->bind_param("i", $adminId);
+$chk->execute();
+$chkRes = $chk->get_result()->fetch_assoc();
+$chk->close();
+
+if (!$chkRes || $chkRes['role'] !== 'admin') {
+    http_response_code(403);
+    echo json_encode(["status" => "error", "message" => "Unauthorized. Admin privileges required."]);
+    exit();
 }
 
 try {
@@ -89,7 +93,6 @@ try {
     ]);
 
 } catch (Exception $e) {
-    error_log("reply_complaint error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode(["status" => "error", "message" => "Database error: " . $e->getMessage()]);
 }

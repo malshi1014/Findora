@@ -1,22 +1,11 @@
 <?php
 
-// Load PHPMailer classes manually since we didn't use Composer
-require_once __DIR__ . '/../../vendor/PHPMailer/src/Exception.php';
-require_once __DIR__ . '/../../vendor/PHPMailer/src/PHPMailer.php';
-require_once __DIR__ . '/../../vendor/PHPMailer/src/SMTP.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
 class EmailService
 {
-    private $host;
-    private $port;
-    private $username;
-    private $password;
-    private $encryption;
+    private $apiKey;
     private $fromAddress;
     private $fromName;
+    private $envLoaded = false;
 
     public function __construct()
     {
@@ -26,71 +15,147 @@ class EmailService
     private function loadEnv()
     {
         $envPath = __DIR__ . '/../../config/.env';
+
         if (!file_exists($envPath)) {
-            error_log("EmailService: .env file not found");
+            echo json_encode(["env_error" => ".env file NOT found", "path" => $envPath]) . "\n";
             return;
         }
 
         $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($lines === false) {
+            echo json_encode(["env_error" => "Failed to read .env file"]) . "\n";
+            return;
+        }
+
+        // Parse directly into local map — do NOT rely on getenv() which fails on FastCGI hosts
+        $envVars = [];
         foreach ($lines as $line) {
-            if (strpos(trim($line), '#') === 0) {
+            $line = trim($line);
+            if (empty($line) || $line[0] === '#') {
+                continue;
+            }
+            if (strpos($line, '=') === false) {
                 continue;
             }
             list($name, $value) = explode('=', $line, 2);
-            $name = trim($name);
+            $name  = trim($name);
             $value = trim($value);
-
-            if (!array_key_exists($name, $_SERVER) && !array_key_exists($name, $_ENV)) {
-                putenv(sprintf('%s=%s', $name, $value));
-                $_ENV[$name] = $value;
-                $_SERVER[$name] = $value;
+            // Strip surrounding quotes
+            if (preg_match('/^"(.*)"$/s', $value, $m) || preg_match("/^'(.*)'$/s", $value, $m)) {
+                $value = $m[1];
             }
+            $envVars[$name] = $value;
         }
 
-        $this->host = getenv('MAIL_HOST') ?: 'smtp.gmail.com';
-        $this->port = getenv('MAIL_PORT') ?: 587;
-        $this->username = getenv('MAIL_USERNAME');
-        $this->password = getenv('MAIL_PASSWORD');
-        $this->encryption = getenv('MAIL_ENCRYPTION') ?: 'tls';
-        $this->fromAddress = getenv('MAIL_FROM_ADDRESS');
-        $this->fromName = getenv('MAIL_FROM_NAME') ?: 'Findora';
+        $this->apiKey      = isset($envVars['BREVO_API_KEY'])    ? $envVars['BREVO_API_KEY']    : '';
+        $this->fromAddress = isset($envVars['MAIL_FROM_ADDRESS']) ? $envVars['MAIL_FROM_ADDRESS'] : '';
+        $this->fromName    = isset($envVars['MAIL_FROM_NAME'])    ? $envVars['MAIL_FROM_NAME']    : 'Findora';
+        $this->envLoaded   = true;
+
+        // Diagnostic — never logs actual key value
+        echo json_encode([
+            "env_loaded"       => true,
+            "api_key_detected" => !empty($this->apiKey),
+            "api_key_length"   => strlen($this->apiKey),
+            "sender"           => $this->fromAddress,
+            "from_name"        => $this->fromName,
+        ]) . "\n";
     }
 
     public function send(string $to, string $subject, string $htmlBody): bool
     {
-        if (empty($this->username) || empty($this->password)) {
-            error_log("EmailService Error: SMTP credentials are not configured in .env");
+        $to = filter_var(trim($to), FILTER_VALIDATE_EMAIL);
+        if (!$to) {
+            echo json_encode([
+                "error"     => "Invalid recipient",
+                "recipient" => $to,
+            ]) . "\n";
             return false;
         }
 
-        $mail = new PHPMailer(true);
+        $hasApiKey = !empty($this->apiKey);
+        if (!$hasApiKey) {
+            echo json_encode([
+                "error"     => "API key missing",
+                "recipient" => $to,
+            ]) . "\n";
+            return false;
+        }
 
-        try {
-            // Server settings
-            $mail->isSMTP();
-            $mail->Host       = $this->host;
-            $mail->SMTPAuth   = true;
-            $mail->Username   = $this->username;
-            $mail->Password   = $this->password;
-            $mail->SMTPSecure = $this->encryption === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = $this->port;
+        if (empty($this->fromAddress) || !filter_var($this->fromAddress, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode([
+                "error"     => "Invalid sender address",
+                "recipient" => $to,
+                "sender"    => $this->fromAddress
+            ]) . "\n";
+            return false;
+        }
 
-            // Recipients
-            $mail->setFrom($this->fromAddress, $this->fromName);
-            $mail->addAddress($to);
+        $url = 'https://api.brevo.com/v3/smtp/email';
 
-            // Content
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
-            $mail->Body    = $htmlBody;
-            
-            $altBody = strip_tags($htmlBody);
-            $mail->AltBody = $altBody;
+        $data = [
+            'sender' => [
+                'name'  => $this->fromName,
+                'email' => $this->fromAddress
+            ],
+            'to' => [
+                [
+                    'email' => $to
+                ]
+            ],
+            'subject'     => $subject,
+            'htmlContent' => $htmlBody
+        ];
 
-            $mail->send();
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+
+        // Secure SSL Verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+
+        // Timeouts
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'accept: application/json',
+            'api-key: ' . $this->apiKey,
+            'content-type: application/json'
+        ]);
+
+        $response  = curl_exec($ch);
+        $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($response === false) {
+            echo json_encode([
+                "recipient"        => $to,
+                "sender"           => $this->fromAddress,
+                "api_key_detected" => $hasApiKey,
+                "http_code"        => 0,
+                "curl_error"       => $curlError,
+                "brevo_response"   => null,
+                "executed"         => false
+            ]) . "\n";
+            return false;
+        }
+
+        if ($httpCode >= 200 && $httpCode < 300) {
             return true;
-        } catch (Exception $e) {
-            error_log("EmailService Error: Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        } else {
+            echo json_encode([
+                "recipient"        => $to,
+                "sender"           => $this->fromAddress,
+                "api_key_detected" => $hasApiKey,
+                "http_code"        => $httpCode,
+                "curl_error"       => $curlError,
+                "brevo_response"   => $response,
+                "executed"         => true
+            ]) . "\n";
             return false;
         }
     }

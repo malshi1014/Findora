@@ -7,6 +7,7 @@
 # Local environment and logs
 .env
 .env.*
+config/.env
 !.env.example
 *.log
 
@@ -15,3 +16,6 @@
 Thumbs.db
 .vscode/
 .idea/
+
+config/db.php
+config/payhere.php

@@ -1,17 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Content-Type: application/json");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    echo json_encode(array(
-        "status" => "success",
-        "message" => "Preflight OK"
-    ));
-    exit();
-}
+header("Content-Type: application/json");
 
 include __DIR__ . "/../config/db.php";
 
@@ -75,6 +64,10 @@ if ($lostStmt) {
     $lostResult = $lostStmt->get_result();
 
     while ($row = $lostResult->fetch_assoc()) {
+        $row["report_type"] = "lost";
+        $row["report_date"] = isset($row["lost_date"]) ? $row["lost_date"] : "";
+        $row["report_time"] = isset($row["lost_time"]) ? $row["lost_time"] : "";
+
         $row["images"] = getImages(
             $conn,
             "lost_report_image",
@@ -102,6 +95,10 @@ if ($foundStmt) {
     $foundResult = $foundStmt->get_result();
 
     while ($row = $foundResult->fetch_assoc()) {
+        $row["report_type"] = "found";
+        $row["report_date"] = isset($row["found_date"]) ? $row["found_date"] : "";
+        $row["report_time"] = isset($row["found_time"]) ? $row["found_time"] : "";
+
         $row["images"] = getImages(
             $conn,
             "found_report_image",
@@ -129,14 +126,14 @@ if ($petStmt) {
     $petResult = $petStmt->get_result();
 
     while ($row = $petResult->fetch_assoc()) {
-        $row["report_id"] = $row["pet_post_id"];
+        $row["report_id"] = intval($row["pet_post_id"]);
+        $row["report_type"] = "missing_pet";
         $row["title"] = $row["pet_name"];
         $row["category"] = $row["pet_category"];
-        $row["location"] = $row["last_seen_location"];
+        $row["location"] = !empty($row["nearest_town"]) ? $row["nearest_town"] : $row["last_seen_location"];
         $row["contact_no"] = $row["guardian_contact_no"];
         $row["report_date"] = $row["lost_date"];
         $row["report_time"] = $row["lost_time"];
-        $row["report_type"] = "missing_pet";
 
         $row["images"] = getImages(
             $conn,
@@ -165,15 +162,15 @@ if ($personStmt) {
     $personResult = $personStmt->get_result();
 
     while ($row = $personResult->fetch_assoc()) {
-        $row["report_id"] = $row["person_post_id"];
+        $row["report_id"] = intval($row["person_post_id"]);
+        $row["report_type"] = "missing_person";
         $row["title"] = $row["full_name"];
         $row["category"] = "Missing Person";
-        $row["location"] = $row["last_seen_location"];
+        $row["location"] = !empty($row["nearest_town"]) ? $row["nearest_town"] : $row["last_seen_location"];
         $row["contact_no"] = $row["guardian_contact_no"];
         $row["report_date"] = $row["missing_date"];
         $row["report_time"] = $row["missing_time"];
         $row["unique_identifiers"] = $row["distinguishing_marks"];
-        $row["report_type"] = "missing_person";
 
         $row["images"] = getImages(
             $conn,
