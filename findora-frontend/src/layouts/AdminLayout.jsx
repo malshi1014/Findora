@@ -8,7 +8,7 @@ function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row">
       {/* Mobile top header bar (matching dark blue theme) */}
       <header className="lg:hidden flex items-center justify-between border-b border-slate-800/80 bg-[#0B1120] px-4 py-4 sticky top-0 z-30">
         <div className="flex items-center gap-3">

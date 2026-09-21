@@ -127,25 +127,25 @@ function Reward() {
       <div className="mx-auto max-w-6xl space-y-6">
 
         {/* ── Header ──────────────────────────────────────────────────────── */}
-        <section className="rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 p-8 shadow-xl shadow-amber-300/30">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-6 shadow-sm backdrop-blur-md md:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-100">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-600">
                 My Rewards
               </p>
-              <h1 className="mt-3 text-3xl font-bold tracking-tight text-white">
+              <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">
                 Your Contributions
               </h1>
-              <p className="mt-2 max-w-xl text-sm leading-7 text-amber-100">
+              <p className="mt-2 max-w-xl text-sm leading-7 text-slate-500">
                 Every item you return earns you a Rs.&nbsp;100 mobile reload reward. Keep
                 helping your community!
               </p>
             </div>
-            <div className="flex shrink-0 flex-col items-center gap-1 rounded-2xl bg-white/20 px-8 py-5 backdrop-blur-md">
-              <p className="text-4xl font-bold text-white">
+            <div className="flex shrink-0 flex-col items-center gap-1 rounded-2xl border border-amber-100 bg-amber-50 px-8 py-5">
+              <p className="text-4xl font-bold text-amber-600">
                 {stats ? formatRs(stats.total_earned) : "—"}
               </p>
-              <p className="text-xs font-semibold text-amber-100">Total Earned</p>
+              <p className="text-xs font-semibold text-amber-700">Total Earned</p>
             </div>
           </div>
         </section>

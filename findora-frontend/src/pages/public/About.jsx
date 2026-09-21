@@ -1,5 +1,7 @@
-﻿import Navbar from "../../components/Navbar/Navbar";
+import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
+import aboutUsImage from "../../assets/logo/about us image.png";
+import { motion } from "framer-motion";
 
 const missionPoints = [
   {
@@ -56,23 +58,47 @@ const successStories = [
 ];
 
 function About() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+    },
+  };
+
   return (
-    <div className="min-h-screen relative overflow-hidden text-slate-900 bg-[radial-gradient(circle_at_22%_18%,_#60a5fa,_transparent_28%),radial-gradient(circle_at_68%_12%,_#2216fa,_transparent_20%),radial-gradient(circle_at_50%_90%,_#bfdbfe,_transparent_34%),linear-gradient(135deg,_#93c5fd,_#bfdbfe,_#e0f2fe)]">
-      <div className="absolute -top-24 left-10 h-80 w-80 rounded-full bg-blue-500/25 blur-3xl"></div>
-      <div className="absolute top-40 -right-20 h-96 w-96 rounded-full bg-sky-400/30 blur-3xl"></div>
-      <div className="absolute bottom-10 left-1/3 h-96 w-96 rounded-full bg-cyan-200/40 blur-3xl"></div>
-      <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px]"></div>
+    <div className="relative min-h-screen overflow-hidden bg-white text-slate-900">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-white opacity-70"></div>
+      <div className="absolute top-1/4 right-1/4 h-96 w-96 rounded-full bg-blue-100/50 blur-3xl animate-pulse-soft"></div>
+      <div className="absolute bottom-1/4 left-1/4 h-80 w-80 rounded-full bg-indigo-100/40 blur-3xl animate-pulse-soft" style={{ animationDelay: '1s' }}></div>
 
       <div className="relative z-10">
         <Navbar />
 
-        <main className="space-y-20 pb-16">
+        <motion.main 
+          className="space-y-20 pb-16"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <section className="relative overflow-hidden py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[0.95fr_0.8fr] items-center">
       
       
-      <div className="rounded-3xl border border-white/60 bg-white/15 p-8 shadow-2xl shadow-blue-900/10 backdrop-blur-2xl animate-fade-up">
+      <motion.div variants={itemVariants} className="rounded-3xl border border-slate-200/60 bg-white/80 p-8 shadow-sm backdrop-blur-md">
         <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-800">
           About Findora
         </p>
@@ -97,46 +123,47 @@ function About() {
 
           <a
             href="#stories"
-            className="inline-flex items-center justify-center rounded-full border border-white/70 bg-white/55 px-6 py-3 text-sm font-semibold text-slate-900 shadow-md backdrop-blur-xl transition hover:bg-white/75"
+            className="inline-flex items-center justify-center rounded-full border border-slate-200/60 bg-white/80 px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm backdrop-blur-md transition hover:bg-slate-50 hover:border-slate-300"
           >
             View Success Stories
           </a>
         </div>
-      </div>
+      </motion.div>
 
       
       <div className="grid gap-4">
         
         
-        <div className="rounded-3xl border border-white/60 bg-white/45 p-5 shadow-2xl shadow-blue-900/10 backdrop-blur-2xl animate-fade-up">
+        <motion.div variants={itemVariants} className="relative rounded-3xl border border-blue-100/80 bg-gradient-to-br from-blue-50/50 to-white/80 p-5 shadow-xl shadow-blue-900/5 backdrop-blur-md">
+          <div className="absolute -inset-1 -z-10 rounded-3xl bg-blue-400/20 blur-xl opacity-50"></div>
           <img
-            className="h-72 w-full rounded-2xl object-cover shadow-lg"
-            src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
-            alt="Community support"
+            className="relative z-10 h-72 w-full rounded-2xl object-cover shadow-md"
+            src={aboutUsImage}
+            alt="The Lost & Found"
           />
-        </div>
+        </motion.div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           
           
-          <div className="rounded-3xl border border-white/60 bg-white/45 p-6 shadow-xl shadow-blue-900/10 backdrop-blur-2xl transition hover:bg-white/60 hover:-translate-y-1 animate-fade-up">
+          <motion.div variants={itemVariants} className="rounded-3xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-md transition hover:-translate-y-1">
             <p className="text-sm uppercase tracking-[0.24em] text-blue-700">
               Trusted support
             </p>
             <p className="mt-4 text-lg font-semibold text-slate-900">
               Community verified reports
             </p>
-          </div>
+          </motion.div>
 
           
-          <div className="rounded-3xl border border-white/60 bg-white/45 p-6 shadow-xl shadow-blue-900/10 backdrop-blur-2xl transition hover:bg-white/60 hover:-translate-y-1 animate-fade-up">
+          <motion.div variants={itemVariants} className="rounded-3xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-md transition hover:-translate-y-1">
             <p className="text-sm uppercase tracking-[0.24em] text-blue-700">
               Safe contact
             </p>
             <p className="mt-4 text-lg font-semibold text-slate-900">
               Secure messaging and privacy controls
             </p>
-          </div>
+          </motion.div>
         </div>
       </div>
     </div>
@@ -167,7 +194,7 @@ function About() {
                 {missionPoints.slice(0, 3).map((item) => (
                   <div
                     key={item.title}
-                    className="rounded-3xl border border-white/60 bg-white/55 p-8 shadow-xl shadow-blue-900/10 backdrop-blur-xl"
+                    className="rounded-3xl border border-slate-200/60 bg-white/80 p-8 shadow-sm backdrop-blur-md"
                   >
                     <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100/80 text-2xl shadow-sm">
                       {item.icon}
@@ -187,7 +214,7 @@ function About() {
           <section className="py-16">
             <div className="max-w-7xl mx-auto px-6 lg:px-8">
               <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-                <div className="rounded-3xl border border-white/60 bg-white/45 p-8 shadow-xl shadow-blue-900/10 backdrop-blur-xl">
+                <div className="rounded-3xl border border-slate-200/60 bg-white/80 p-8 shadow-sm backdrop-blur-md">
                   <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-800">
                     Why Findora
                   </p>
@@ -207,7 +234,7 @@ function About() {
                   {missionPoints.slice(3).map((item) => (
                     <div
                       key={item.title}
-                      className="rounded-3xl border border-white/60 bg-white/55 p-6 shadow-xl shadow-blue-900/10 backdrop-blur-xl"
+                      className="rounded-3xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-md"
                     >
                       <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-100/80 text-2xl shadow-sm">
                         {item.icon}
@@ -247,7 +274,7 @@ function About() {
                 {successStories.map((story) => (
                   <div
                     key={story.name}
-                    className="rounded-3xl border border-white/60 bg-white/55 p-8 shadow-xl shadow-blue-900/10 backdrop-blur-xl"
+                    className="rounded-3xl border border-slate-200/60 bg-white/80 p-8 shadow-sm backdrop-blur-md"
                   >
                     <div className="flex items-center gap-4">
                       <div className="h-12 w-12 rounded-full bg-blue-700 text-white flex items-center justify-center text-lg font-bold shadow-lg shadow-blue-700/25">
@@ -283,7 +310,7 @@ function About() {
               </div>
             </div>
           </section>
-        </main>
+        </motion.main>
 
         <Footer />
       </div>

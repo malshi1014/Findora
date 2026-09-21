@@ -156,24 +156,31 @@ function MyReports() {
   };
 
   const handleEdit = (report) => {
-    const reportId = getReportId(report);
-
     if (report.status === "matched") {
       alert("Matched reports cannot be edited.");
       return;
     }
 
-    if (activeTab === "missing_pet" || activeTab === "missing_person") {
-      alert("Edit for missing pet/person posts will be connected in the next step.");
-      return;
-    }
+    const rawType = (report.report_type || report.type || activeTab || "").toLowerCase();
+    let normalizedType = "lost";
 
-    if (activeTab === "suspicious") {
+    if (rawType.includes("person")) {
+      normalizedType = "missing_person";
+    } else if (rawType.includes("pet")) {
+      normalizedType = "missing_pet";
+    } else if (rawType.includes("found")) {
+      normalizedType = "found";
+    } else if (rawType.includes("suspicious")) {
       alert("Edit for suspicious reports will be connected in the next step.");
       return;
+    } else {
+      normalizedType = "lost";
     }
 
-    navigate(`/user-dashboard/edit-report/${activeTab}/${reportId}`);
+    const reportId = getReportId(report);
+    const basePath = isShopOwner ? "/shop-owner" : "/user-dashboard";
+
+    navigate(`${basePath}/edit-report/${normalizedType}/${reportId}`);
   };
 
   const handleDelete = async (report) => {
@@ -192,6 +199,19 @@ function MyReports() {
     if (activeTab === "suspicious") {
       alert("Suspicious reports cannot be deleted from this view yet.");
       return;
+    }
+
+    const rawType = (report.report_type || report.type || activeTab || "").toLowerCase();
+    let normalizedType = activeTab;
+
+    if (rawType.includes("person")) {
+      normalizedType = "missing_person";
+    } else if (rawType.includes("pet")) {
+      normalizedType = "missing_pet";
+    } else if (rawType.includes("found")) {
+      normalizedType = "found";
+    } else if (rawType.includes("lost")) {
+      normalizedType = "lost";
     }
 
     const reportId = getReportId(report);
@@ -215,7 +235,7 @@ function MyReports() {
         body: JSON.stringify({
           user_id: user.user_id,
           report_id: reportId,
-          report_type: activeTab,
+          report_type: normalizedType,
         }),
       });
 
@@ -319,8 +339,8 @@ function MyReports() {
 
   return (
     <RoleBasedLayout>
-        <div className="mx-auto max-w-6xl space-y-8">
-          <div className="rounded-4xl bg-white p-8 shadow-xl ring-1 ring-slate-200">
+        <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8 p-4 sm:p-6 lg:p-8">
+          <div className="rounded-2xl sm:rounded-4xl bg-white p-5 sm:p-8 shadow-xl ring-1 ring-slate-200">
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
               My Reports
             </p>
@@ -415,16 +435,16 @@ function MyReports() {
               return (
                 <div
                   key={deleteKey}
-                  className="rounded-4xl bg-white p-6 shadow-xl ring-1 ring-slate-200"
+                  className="rounded-2xl sm:rounded-4xl bg-white p-4 sm:p-6 shadow-xl ring-1 ring-slate-200"
                 >
                   {imageUrl ? (
                     <img
                       src={imageUrl}
                       alt={title}
-                      className="h-48 w-full rounded-3xl object-cover"
+                      className="h-48 w-full rounded-xl sm:rounded-3xl object-cover"
                     />
                   ) : (
-                    <div className="flex h-48 w-full items-center justify-center rounded-3xl bg-slate-100 text-slate-400">
+                    <div className="flex h-48 w-full items-center justify-center rounded-xl sm:rounded-3xl bg-slate-100 text-slate-400">
                       No Image
                     </div>
                   )}

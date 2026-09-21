@@ -8,6 +8,9 @@ function AdminMatches() {
   const [actionLoading, setActionLoading] = useState(false);
   const [matchRunning, setMatchRunning] = useState(false);
   const [error, setError] = useState("");
+  
+  // New state for threshold filtering
+  const [threshold, setThreshold] = useState(75); // Default threshold used in backend
 
   const adminUser = JSON.parse(localStorage.getItem("findora_user"));
 
@@ -71,7 +74,7 @@ function AdminMatches() {
       const response = await fetch(
         `${API_BASE_URL}/matching/match_reports.php`,
         {
-          method: "POST",
+          
         }
       );
 
@@ -122,6 +125,7 @@ function AdminMatches() {
     try {
       const response = await fetch(`${API_BASE_URL}/admin/verify_match.php`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -189,6 +193,9 @@ function AdminMatches() {
     );
   }
 
+  // Filter matches based on selected threshold
+  const filteredMatches = matches.filter((match) => Number(match.similarity_score) >= threshold);
+
   return (
     <AdminLayout>
       <div className="mx-auto max-w-7xl space-y-6">
@@ -211,22 +218,43 @@ function AdminMatches() {
                 Match Review Queue
               </h2>
               <p className="mt-1 text-xs text-slate-400">
-                Total pending matches: {matches.length}
+                Matches above {threshold}%: {filteredMatches.length} (Total pending: {matches.length})
               </p>
             </div>
 
-            <button
-              onClick={handleRunMatching}
-              disabled={matchRunning}
-              className="rounded-full bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-all disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {matchRunning ? "Running Matching Process..." : "Run Match Detection"}
-            </button>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              {/* Threshold Adjuster */}
+              <div className="flex items-center gap-3 rounded-full bg-slate-50 px-4 py-2 border border-slate-200">
+                <label htmlFor="threshold" className="text-xs font-semibold text-slate-600 whitespace-nowrap">
+                  Min Score: {threshold}%
+                </label>
+                <input
+                  id="threshold"
+                  type="range"
+                  min="50"
+                  max="100"
+                  step="5"
+                  value={threshold}
+                  onChange={(e) => setThreshold(Number(e.target.value))}
+                  className="h-1.5 w-24 cursor-pointer appearance-none rounded-lg bg-slate-200 outline-none accent-blue-600"
+                />
+              </div>
+
+              <button
+                onClick={handleRunMatching}
+                disabled={matchRunning}
+                className="rounded-full bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {matchRunning ? "Running Matching Process..." : "Run Match Detection"}
+              </button>
+            </div>
           </div>
 
-          {matches.length === 0 ? (
+          {filteredMatches.length === 0 ? (
             <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-12 text-center text-slate-500 text-sm">
-              No pending matches found. Click{" "}
+              No pending matches found above {threshold}%. 
+              {matches.length > 0 && " Try lowering the threshold or "}
+              {!matches.length && " Click "}
               <button onClick={handleRunMatching} className="font-semibold text-blue-600 hover:underline">
                 Run Match Detection
               </button>{" "}
@@ -234,7 +262,7 @@ function AdminMatches() {
             </div>
           ) : (
             <div className="space-y-6">
-              {matches.map((match) => (
+              {filteredMatches.map((match) => (
                 <div
                   key={match.match_id}
                   className="rounded-2xl border border-slate-200 bg-slate-50/50 p-5"
@@ -242,9 +270,20 @@ function AdminMatches() {
                   <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                     <div className="space-y-4 flex-1">
                       <div>
-                        <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-wider">
-                          Match ID #{match.match_id}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-600 uppercase tracking-wider">
+                            Match ID #{match.match_id}
+                          </span>
+                          {match.confidence && (
+                            <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                              match.confidence === "Strong Match" ? "bg-emerald-50 text-emerald-600" :
+                              match.confidence === "Possible Match" ? "bg-amber-50 text-amber-600" :
+                              "bg-slate-100 text-slate-500"
+                            }`}>
+                              {match.confidence}
+                            </span>
+                          )}
+                        </div>
                         <h3 className="mt-2 text-lg font-bold text-slate-950">
                           Similarity Score: <span className="text-blue-600 font-extrabold">{match.similarity_score}%</span>
                         </h3>
@@ -335,3 +374,4 @@ function AdminMatches() {
 }
 
 export default AdminMatches;
+

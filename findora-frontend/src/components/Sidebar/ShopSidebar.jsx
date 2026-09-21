@@ -1,3 +1,4 @@
+import { X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { logout } from "../../services/session";
 import { 
@@ -16,7 +17,7 @@ import {
   LogOut 
 } from "lucide-react";
 
-function ShopSidebar() {
+function ShopSidebar({ isOpen, onClose }) {
   const { pathname } = useLocation();
 
   const handleLogout = () => logout("/");
@@ -41,24 +42,40 @@ function ShopSidebar() {
   };
 
   return (
-    <aside className="flex h-screen w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white/90 px-4 py-6 backdrop-blur-md sticky top-0">
-      <Link to="/" className="mb-8 flex items-center gap-3 px-2 group">
-        <div className="h-10 w-10 flex items-center justify-center overflow-hidden rounded-xl bg-blue-50 transition-transform group-hover:scale-105">
-          <img
-            src="/favicon.png"
-            alt="Findora Logo"
-            className="h-full w-full object-cover"
-          />
-        </div>
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
-            Findora
-          </h1>
-          <p className="text-[11px] font-medium text-blue-600">Shop Partner</p>
-        </div>
-      </Link>
+    <>
+      {/* Mobile Sidebar Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-slate-950/40 backdrop-blur-xs lg:hidden"
+          onClick={onClose}
+        />
+      )}
 
-      <nav className="flex-1 space-y-1 overflow-y-auto pr-1">
+      <aside className={`fixed inset-y-0 left-0 z-50 flex h-screen w-64 shrink-0 flex-col border-r border-slate-200/80 bg-white/95 px-4 py-6 shadow-2xl transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:translate-x-0 lg:shadow-none lg:bg-white/90 lg:backdrop-blur-md ${
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
+      <div className="mb-8 flex items-center justify-between px-2">
+        <Link to="/" className="flex items-center gap-3 group" onClick={onClose}>
+          <div className="h-10 w-10 flex items-center justify-center overflow-hidden rounded-xl bg-blue-50 transition-transform group-hover:scale-105">
+            <img
+              src="/favicon.png"
+              alt="Findora Logo"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">
+              Findora
+            </h1>
+            <p className="text-[11px] font-medium text-blue-600">Shop Partner</p>
+          </div>
+        </Link>
+        <button onClick={onClose} className="lg:hidden rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-900">
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      <nav className="flex-1 space-y-1 overflow-y-auto pr-1" onClick={onClose}>
         <Link to="/shop-owner" className={linkClass("/shop-owner", true)}>
           <LayoutDashboard className="h-4.5 w-4.5" />
           Dashboard
@@ -186,6 +203,7 @@ function ShopSidebar() {
         </button>
       </div>
     </aside>
+    </>
   );
 }
 

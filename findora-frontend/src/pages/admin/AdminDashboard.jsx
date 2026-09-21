@@ -2,35 +2,6 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../layouts/AdminLayout";
 import API_BASE_URL from "../../config/api";
 
-const activityItems = [
-  {
-    label: "Omindu Sandew registered as a new contributor.",
-    time: "2 minutes ago",
-    color: "text-blue-600",
-  },
-  {
-    label: "New black Wallet report submitted.",
-    time: "15 minutes ago",
-    color: "text-indigo-600",
-  },
-  {
-    label: "Claim #CLM-8422 approved by system.",
-    time: "1 hour ago",
-    color: "text-emerald-600",
-  },
-  {
-    label: "Reward distributed to Malshi Navodya.",
-    time: "3 hours ago",
-    color: "text-slate-500",
-  },
-];
-
-const topContributors = [
-  { name: "Duvindu.", title: "Expert", points: "2,480" },
-  { name: "Ashan.", title: "Contributor", points: "1,920" },
-  { name: "Vishmi.", title: "Helper", points: "1,650" },
-];
-
 function AdminDashboard() {
   const [dashboardStats, setDashboardStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -86,6 +57,9 @@ function AdminDashboard() {
 
   useEffect(() => {
     fetchDashboardStats();
+    // Auto-refresh every 30 seconds for real-time stats
+    const interval = setInterval(fetchDashboardStats, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const statsCards = [
@@ -93,33 +67,71 @@ function AdminDashboard() {
       label: "Total Users",
       value: dashboardStats?.total_users ?? 0,
       change: "Live",
+      colors: { text: "text-blue-600", bg: "bg-blue-50/50", border: "border-blue-100/60" },
+      pill: { text: "text-blue-700", bg: "bg-blue-100" }
     },
     {
       label: "Lost Reports",
       value: dashboardStats?.total_lost_reports ?? 0,
       change: "Live",
+      colors: { text: "text-rose-600", bg: "bg-rose-50/50", border: "border-rose-100/60" },
+      pill: { text: "text-rose-700", bg: "bg-rose-100" }
     },
     {
       label: "Found Reports",
       value: dashboardStats?.total_found_reports ?? 0,
       change: "Live",
+      colors: { text: "text-emerald-600", bg: "bg-emerald-50/50", border: "border-emerald-100/60" },
+      pill: { text: "text-emerald-700", bg: "bg-emerald-100" }
     },
     {
       label: "Pending Matches",
       value: dashboardStats?.pending_matches ?? 0,
       change: "Review",
+      colors: { text: "text-amber-600", bg: "bg-amber-50/50", border: "border-amber-100/60" },
+      pill: { text: "text-amber-700", bg: "bg-amber-100" }
     },
     {
       label: "Verified Matches",
       value: dashboardStats?.verified_matches ?? 0,
       change: "Approved",
+      colors: { text: "text-indigo-600", bg: "bg-indigo-50/50", border: "border-indigo-100/60" },
+      pill: { text: "text-indigo-700", bg: "bg-indigo-100" }
     },
     {
       label: "Complaints",
       value: dashboardStats?.total_complaints ?? 0,
       change: "Check",
+      colors: { text: "text-purple-600", bg: "bg-purple-50/50", border: "border-purple-100/60" },
+      pill: { text: "text-purple-700", bg: "bg-purple-100" }
     },
   ];
+
+  const graphData = dashboardStats?.graph_data || [0, 0, 0, 0, 0, 0, 0];
+  const maxVal = Math.max(...graphData, 1);
+  const points = graphData.map((val, i) => {
+    const x = 20 + (i * (560 / (Math.max(graphData.length - 1, 1))));
+    const y = 180 - ((val / maxVal) * 140);
+    return { x, y };
+  });
+  const pathD = points.length > 0 ? `M ${points.map(p => `${p.x} ${p.y}`).join(" L ")}` : "";
+  // Area fill path: line path + bottom corners
+  const areaD = points.length > 0
+    ? `${pathD} L ${points[points.length - 1].x} 190 L ${points[0].x} 190 Z`
+    : "";
+  // Last 7 day labels
+  const dayLabels = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toLocaleDateString("en-US", { weekday: "short" });
+  });
+  // Bar chart for reports breakdown
+  const barStats = [
+    { label: "Lost", value: dashboardStats?.total_lost_reports ?? 0, color: "#f43f5e", light: "#fef1f3" },
+    { label: "Found", value: dashboardStats?.total_found_reports ?? 0, color: "#10b981", light: "#f0fdf8" },
+    { label: "Suspicious", value: dashboardStats?.total_suspicious_reports ?? 0, color: "#f59e0b", light: "#fffbeb" },
+  ];
+  const barMax = Math.max(...barStats.map(b => b.value), 1);
 
   if (loading) {
     return (
@@ -164,22 +176,21 @@ function AdminDashboard() {
           </p>
         </section>
 
-        <div className="grid gap-6 xl:grid-cols-[1.6fr_0.9fr]">
-          <div className="space-y-6">
-            {/* Stats Grid */}
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="space-y-6">
+          {/* Stats Grid */}
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {statsCards.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-2xl border border-slate-200/50 bg-white/80 p-5 shadow-xs backdrop-blur-md hover:shadow-sm transition-all"
+                  className={`rounded-2xl border ${stat.colors.border} ${stat.colors.bg} p-5 shadow-xs backdrop-blur-md hover:shadow-sm transition-all`}
                 >
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <p className={`text-xs font-bold uppercase tracking-wider ${stat.colors.text}`}>
                     {stat.label}
                   </p>
                   <p className="mt-3 text-3xl font-bold text-slate-950">
                     {stat.value}
                   </p>
-                  <span className="mt-3.5 inline-flex rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-semibold text-blue-600">
+                  <span className={`mt-3.5 inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${stat.pill.bg} ${stat.pill.text}`}>
                     {stat.change}
                   </span>
                 </div>
@@ -211,148 +222,100 @@ function AdminDashboard() {
                 </div>
               </div>
 
-              {/* Chart */}
+              {/* Line Chart – Matches last 7 days */}
               <div className="mt-6 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50/50 p-4">
-                <svg viewBox="0 0 600 220" className="h-44 w-full">
+                <p className="mb-3 text-xs font-semibold text-slate-400 uppercase tracking-wider">Matches — Last 7 Days</p>
+                <svg viewBox="0 0 600 230" className="h-44 w-full">
                   <defs>
-                    <linearGradient
-                      id="lineGradient"
-                      x1="0%"
-                      y1="0%"
-                      x2="100%"
-                      y2="0%"
-                    >
+                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                       <stop offset="0%" stopColor="#3b82f6" />
                       <stop offset="100%" stopColor="#818cf8" />
                     </linearGradient>
+                    <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.15" />
+                      <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                    </linearGradient>
                   </defs>
 
-                  {/* Simple grid lines for light theme */}
+                  {/* Grid lines */}
                   <line x1="20" y1="40" x2="580" y2="40" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />
                   <line x1="20" y1="100" x2="580" y2="100" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />
                   <line x1="20" y1="160" x2="580" y2="160" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />
 
-                  <path
-                    d="M20 160 C 120 120 180 140 260 110 S 420 80 500 100 T 580 90"
-                    fill="none"
-                    stroke="url(#lineGradient)"
-                    strokeWidth="6"
-                    strokeLinecap="round"
-                  />
+                  {/* Area fill */}
+                  {areaD && <path d={areaD} fill="url(#areaGradient)" />}
 
-                  <circle cx="20" cy="160" r="5" fill="#3b82f6" stroke="#ffffff" strokeWidth="2" />
-                  <circle cx="260" cy="110" r="5" fill="#818cf8" stroke="#ffffff" strokeWidth="2" />
-                  <circle cx="580" cy="90" r="5" fill="#3b82f6" stroke="#ffffff" strokeWidth="2" />
+                  {/* Line */}
+                  {pathD && (
+                    <path
+                      d={pathD}
+                      fill="none"
+                      stroke="url(#lineGradient)"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  )}
+
+                  {/* Data points */}
+                  {points.map((p, i) => (
+                    <circle key={i} cx={p.x} cy={p.y} r="5" fill="#3b82f6" stroke="#ffffff" strokeWidth="2" />
+                  ))}
+
+                  {/* X-axis day labels */}
+                  {points.map((p, i) => (
+                    <text
+                      key={`lbl-${i}`}
+                      x={p.x}
+                      y="215"
+                      textAnchor="middle"
+                      fontSize="11"
+                      fill="#94a3b8"
+                      fontFamily="system-ui, sans-serif"
+                    >
+                      {dayLabels[i]}
+                    </text>
+                  ))}
                 </svg>
               </div>
 
-              {/* Stats Footer Box */}
-              <div className="mt-6 grid gap-4 text-sm sm:grid-cols-3">
-                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
-                  <p className="font-semibold text-slate-800">Lost Reports</p>
-                  <p className="mt-1 text-slate-500">
-                    {dashboardStats?.total_lost_reports ?? 0} reports submitted
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
-                  <p className="font-semibold text-slate-800">Found Reports</p>
-                  <p className="mt-1 text-slate-500">
-                    {dashboardStats?.total_found_reports ?? 0} reports submitted
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-slate-100 bg-slate-50/50 p-4">
-                  <p className="font-semibold text-slate-800">Total Matches</p>
-                  <p className="mt-1 text-slate-500">
-                    {dashboardStats?.total_matches ?? 0} matches detected
-                  </p>
-                </div>
-              </div>
-            </section>
-          </div>
-
-          {/* Right Side panel */}
-          <aside className="space-y-6">
-            {/* Recent Activity */}
-            <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-6 shadow-sm backdrop-blur-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-blue-600">
-                    Recent Activity
-                  </p>
-                  <p className="mt-1 text-[11px] text-slate-400">
-                    Latest actions from the platform
-                  </p>
-                </div>
-
-                <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600">
-                  4 updates
-                </span>
-              </div>
-
-              <div className="mt-6 space-y-3.5">
-                {activityItems.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="rounded-xl border border-slate-100 bg-slate-50/30 p-3.5"
-                  >
-                    <p className="text-sm font-medium text-slate-800">
-                      {item.label}
-                    </p>
-
-                    <p className={`mt-1.5 text-xs font-semibold ${item.color}`}>
-                      {item.time}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Top Contributors */}
-            <section className="rounded-3xl border border-slate-200/50 bg-white/80 p-6 shadow-sm backdrop-blur-md">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    Summary
-                  </p>
-
-                  <h3 className="mt-1 text-lg font-bold text-slate-950">
-                    Top Contributors
-                  </h3>
-                </div>
-
-                <div className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">
-                  Rankings
-                </div>
-              </div>
-
-              <div className="mt-6 space-y-3.5">
-                {topContributors.map((contributor) => (
-                  <div
-                    key={contributor.name}
-                    className="rounded-xl border border-slate-100 bg-slate-50/30 p-3.5"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <p className="font-semibold text-slate-800">
-                          {contributor.name}
-                        </p>
-
-                        <p className="text-xs text-slate-400">
-                          {contributor.title}
-                        </p>
+              {/* Bar Chart – Reports breakdown */}
+              <div className="mt-6 rounded-2xl border border-slate-100 bg-slate-50/50 p-5">
+                <p className="mb-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Reports Breakdown</p>
+                <div className="space-y-3">
+                  {barStats.map((b) => (
+                    <div key={b.label} className="flex items-center gap-3">
+                      <span className="w-20 shrink-0 text-xs font-semibold text-slate-600">{b.label}</span>
+                      <div className="flex-1 overflow-hidden rounded-full bg-slate-200 h-2.5">
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${(b.value / barMax) * 100}%`,
+                            backgroundColor: b.color,
+                          }}
+                        />
                       </div>
-
-                      <p className="text-sm font-bold text-blue-600">
-                        {contributor.points} pts
-                      </p>
+                      <span className="w-8 shrink-0 text-right text-xs font-bold" style={{ color: b.color }}>
+                        {b.value}
+                      </span>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+
+                <div className="mt-5 grid grid-cols-3 gap-3">
+                  {barStats.map((b) => (
+                    <div
+                      key={b.label}
+                      className="rounded-xl border p-3 text-center"
+                      style={{ borderColor: `${b.color}33`, backgroundColor: b.light }}
+                    >
+                      <p className="text-lg font-bold" style={{ color: b.color }}>{b.value}</p>
+                      <p className="mt-0.5 text-xs font-medium text-slate-500">{b.label} Reports</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </section>
-          </aside>
         </div>
       </div>
     </AdminLayout>

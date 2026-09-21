@@ -1,6 +1,6 @@
-// API Service Configuration
+﻿// API Service Configuration
 //const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://findora.software/findora-backend";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost/findora-backend";
 const TOKEN_KEY = "auth_token";
 
 // Utility: Get stored auth token
@@ -24,18 +24,18 @@ const apiRequest = async (endpoint, options = {}) => {
   };
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers.Authorization = "Bearer $token";
   }
 
   try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const response = await fetch("$API_BASE_URL$endpoint", {
       ...options,
       headers,
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.message || `HTTP Error: ${response.status}`);
+      throw new Error(error.message || "HTTP Error: $($response.status)");
     }
 
     return await response.json();
@@ -385,3 +385,4 @@ export default {
   uploadService,
   statsService,
 };
+

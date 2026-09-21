@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import Navbar from "../../components/Navbar/Navbar";
 import Footer from "../../components/Footer/Footer";
 import API_BASE_URL from "../../config/api";
@@ -50,6 +51,26 @@ const initialFormState = {
 };
 
 function Contact() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] }
+    },
+  };
+
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState({ type: "", message: "" });
@@ -138,11 +159,20 @@ function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(37,99,235,0.22),_transparent_32%),radial-gradient(circle_at_bottom_right,_rgba(6,182,212,0.2),_transparent_35%),linear-gradient(135deg,_#eef7ff_0%,_#dbeafe_45%,_#f8fbff_100%)] text-slate-900">
-      <Navbar />
+    <div className="relative min-h-screen overflow-hidden bg-white text-slate-900">
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-white opacity-70"></div>
+      <div className="absolute top-1/4 right-1/4 h-96 w-96 rounded-full bg-blue-100/50 blur-3xl animate-pulse-soft"></div>
+      
+      <div className="relative z-10">
+        <Navbar />
 
-      <main className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-10">
-        <section className="overflow-hidden rounded-[2rem] border border-slate-200/80 bg-white/80 p-8 shadow-[0_30px_80px_-30px_rgba(15,23,42,0.24)] backdrop-blur sm:p-10 lg:p-14">
+        <motion.main 
+          className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-10"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+        <motion.section variants={itemVariants} className="overflow-hidden rounded-[2rem] border border-slate-200/60 bg-white/80 p-8 shadow-sm backdrop-blur-md sm:p-10 lg:p-14">
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div>
               <p className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-sm font-semibold uppercase tracking-[0.28em] text-blue-700">
@@ -156,7 +186,7 @@ function Contact() {
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <span className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white">
+                <span className="rounded-full bg-blue-700 px-4 py-2 text-sm font-medium text-white shadow-md shadow-blue-700/20">
                   Fast response within 2 hours
                 </span>
                 <span className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700">
@@ -165,41 +195,42 @@ function Contact() {
               </div>
             </div>
 
-            <div className="rounded-[1.75rem] border border-slate-200 bg-slate-950 p-7 text-white shadow-2xl shadow-slate-900/20">
+            <div className="rounded-[1.75rem] border border-blue-100/80 bg-gradient-to-br from-white to-blue-50/50 p-7 text-slate-900 shadow-xl shadow-blue-900/5 backdrop-blur-md">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-2xl">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100/50 text-2xl shadow-sm">
                   🤝
                 </div>
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.28em] text-slate-400">
+                  <p className="text-sm font-bold uppercase tracking-[0.28em] text-blue-700">
                     Need help today?
                   </p>
-                  <h2 className="text-2xl font-semibold">Talk to our team</h2>
+                  <h2 className="text-2xl font-bold text-slate-950">Talk to our team</h2>
                 </div>
               </div>
-              <p className="mt-5 text-sm leading-7 text-slate-300">
+              <p className="mt-5 text-sm font-medium leading-7 text-slate-700">
                 Share your concern and we&apos;ll help you take the next step quickly and confidently.
               </p>
-              <div className="mt-6 space-y-3 text-sm text-slate-300">
-                <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3">
+              <div className="mt-6 space-y-3 text-sm font-medium text-slate-700">
+                <div className="flex items-center gap-3 rounded-2xl border border-blue-100/50 bg-blue-50/80 px-4 py-3 shadow-sm">
                   <span className="text-lg">✉️</span>
                   <span>Send us a message anytime</span>
                 </div>
-                <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3">
+                <div className="flex items-center gap-3 rounded-2xl border border-blue-100/50 bg-blue-50/80 px-4 py-3 shadow-sm">
                   <span className="text-lg">🛡️</span>
                   <span>Your concerns are handled with care</span>
                 </div>
               </div>
             </div>
           </div>
-        </section>
+        </motion.section>
 
         <div className="mt-16 grid gap-8 xl:grid-cols-[0.8fr_1.2fr] xl:items-start">
           <div className="space-y-5">
             {contactItems.map((item) => (
-              <div
+              <motion.div
+                variants={itemVariants}
                 key={item.title}
-                className="group rounded-[1.5rem] border border-slate-200 bg-white/90 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group rounded-[1.5rem] border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${item.accent} text-2xl text-white`}>
                   {item.icon}
@@ -210,11 +241,11 @@ function Contact() {
                     <p key={line}>{line}</p>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
-          <div className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-[0_25px_70px_-30px_rgba(15,23,42,0.25)] sm:p-10">
+          <motion.div variants={itemVariants} className="rounded-[2rem] border border-slate-200/60 bg-white/80 p-8 shadow-sm backdrop-blur-md sm:p-10">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <h2 className="text-2xl font-semibold text-slate-950">Send a message</h2>
@@ -307,10 +338,10 @@ function Contact() {
                 {isSubmitting ? "Sending..." : "Send Message"}
               </button>
             </form>
-          </div>
+          </motion.div>
         </div>
 
-        <section className="mt-20">
+        <motion.section variants={itemVariants} className="mt-20">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-slate-950">Common Questions</h2>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-slate-600">
@@ -322,17 +353,18 @@ function Contact() {
             {faqs.map((faq) => (
               <div
                 key={faq.question}
-                className="rounded-[1.5rem] border border-slate-200 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-md"
+                className="rounded-[1.5rem] border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-md transition duration-300 hover:-translate-y-1 hover:shadow-md"
               >
                 <h3 className="text-lg font-semibold text-slate-950">{faq.question}</h3>
                 <p className="mt-4 text-sm leading-7 text-slate-600">{faq.answer}</p>
               </div>
             ))}
           </div>
-        </section>
-      </main>
+        </motion.section>
+      </motion.main>
 
       <Footer />
+      </div>
     </div>
   );
 }

@@ -298,22 +298,22 @@ function Matches() {
 
   return (
     <RoleBasedLayout>
-      <div className="mx-auto max-w-7xl space-y-7">
-        <header className="overflow-hidden rounded-4xl bg-slate-950 p-7 text-white shadow-xl sm:p-9">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+      <div className="mx-auto max-w-7xl space-y-5 sm:space-y-7 p-4 sm:p-6 lg:p-8">
+        <header className="overflow-hidden rounded-2xl sm:rounded-4xl bg-white p-5 sm:p-7 shadow-xl ring-1 ring-slate-200 lg:p-9">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.3em] text-sky-300">
+              <p className="text-xs font-bold uppercase tracking-[0.3em] text-sky-600">
                 Recovery center
               </p>
-              <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Your verified matches</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+              <h1 className="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">Your verified matches</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500">
                 Possible matches appear here only after an administrator reviews and approves them.
               </p>
             </div>
             {!loading && !error && (
-              <div className="rounded-3xl bg-white/10 px-6 py-4 ring-1 ring-white/15">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-300">Approved matches</p>
-                <p className="mt-1 text-3xl font-bold">{matches.length}</p>
+              <div className="shrink-0 rounded-3xl bg-slate-100 px-6 py-4 text-right ring-1 ring-slate-200">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Approved matches</p>
+                <p className="mt-1 text-3xl font-bold text-slate-900">{matches.length}</p>
               </div>
             )}
           </div>

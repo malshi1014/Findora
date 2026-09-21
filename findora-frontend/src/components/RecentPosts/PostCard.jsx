@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import API_BASE_URL from "../../config/api";
-import { Heart, MessageCircle, Trash2, Send, LogIn } from "lucide-react";
+import { Heart, MessageCircle, Trash2, Send, LogIn, Share2, Check, Edit2, X, ZoomIn } from "lucide-react";
 
 function PostCard({ post }) {
   const imageUrl = post.image_path
@@ -37,6 +37,32 @@ function PostCard({ post }) {
   const [submittingComment,   setSubmittingComment]   = useState(false);
   const [loadingInteractions, setLoadingInteractions] = useState(true);
   const [loginPrompt,         setLoginPrompt]         = useState("");
+  const [copiedLink,          setCopiedLink]          = useState(false);
+  const [lightboxOpen,        setLightboxOpen]        = useState(false);
+
+  // Comment editing state
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editCommentText, setEditCommentText] = useState("");
+  const [submittingEdit, setSubmittingEdit] = useState(false);
+
+  /* ── Lightbox keyboard close ─────────────────────────────────────── */
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === "Escape") setLightboxOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (lightboxOpen) {
+      document.addEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [lightboxOpen, handleKeyDown]);
 
   /* ── Fetch counts + comments on mount (public, no auth needed) ───── */
   useEffect(() => {
@@ -177,19 +203,119 @@ function PostCard({ post }) {
     }
   };
 
+  /* ── Update comment ──────────────────────────────────────────────── */
+  const handleUpdateComment = async (commentId) => {
+    if (!isLoggedIn || !editCommentText.trim()) return;
+
+    setSubmittingEdit(true);
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/interactions/update_comment.php`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            comment_id: commentId, 
+            report_type: reportType,
+            comment_text: editCommentText 
+          }),
+        }
+      );
+      const data = await res.json();
+      if (data.status === "success") {
+        setComments((prev) => 
+          prev.map((c) => c.id === commentId ? { ...c, text: editCommentText } : c)
+        );
+        setEditingCommentId(null);
+        setEditCommentText("");
+      } else {
+        alert(data.message || "Failed to update comment.");
+      }
+    } catch (err) {
+      console.error("Update comment failed", err);
+      alert("Network error — please try again.");
+    } finally {
+      setSubmittingEdit(false);
+    }
+  };
+
+  /* ── Share ───────────────────────────────────────────────────────── */
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/post/${reportType}/${reportId}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title,
+          text: `Check out this ${typeLabel}: ${post.title}`,
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy link", err);
+      }
+    }
+  };
+
   /* ── Render ──────────────────────────────────────────────────────── */
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/40 bg-blue-100/30 shadow-xl backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:bg-blue-100/40 hover:shadow-2xl">
-      {/* Image */}
+      {/* Image — click to open lightbox */}
       {imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={post.title}
-          className="h-44 w-full shrink-0 bg-slate-100 object-contain"
-        />
+        <div
+          className="group relative cursor-zoom-in"
+          onClick={() => setLightboxOpen(true)}
+        >
+          <img
+            src={imageUrl}
+            alt={post.title}
+            className="h-44 w-full shrink-0 bg-slate-100 object-contain transition duration-200 group-hover:brightness-90"
+          />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition duration-200 group-hover:opacity-100">
+            <div className="rounded-full bg-black/40 p-2 backdrop-blur-sm">
+              <ZoomIn className="h-5 w-5 text-white" />
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="flex h-44 shrink-0 items-center justify-center bg-slate-200 text-sm text-slate-500">
           No image available
+        </div>
+      )}
+
+      {/* Lightbox modal */}
+      {lightboxOpen && imageUrl && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* Close button */}
+          <button
+            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white transition hover:bg-white/20"
+            onClick={() => setLightboxOpen(false)}
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          {/* Image — stop propagation so clicking the image itself doesn't close */}
+          <img
+            src={imageUrl}
+            alt={post.title}
+            className="max-h-[90vh] max-w-[90vw] rounded-xl object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Caption */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-2 text-center text-sm font-medium text-white backdrop-blur-sm">
+            {post.title}
+          </div>
         </div>
       )}
 
@@ -212,7 +338,7 @@ function PostCard({ post }) {
           </p>
         )}
 
-        <p className="mt-3 line-clamp-3 text-sm text-slate-600">
+        <p className="mt-3 max-h-24 overflow-y-auto pr-2 text-sm text-slate-600 scrollbar-thin scrollbar-thumb-slate-300">
           {post.description}
         </p>
 
@@ -258,11 +384,22 @@ function PostCard({ post }) {
             {/* Comment toggle */}
             <button
               onClick={() => setShowComments((v) => !v)}
-              className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-blue-600"
+              className="mr-4 flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-blue-600"
             >
               <MessageCircle className="h-5 w-5" />
               <span>{comments.length}</span>
             </button>
+
+            {/* Share button */}
+            <button
+              onClick={handleShare}
+              title="Share post"
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-green-600"
+            >
+              {copiedLink ? <Check className="h-5 w-5 text-green-500" /> : <Share2 className="h-5 w-5" />}
+              <span>Share</span>
+            </button>
+
           </>
         )}
       </div>
@@ -287,21 +424,65 @@ function PostCard({ post }) {
                       <span className="font-semibold text-slate-800">
                         {comment.user_name}
                       </span>
-                      {isLoggedIn &&
-                        (currentUserId === comment.user_id || isAdmin) && (
-                          <button
-                            onClick={() => handleDeleteComment(comment.id)}
-                            className="text-slate-400 transition hover:text-red-500"
-                            title="Delete comment"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        )}
+                      {isLoggedIn && (
+                        <div className="flex items-center gap-2">
+                          {currentUserId === comment.user_id && (
+                            <button
+                              onClick={() => {
+                                setEditingCommentId(comment.id);
+                                setEditCommentText(comment.text);
+                              }}
+                              className="text-slate-400 transition hover:text-blue-500"
+                              title="Edit comment"
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          {(currentUserId === comment.user_id || isAdmin) && (
+                            <button
+                              onClick={() => handleDeleteComment(comment.id)}
+                              className="text-slate-400 transition hover:text-red-500"
+                              title="Delete comment"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <p className="mt-1 text-slate-600">{comment.text}</p>
-                    <span className="mt-1 block text-[10px] text-slate-400">
-                      {new Date(comment.created_at).toLocaleString()}
-                    </span>
+                    {editingCommentId === comment.id ? (
+                      <div className="mt-2 flex flex-col gap-2">
+                        <textarea
+                          className="w-full resize-none rounded-lg border border-slate-200 p-2 text-sm outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-400"
+                          value={editCommentText}
+                          onChange={(e) => setEditCommentText(e.target.value)}
+                          rows="2"
+                        />
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => setEditingCommentId(null)}
+                            disabled={submittingEdit}
+                            className="rounded px-2 py-1 text-xs text-slate-500 hover:bg-slate-100 disabled:opacity-50"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            onClick={() => handleUpdateComment(comment.id)}
+                            disabled={submittingEdit || !editCommentText.trim()}
+                            className="rounded bg-blue-500 px-3 py-1 text-xs font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="mt-1 text-slate-600">{comment.text}</p>
+                        <span className="mt-1 block text-[10px] text-slate-400">
+                          {new Date(comment.created_at).toLocaleString()}
+                        </span>
+                      </>
+                    )}
                   </div>
                 ))}
               </div>

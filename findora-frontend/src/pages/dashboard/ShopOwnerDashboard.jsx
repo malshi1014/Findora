@@ -167,7 +167,7 @@ function ShopOwnerDashboard() {
 
   return (
     <ShopLayout>
-      <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-5 sm:space-y-8 p-4 sm:p-6 lg:p-8">
         
         {/* Header Section */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

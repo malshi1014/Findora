@@ -5,6 +5,8 @@ import About from "../pages/public/About";
 import Contact from "../pages/public/Contact";
 import TermsOfService from "../pages/public/TermsOfService";
 import PrivacyPolicy from "../pages/public/PrivacyPolicy";
+import PublicPost from "../pages/public/PublicPost";
+
 
 import Login from "../pages/auth/Login";
 import ChooseRole from "../pages/auth/ChooseRole";
@@ -55,6 +57,8 @@ function AppRoutes() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/post/:type/:id" element={<PublicPost />} />
+
 
         {/* Authentication */}
         <Route path="/choose-role" element={<ChooseRole />} />
@@ -91,6 +95,10 @@ function AppRoutes() {
 
         <Route
           path="/user-dashboard/edit-report/:reportType/:reportId"
+          element={<EditReport />}
+        />
+        <Route
+          path="/shop-owner/edit-report/:reportType/:reportId"
           element={<EditReport />}
         />
 

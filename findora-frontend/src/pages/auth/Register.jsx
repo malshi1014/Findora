@@ -154,7 +154,7 @@ function Register() {
         setServerError(data.message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      setServerError("Backend connection failed. Please check your connection.");
+      setServerError("Connection failed. Server replied: " + String(err.message || err).substring(0, 100)); if (typeof text !== "undefined") { setServerError("Failed to parse JSON. Server replied: " + text.substring(0, 100)); }
       console.error("Register error:", err);
     } finally {
       setLoading(false);
@@ -175,22 +175,21 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent flex items-center justify-center p-4 sm:p-8 relative overflow-hidden">
-      {/* Background Orbs */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-200/40 mix-blend-multiply blur-[100px]" />
-        <div className="absolute top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-indigo-200/40 mix-blend-multiply blur-[100px]" />
-        <div className="absolute -bottom-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-purple-200/40 mix-blend-multiply blur-[100px]" />
-      </div>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 sm:p-8 relative overflow-hidden">
+      {/* Decorative background elements matching Home page */}
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-white opacity-70"></div>
+      <div className="absolute top-1/4 right-1/4 h-96 w-96 rounded-full bg-blue-100/50 blur-3xl animate-pulse-soft"></div>
+
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl shadow-slate-200/50 flex flex-col lg:flex-row overflow-hidden relative z-10 border border-slate-100"
+        className="w-full max-w-4xl bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl flex flex-col lg:flex-row overflow-hidden relative z-10 border border-slate-200/60"
       >
         {/* Left Side - Brand & Illustration */}
         <div className="lg:w-5/12 bg-blue-600 p-6 flex flex-col justify-between text-white relative overflow-hidden hidden md:flex">
+
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-indigo-800" />
           {/* Decorative Pattern overlay */}
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
@@ -230,8 +229,9 @@ function Register() {
         </div>
 
         {/* Right Side - Form */}
-        <div className="lg:w-7/12 p-6 sm:p-8 flex flex-col justify-center bg-white">
+        <div className="lg:w-7/12 p-6 sm:p-8 flex flex-col justify-center bg-transparent">
           <div className="max-w-md mx-auto w-full">
+
             <div className="mb-6">
               <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-1">Create your account</h3>
               <p className="text-sm text-slate-500">Get started by filling out the details below.</p>
@@ -411,7 +411,7 @@ function Register() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white text-sm font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  className="w-full flex items-center justify-center gap-2 rounded-full bg-blue-600 px-5 py-2.5 text-[15px] font-medium text-white shadow-sm hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
@@ -444,3 +444,4 @@ function Register() {
 }
 
 export default Register;
+

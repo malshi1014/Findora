@@ -236,21 +236,29 @@ function ManageMissingPets() {
       label: "Total Pet Posts",
       value: petReports.length,
       detail: "Submitted missing pet reports",
+      colors: { text: "text-amber-600", bg: "bg-amber-50/60", border: "border-amber-100/70" },
+      pill: { text: "text-amber-700", bg: "bg-amber-100" },
     },
     {
       label: "Pending Verification",
       value: petReports.filter((item) => item.status === "pending").length,
       detail: "Cases needing approval",
+      colors: { text: "text-rose-600", bg: "bg-rose-50/60", border: "border-rose-100/70" },
+      pill: { text: "text-rose-700", bg: "bg-rose-100" },
     },
     {
       label: "Approved Public Logs",
       value: petReports.filter((item) => item.status === "active").length,
       detail: "Visible search targets",
+      colors: { text: "text-emerald-600", bg: "bg-emerald-50/60", border: "border-emerald-100/70" },
+      pill: { text: "text-emerald-700", bg: "bg-emerald-100" },
     },
     {
       label: "Rejected Logs",
       value: petReports.filter((item) => item.status === "rejected").length,
       detail: "Dismissed reports",
+      colors: { text: "text-slate-500", bg: "bg-slate-50/60", border: "border-slate-200/70" },
+      pill: { text: "text-slate-600", bg: "bg-slate-100" },
     },
   ];
 
@@ -334,15 +342,17 @@ function ManageMissingPets() {
           {stats.map((stat) => (
             <div
               key={stat.label}
-              className="rounded-2xl border border-slate-200/50 bg-white/80 p-5 shadow-xs backdrop-blur-md"
+              className={`rounded-2xl border ${stat.colors.border} ${stat.colors.bg} p-5 shadow-xs backdrop-blur-md`}
             >
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              <p className={`text-xs font-bold uppercase tracking-wider ${stat.colors.text}`}>
                 {stat.label}
               </p>
               <p className="mt-2.5 text-2xl font-bold text-slate-950">
                 {stat.value}
               </p>
-              <p className="mt-1 text-[10px] text-slate-500">{stat.detail}</p>
+              <span className={`mt-2 inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${stat.pill.bg} ${stat.pill.text}`}>
+                {stat.detail}
+              </span>
             </div>
           ))}
         </div>

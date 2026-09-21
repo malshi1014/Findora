@@ -172,9 +172,13 @@ function ShopRegister() {
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-orange-300 via-blue-100 to-blue-300 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Decorative background elements matching Home page */}
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-white opacity-70"></div>
+      <div className="absolute top-1/4 right-1/4 h-96 w-96 rounded-full bg-blue-100/50 blur-3xl animate-pulse-soft"></div>
+
       <div
-        className="w-full max-w-5xl overflow-hidden rounded-3xl border border-white/40 bg-[radial-gradient(circle_at_center,rgba(186,230,253,0.85)_0%,rgba(96,165,250,0.65)_45%,rgba(30,64,175,0.95)_100%)] backdrop-blur-2xl shadow-2xl shadow-blue-900/20 animate-fade-up"
+        className="relative z-10 w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200/60 bg-white/80 backdrop-blur-xl shadow-xl animate-fade-up"
         style={{ animationDelay: "0.04s" }}
       >
         <div className="grid grid-cols-1 md:grid-cols-2">
@@ -215,7 +219,7 @@ function ShopRegister() {
           </div>
 
           {/* Right Side */}
-          <div className="p-8 bg-white/20 backdrop-blur-xl border-l border-white/30">
+          <div className="p-8 bg-white/90 border-l border-slate-200/60">
             <div
               className="max-w-md mx-auto animate-fade-up"
               style={{ animationDelay: "0.12s" }}
@@ -395,7 +399,7 @@ function ShopRegister() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-white font-semibold shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed animate-fade-up"
+                  className="w-full rounded-full bg-blue-600 px-5 py-2.5 text-[15px] font-medium text-white shadow-sm hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed animate-fade-up"
                   style={{ animationDelay: "0.36s" }}
                 >
                   {loading ? "Creating Account..." : "Create Account"}

@@ -33,13 +33,29 @@ function ManageComplaints() {
   const [replyStatus, setReplyStatus] = useState("resolved");
   const [isSubmittingReply, setIsSubmittingReply] = useState(false);
 
+  const getCurrentUser = () => {
+    const storedUser = localStorage.getItem("findora_user");
+    if (!storedUser) return null;
+    try {
+      return JSON.parse(storedUser);
+    } catch {
+      return null;
+    }
+  };
+
   const fetchComplaints = async () => {
+    const user = getCurrentUser();
+    
+    if (!user || user.role !== "admin") {
+      setError("Admin login required.");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError("");
-      const res = await fetch(`${API_BASE_URL}/admin/get_complaints.php`, {
-        credentials: "include",
-      });
+      const res = await fetch(`${API_BASE_URL}/admin/get_complaints.php?admin_id=${user.user_id}`);
       const data = await res.json();
       if (data.status === "success") {
         setComplaints(data.complaints || []);
@@ -75,13 +91,19 @@ function ManageComplaints() {
     e.preventDefault();
     if (!selectedComplaint || !replyMessage.trim() || isSubmittingReply) return;
 
+    const user = getCurrentUser();
+    if (!user || user.role !== "admin") {
+      alert("Admin login required.");
+      return;
+    }
+
     setIsSubmittingReply(true);
     try {
       const res = await fetch(`${API_BASE_URL}/admin/reply_complaint.php`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({
+          admin_id: user.user_id,
           complaint_id: selectedComplaint.id,
           admin_reply: replyMessage.trim(),
           status: replyStatus,

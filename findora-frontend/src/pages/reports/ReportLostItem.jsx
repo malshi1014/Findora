@@ -218,8 +218,11 @@ function ReportLostItem() {
                 >
                   <option value="">Select Category</option>
                   <option value="Electronics">Electronics</option>
+                  <option value="Smart Phone/Mobile phone">Smart Phone/Mobile phone</option>
+                  <option value="Laptop">Laptop</option>
+                  <option value="Wallet">Wallet</option>
+                  <option value="NIC/Student ID">NIC/Student ID</option>
                   <option value="Jewelry">Jewelry</option>
-                  <option value="Pet">Pet</option>
                   <option value="Documents">Documents</option>
                   <option value="Other">Other</option>
                 </select>

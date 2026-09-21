@@ -35,7 +35,6 @@ function Login() {
 
     setLoading(true);
 
-    // Authenticate with the PHP session API.
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login.php`, {
         method: "POST",
@@ -49,12 +48,6 @@ function Login() {
       });
 
       const text = await response.text();
-      console.log("Raw login response:", text);
-
-      if (!text) {
-        throw new Error("Server returned an empty response.");
-      }
-
       let data;
       try {
         data = JSON.parse(text);
@@ -62,27 +55,25 @@ function Login() {
         throw new Error("Server did not return valid JSON. Check login.php.");
       }
 
-      console.log("Login response:", data);
-
       if (data.status === "success") {
-  storeAuthenticatedSession(data);
+        storeAuthenticatedSession(data);
 
-  const hasRequiredRole =
-    !requiredRole ||
-    data.user.role === requiredRole ||
-    (requiredRole === "shop_owner" && data.user.role === "admin");
+        const hasRequiredRole =
+          !requiredRole ||
+          data.user.role === requiredRole ||
+          (requiredRole === "shop_owner" && data.user.role === "admin");
 
-  if (!hasRequiredRole) {
-    setError("This report requires shop owner credentials. Please sign in with a shop owner account.");
-    return;
-  }
+        if (!hasRequiredRole) {
+          setError("This report requires shop owner credentials. Please sign in with a shop owner account.");
+          return;
+        }
 
-  navigate(requestedPath || data.redirect_url || "/user-dashboard", {
-    replace: true,
-  });
-} else {
-  setError(data.message || "Login failed.");
-} 
+        navigate(requestedPath || data.redirect_url || "/user-dashboard", {
+          replace: true,
+        });
+      } else {
+        setError(data.message || "Login failed.");
+      } 
     } catch (err) {
       console.error("Login error:", err);
       setError(err.message || "Backend connection failed.");
@@ -92,8 +83,12 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-700 via-white to-blue-700 flex items-center justify-center p-6">
-      <div className="w-full max-w-4xl overflow-hidden rounded-3xl border border-white/40 bg-blue-300 backdrop-blur-2xl shadow-2xl shadow-blue-900/20 animate-fade-up">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Decorative background elements matching Home page */}
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-50 via-white to-white opacity-70"></div>
+      <div className="absolute top-1/4 right-1/4 h-96 w-96 rounded-full bg-blue-100/50 blur-3xl animate-pulse-soft"></div>
+
+      <div className="relative z-10 w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-200/60 bg-white/80 backdrop-blur-xl shadow-xl animate-fade-up">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div
             className="p-8 flex flex-col items-center justify-center gap-3"
@@ -127,7 +122,7 @@ function Login() {
           </div>
 
           <div
-            className="p-8 bg-white/20 backdrop-blur-xl border-l border-white/30"
+            className="p-8 bg-white/90 border-l border-slate-200/60"
             style={{ animationDelay: "0.14s" }}
           >
             <h2 className="text-2xl font-bold">Welcome back</h2>
@@ -156,7 +151,7 @@ function Login() {
                   value={nic}
                   onChange={(e) => setNic(e.target.value)}
                   placeholder="Enter NIC No or Email"
-                  className="mt-2 w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-4 py-2 text-sm outline-none"
+                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
 
@@ -170,7 +165,7 @@ function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full rounded-2xl border border-white/40 bg-white/50 backdrop-blur-xl px-4 py-2 text-sm outline-none"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                   <button
                     type="button"
@@ -193,7 +188,7 @@ function Login() {
                   Remember me
                 </label>
 
-                <Link to="#" className="text-sm text-blue-600">
+                <Link to="#" className="text-sm text-blue-600 hover:underline">
                   Forgot password?
                 </Link>
               </div>
@@ -201,14 +196,14 @@ function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-2xl bg-blue-600 px-4 py-2 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed shadow-lg transition"
+                className="w-full rounded-full bg-blue-600 px-5 py-2.5 text-[15px] font-medium text-white shadow-sm hover:bg-blue-700 hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Signing in..." : "Sign In"}
               </button>
 
               <p className="text-center text-sm text-slate-500">
                 Don&apos;t have an account?{" "}
-                <Link to="/choose-role" className="text-blue-600">
+                <Link to="/choose-role" className="text-blue-600 hover:underline">
                   Sign up now
                 </Link>
               </p>

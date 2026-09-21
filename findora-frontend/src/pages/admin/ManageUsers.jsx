@@ -1,74 +1,85 @@
 import AdminLayout from "../../layouts/AdminLayout";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Users, Search, ShieldAlert, BadgeCheck, UserPlus, Filter, RefreshCw } from "lucide-react";
 
-const initialStats = [
-  { label: "Total Users", value: "24,892", change: "+14%", icon: Users, color: "text-blue-600 bg-blue-50 border-blue-100" },
-  { label: "Active Users", value: "18,245", change: "+8.4%", icon: BadgeCheck, color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
-  { label: "Reported Users", value: "1,102", change: "-2.1%", icon: ShieldAlert, color: "text-amber-600 bg-amber-50 border-amber-100" },
-  { label: "Verified Users", value: "14,320", change: "+6.7%", icon: UserPlus, color: "text-sky-600 bg-sky-50 border-sky-100" },
-];
-
-const initialUsers = [
-  {
-    name: "Malshi Navodya",
-    role: "Premium Tier",
-    id: "#FN-98218-A",
-    email: "m@findora.tech",
-    phone: "+94 77 123 4567",
-    status: "Active",
-    notifications: "Enabled",
-  },
-  {
-    name: "Navod Teshan",
-    role: "Standard",
-    id: "#FN-44512-B",
-    email: "n@findora.tech",
-    phone: "+94 71 987 6543",
-    status: "Disabled",
-    notifications: "Off",
-  },
-  {
-    name: "Omidu Sandew",
-    role: "Enterprise",
-    id: "#FN-11264-C",
-    email: "o@findora.tech",
-    phone: "+94 72 322 1188",
-    status: "Reported",
-    notifications: "Enabled",
-  },
-  {
-    name: "Duvindu Weerathunga",
-    role: "Enterprise",
-    id: "#FN-11284-D",
-    email: "d@findora.tech",
-    phone: "+94 74 220 9851",
-    status: "Active",
-    notifications: "Enabled",
-  },
-];
-
-const statusClasses = {
-  Active: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  Disabled: "bg-rose-50 text-rose-700 border-rose-200",
-  Reported: "bg-amber-50 text-amber-700 border-amber-200",
-  Verified: "bg-sky-50 text-sky-700 border-sky-200",
-};
-
 function ManageUsers() {
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
+  const [stats, setStats] = useState({ total: 0, general: 0, verified: 0, shop_owners: 0, admins: 0 });
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [filterType, setFilterType] = useState("All");
 
+  const handleToggleSuspend = async (realId, currentStatus) => {
+    const action = currentStatus === "suspended" ? "unsuspend" : "suspend";
+    const confirmMessage = action === "suspend"
+      ? "Are you sure you want to suspend this user? They will no longer be able to log in."
+      : "Are you sure you want to unsuspend this user?";
+
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      const url = `${import.meta.env.VITE_API_BASE_URL}/admin/suspend_user.php`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_id: realId, action })
+      });
+      const result = await response.json();
+      if (result.status === "success") {
+        // Update local state to reflect the change immediately
+        setUsers(users.map(u => u.real_id === realId ? { ...u, account_status: action === "suspend" ? "suspended" : "active" } : u));
+      } else {
+        alert("Error: " + result.message);
+      }
+    } catch (error) {
+      alert("Failed to update user status.");
+    }
+  };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const url = `${import.meta.env.VITE_API_BASE_URL}/admin/get_users.php`;
+        console.log("Fetching users from:", url);
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log("Fetch result:", result);
+
+        if (result.status === "success") {
+          setUsers(result.data.users);
+          setStats(result.data.stats);
+        } else {
+          console.error("Backend returned error:", result);
+        }
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, []);
+
   const filteredUsers = users.filter((user) => {
-    const matchesSearch = 
+    const matchesSearch =
       user.name.toLowerCase().includes(searchText.toLowerCase()) ||
       user.id.toLowerCase().includes(searchText.toLowerCase()) ||
       user.email.toLowerCase().includes(searchText.toLowerCase());
-    
+
     if (filterType === "All") return matchesSearch;
-    return matchesSearch && user.status === filterType;
+    return matchesSearch && user.role.toLowerCase() === filterType.toLowerCase();
   });
+
+  const displayStats = [
+    { label: "Total Users", value: stats.total, change: "Live", icon: Users, color: "text-blue-600 bg-blue-50 border-blue-100" },
+    { label: "Verified Users", value: stats.verified, change: "Live", icon: BadgeCheck, color: "text-emerald-600 bg-emerald-50 border-emerald-100" },
+    { label: "Shop Owners", value: stats.shop_owners, change: "Live", icon: ShieldAlert, color: "text-amber-600 bg-amber-50 border-amber-100" },
+  ];
 
   return (
     <AdminLayout>
@@ -91,20 +102,18 @@ function ManageUsers() {
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="font-semibold text-slate-700">Audit Live</span>
               </div>
-              <button className="rounded-full bg-blue-600 px-5 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition-all">
-                Add New User
-              </button>
+
             </div>
           </div>
         </section>
 
         {/* Stats Row */}
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {initialStats.map((stat) => {
+        <div className="grid gap-4 sm:grid-cols-3 xl:grid-cols-3">
+          {displayStats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <div 
-                key={stat.label} 
+              <div
+                key={stat.label}
                 className="rounded-2xl border border-slate-200/50 bg-white/80 p-5 shadow-xs backdrop-blur-md flex items-start gap-4"
               >
                 <div className={`rounded-xl p-2.5 border ${stat.color}`}>
@@ -114,9 +123,11 @@ function ManageUsers() {
                   <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
                     {stat.label}
                   </p>
-                  <p className="mt-1 text-2xl font-bold text-slate-950">{stat.value}</p>
+                  <p className="mt-1 text-2xl font-bold text-slate-950">
+                    {loading ? <RefreshCw className="h-5 w-5 animate-spin text-slate-300 mt-1" /> : stat.value}
+                  </p>
                   <span className="mt-1 inline-flex text-[10px] font-bold text-blue-600">
-                    {stat.change} vs last month
+                    {stat.change}
                   </span>
                 </div>
               </div>
@@ -142,17 +153,16 @@ function ManageUsers() {
             {/* Filter Toggle */}
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <Filter className="h-3.5 w-3.5 text-slate-400 mr-1" />
-              {["All", "Active", "Disabled", "Reported"].map((status) => (
+              {["All", "Verified User", "Shop Owner", "Admin"].map((role) => (
                 <button
-                  key={status}
-                  onClick={() => setFilterType(status)}
-                  className={`rounded-full px-4 py-1.5 font-semibold transition ${
-                    filterType === status
+                  key={role}
+                  onClick={() => setFilterType(role)}
+                  className={`rounded-full px-4 py-1.5 font-semibold transition ${filterType === role
                       ? "bg-blue-600 text-white"
                       : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
+                    }`}
                 >
-                  {status}
+                  {role}
                 </button>
               ))}
             </div>
@@ -165,57 +175,64 @@ function ManageUsers() {
                   <th className="pb-4 pt-5 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Profile</th>
                   <th className="pb-4 pt-5 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">User ID</th>
                   <th className="pb-4 pt-5 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Email & Phone</th>
-                  <th className="pb-4 pt-5 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Status</th>
-                  <th className="pb-4 pt-5 pr-4 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">Notifications</th>
                   <th className="pb-4 pt-5 font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {filteredUsers.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="py-4 pr-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-indigo-500 text-xs font-bold text-white shadow-xs">
-                          {user.name.split(" ").map((token) => token[0]).join("")}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 text-sm">{user.name}</p>
-                          <p className="text-[10px] font-semibold text-slate-400">{user.role}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 pr-4 font-semibold text-slate-700">{user.id}</td>
-                    <td className="py-4 pr-4 text-slate-650 text-slate-600">
-                      <p>{user.email}</p>
-                      <p className="mt-0.5 text-[10px] text-slate-400">{user.phone}</p>
-                    </td>
-                    <td className="py-4 pr-4">
-                      <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusClasses[user.status] || "bg-slate-50 text-slate-600 border-slate-200"}`}>
-                        {user.status}
-                      </span>
-                    </td>
-                    <td className="py-4 pr-4 text-slate-600">{user.notifications}</td>
-                    <td className="py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 text-[10px] font-bold uppercase tracking-wider">
-                        <button className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-slate-600 hover:bg-slate-50 transition">View</button>
-                        <button className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-slate-600 hover:bg-slate-50 transition">Edit</button>
-                        <button className="rounded-full bg-rose-50 px-3 py-1.5 text-rose-600 hover:bg-rose-100 transition">Delete</button>
-                      </div>
+                {loading ? (
+                  <tr>
+                    <td colSpan="4" className="py-8 text-center text-slate-400">
+                      <RefreshCw className="h-6 w-6 animate-spin mx-auto text-blue-500" />
+                      <p className="mt-2 text-sm font-medium">Loading users...</p>
                     </td>
                   </tr>
-                ))}
+                ) : filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="py-8 text-center text-slate-400">
+                      <p className="text-sm font-medium">No users found.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((user) => (
+                    <tr key={user.id} className={`hover:bg-slate-50/50 transition-colors ${user.account_status === 'suspended' ? 'opacity-60 bg-rose-50/20' : ''}`}>
+                      <td className="py-4 pr-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-xs ${user.account_status === 'suspended' ? 'bg-slate-400' : 'bg-gradient-to-br from-blue-600 to-indigo-500'}`}>
+                            {user.name.split(" ").map((token) => token[0]).join("")}
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900 text-sm">
+                              {user.name}
+                              {user.account_status === 'suspended' && <span className="ml-2 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold text-rose-700">Suspended</span>}
+                            </p>
+                            <p className="text-[10px] font-semibold text-slate-400">{user.role}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 pr-4 font-semibold text-slate-700">{user.id}</td>
+                      <td className="py-4 pr-4 text-slate-650 text-slate-600">
+                        <p>{user.email}</p>
+                        <p className="mt-0.5 text-[10px] text-slate-400">{user.phone}</p>
+                      </td>
+                      <td className="py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 text-[10px] font-bold uppercase tracking-wider">
+                          <button
+                            onClick={() => handleToggleSuspend(user.real_id, user.account_status)}
+                            className={`rounded-full px-3 py-1.5 transition ${user.account_status === 'suspended' ? 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'}`}
+                          >
+                            {user.account_status === 'suspended' ? 'Unsuspend' : 'Suspend'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
           <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-t border-slate-100 pt-5">
             <div className="flex gap-2">
-              <button className="rounded-full border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
-                Bulk Deactivate
-              </button>
-              <button className="rounded-full bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-100 transition">
-                Bulk Delete
-              </button>
             </div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs text-slate-500">
               <button className="font-semibold text-slate-900">1</button>
