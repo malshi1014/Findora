@@ -138,6 +138,7 @@ Findora/
    npm run dev
    ```
    - Open your browser at `http://localhost:5173`.
+   - https://findora.software
 
 ---
 
