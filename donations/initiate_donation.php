@@ -5,14 +5,8 @@
 // PayHere Sandbox checkout parameters to the frontend.
 // ====================================================
 
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json; charset=utf-8");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(204);
-    exit();
-}
+header("Content-Type: application/json; charset=utf-8");
 
 require_once __DIR__ . "/../config/db.php";
 require_once __DIR__ . "/../config/payhere.php";
@@ -102,14 +96,16 @@ $firstName = $nameParts[0];
 $lastName  = isset($nameParts[1]) ? $nameParts[1] : "";
 
 // Return URL (frontend will show a success/cancelled page based on query param)
-$frontendBase  = "http://localhost:5173";
+$isProduction  = (!empty($_SERVER['HTTP_HOST']) && strpos($_SERVER['HTTP_HOST'], 'findora.software') !== false) ||
+                 (!empty($_SERVER['SERVER_NAME']) && strpos($_SERVER['SERVER_NAME'], 'findora.software') !== false);
+$frontendBase  = $isProduction ? "https://findora.software" : "http://localhost:5173";
 $returnUrl     = $frontendBase . "/user-dashboard/donation?payment=success&order=" . urlencode($orderId);
 $cancelUrl     = $frontendBase . "/user-dashboard/donation?payment=cancelled&order=" . urlencode($orderId);
 
-// notify_url must be a publicly accessible URL when testing with a real PayHere callback.
-// For local development, replace with your ngrok URL:
-// e.g. https://abc123.ngrok.io/findora-backend/donations/payhere_notify.php
-$notifyUrl = "http://localhost/findora-backend/donations/payhere_notify.php";
+// notify_url: publicly accessible production URL on findora.software, or local endpoint for local dev/testing
+$notifyUrl     = $isProduction
+    ? "https://findora.software/findora-backend/donations/payhere_notify.php"
+    : "http://localhost/findora-backend/donations/payhere_notify.php";
 
 echo json_encode([
     "status"         => "success",

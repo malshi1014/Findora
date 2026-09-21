@@ -11,10 +11,19 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
 
 require_once __DIR__ . "/../config/db.php";
 
+$type = isset($_GET['type']) ? $_GET['type'] : '';
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+if (empty($type) || $id <= 0) {
+    http_response_code(400);
+    echo json_encode(array("status" => "error", "message" => "Invalid parameters"));
+    exit();
+}
+
 try {
-    $statement = $conn->prepare("
-        SELECT *
-        FROM (
+    $sql = "";
+    if ($type === "missing_person") {
+        $sql = "
             SELECT
                 CONCAT('missing-person-', mp.person_post_id) AS id,
                 'missing_person' AS report_type,
@@ -36,10 +45,10 @@ try {
                     LIMIT 1
                 ) AS image_path
             FROM missing_person_post mp
-            WHERE mp.status = 'active'
-
-            UNION ALL
-
+            WHERE mp.person_post_id = ? AND mp.status = 'active'
+        ";
+    } else if ($type === "missing_pet") {
+        $sql = "
             SELECT
                 CONCAT('missing-pet-', pet.pet_post_id) AS id,
                 'missing_pet' AS report_type,
@@ -61,34 +70,33 @@ try {
                     LIMIT 1
                 ) AS image_path
             FROM missing_pet_post pet
-            WHERE pet.status = 'active'
-        ) AS approved_posts
-        ORDER BY created_at DESC
-        LIMIT 12
-    ");
+            WHERE pet.pet_post_id = ? AND pet.status = 'active'
+        ";
+    } else {
+        http_response_code(400);
+        echo json_encode(array("status" => "error", "message" => "Invalid type"));
+        exit();
+    }
 
-    if (!$statement || !$statement->execute()) {
-        throw new RuntimeException("Recent posts query failed");
+    $statement = $conn->prepare($sql);
+    $statement->bind_param("i", $id);
+
+    if (!$statement->execute()) {
+        throw new RuntimeException("Query failed");
     }
 
     $result = $statement->get_result();
-    $posts = array();
-
-    while ($row = $result->fetch_assoc()) {
-        $posts[] = $row;
-    }
+    $post = $result->fetch_assoc();
 
     $statement->close();
 
-    echo json_encode(array(
-        "status" => "success",
-        "posts" => $posts
-    ));
+    if ($post) {
+        echo json_encode(array("status" => "success", "post" => $post));
+    } else {
+        echo json_encode(array("status" => "error", "message" => "Post not found"));
+    }
 } catch (Throwable $error) {
-    error_log("Public recent posts error: " . $error->getMessage());
+    error_log("Public get post error: " . $error->getMessage());
     http_response_code(500);
-    echo json_encode(array(
-        "status" => "error",
-        "message" => "Unable to load recent posts"
-    ));
+    echo json_encode(array("status" => "error", "message" => "Unable to load the post"));
 }

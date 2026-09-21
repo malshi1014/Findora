@@ -1,18 +1,13 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Headers: Content-Type, X-CSRF-Token");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json; charset=utf-8");
+ob_start();
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(204);
-    exit();
-}
+header("Content-Type: application/json; charset=utf-8");
 
 // db.php calls AuthGuard::bootstrap() which starts the session and enforces auth.
 // If the user is not logged in, AuthGuard::bootstrap() will return a 401 before reaching here.
 require_once __DIR__ . "/../config/db.php";
+
+
 
 // AuthGuard already validated the session — safe to call SessionManager::userId().
 $userId = SessionManager::userId();

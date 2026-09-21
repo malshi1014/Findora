@@ -13,12 +13,12 @@ class SessionManager
             return;
         }
 
-        $isHttps = !empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off";
+        $isHttps = (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off")
+            || (isset($_SERVER["HTTP_X_FORWARDED_PROTO"]) && strtolower($_SERVER["HTTP_X_FORWARDED_PROTO"]) === "https");
 
-        ini_set("session.use_strict_mode", "1");
+        ini_set("session.use_strict_mode", "0");
         ini_set("session.use_only_cookies", "1");
         ini_set("session.cookie_httponly", "1");
-        ini_set("session.cookie_samesite", "Lax");
 
         // Secure session cookie settings.
         session_name(self::SESSION_NAME);
@@ -26,7 +26,7 @@ class SessionManager
             "lifetime" => 0,
             "path" => "/",
             "domain" => "",
-            "secure" => false,
+            "secure" => $isHttps,
             "httponly" => true,
             "samesite" => "Lax"
         ));
@@ -39,7 +39,7 @@ class SessionManager
     public static function login(array $user): void
     {
         self::start();
-        session_regenerate_id(true);
+        @session_regenerate_id(false);
 
         $_SESSION["user"] = array(
             "user_id" => (int) $user["user_id"],
@@ -53,7 +53,6 @@ class SessionManager
         $_SESSION["csrf_token"] = bin2hex(random_bytes(32));
         $_SESSION["last_activity"] = time();
         $_SESSION["last_regenerated"] = time();
-        $_SESSION["user_agent_hash"] = self::currentUserAgentHash();
     }
 
     public static function logout(): void
@@ -110,7 +109,7 @@ class SessionManager
         return $_SESSION["csrf_token"];
     }
 
-    // Enforce timeout and ID renewal.
+    // Enforce timeout.
     private static function enforceTimeouts(): void
     {
         if (!isset($_SESSION["user"])) {
@@ -119,27 +118,12 @@ class SessionManager
 
         $now = time();
         $lastActivity = (int) ($_SESSION["last_activity"] ?? $now);
-        $storedAgent = $_SESSION["user_agent_hash"] ?? "";
 
-        if (
-            ($now - $lastActivity) > self::IDLE_TIMEOUT_SECONDS ||
-            !hash_equals($storedAgent, self::currentUserAgentHash())
-        ) {
+        if (($now - $lastActivity) > self::IDLE_TIMEOUT_SECONDS) {
             self::logout();
             return;
         }
 
         $_SESSION["last_activity"] = $now;
-        $lastRegenerated = (int) ($_SESSION["last_regenerated"] ?? 0);
-
-        if (($now - $lastRegenerated) > self::REGENERATE_SECONDS) {
-            session_regenerate_id(true);
-            $_SESSION["last_regenerated"] = $now;
-        }
-    }
-
-    private static function currentUserAgentHash(): string
-    {
-        return hash("sha256", $_SERVER["HTTP_USER_AGENT"] ?? "unknown");
     }
 }

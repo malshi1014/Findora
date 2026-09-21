@@ -1,19 +1,8 @@
 <?php
 ob_start();
 
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Content-Type: application/json");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    ob_clean();
-    echo json_encode(array(
-        "status" => "success",
-        "message" => "Preflight OK"
-    ));
-    exit();
-}
+header("Content-Type: application/json");
 
 include __DIR__ . "/../config/db.php";
 include __DIR__ . "/../helpers/create_notification.php";
@@ -273,6 +262,7 @@ try {
 
     $checkSql = "
         SELECT
+            *,
             `$id_column` AS report_id,
             `$user_column` AS owner_user_id,
             $titleSelect,
@@ -364,6 +354,26 @@ try {
             "report_approved",
             null
         );
+
+        // Dispatch location emails ONLY for missing person/pet on approval
+        $email_debug_log = [];
+        if ($report_type === "missing_person" || $report_type === "missing_pet") {
+            try {
+                require_once __DIR__ . "/../helpers/send_location_notifications.php";
+                $town = isset($report['nearest_town']) ? trim($report['nearest_town']) : '';
+                $desc = isset($report['description']) ? trim($report['description']) : '';
+
+                // Override error_log temporarily to capture output
+                ob_start();
+                sendLocationNotifications($conn, $report_type, $report_id, $town, $owner_user_id, $report_title, $desc);
+                $email_debug_log[] = "Executed sendLocationNotifications for town: $town";
+
+                // Read PHP error logs for this process (if any triggered)
+                $email_debug_log[] = "Captured output: " . ob_get_clean();
+            } catch (\Throwable $t) {
+                $email_debug_log[] = "Exception: " . $t->getMessage();
+            }
+        }
     }
 
     if ($new_status === "rejected") {
@@ -411,7 +421,8 @@ try {
     ob_clean();
     echo json_encode(array(
         "status" => "success",
-        "message" => "Report status updated successfully"
+        "message" => "Report status updated successfully",
+        "email_debug" => isset($email_debug_log) ? $email_debug_log : []
     ));
     exit();
 

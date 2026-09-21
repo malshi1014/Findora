@@ -1,13 +1,6 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:5173");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Content-Type: application/json");
 
-if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
-    http_response_code(200);
-    exit();
-}
+header("Content-Type: application/json");
 
 include __DIR__ . "/../config/db.php";
 
@@ -39,6 +32,14 @@ $rejected_matches = getCount($conn, "SELECT COUNT(*) AS total FROM matches WHERE
 $total_notifications = getCount($conn, "SELECT COUNT(*) AS total FROM match_notification");
 $total_complaints = getCount($conn, "SELECT COUNT(*) AS total FROM complaint");
 
+// Fetch last 7 days of matches for the graph
+$graph_data = array();
+for ($i = 6; $i >= 0; $i--) {
+    $date = date('Y-m-d', strtotime("-$i days"));
+    $count = getCount($conn, "SELECT COUNT(*) AS total FROM matches WHERE DATE(matched_at) = '$date'");
+    $graph_data[] = $count;
+}
+
 echo json_encode(array(
     "status" => "success",
     "stats" => array(
@@ -54,7 +55,8 @@ echo json_encode(array(
         "verified_matches" => $verified_matches,
         "rejected_matches" => $rejected_matches,
         "total_notifications" => $total_notifications,
-        "total_complaints" => $total_complaints
+        "total_complaints" => $total_complaints,
+        "graph_data" => $graph_data
     )
 ));
 ?>
