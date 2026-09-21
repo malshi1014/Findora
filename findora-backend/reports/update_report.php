@@ -121,8 +121,8 @@ try {
         }
 
         $report = $checkResult->fetch_assoc();
-        if ($report["status"] === "matched") {
-            echo json_encode(array("status" => "error", "message" => "Matched reports cannot be edited"));
+        if ($report["status"] !== "pending") {
+            echo json_encode(array("status" => "error", "message" => "Only pending reports can be edited"));
             exit();
         }
 
@@ -156,8 +156,8 @@ try {
         }
 
         $report = $checkResult->fetch_assoc();
-        if ($report["status"] === "matched") {
-            echo json_encode(array("status" => "error", "message" => "Matched reports cannot be edited"));
+        if ($report["status"] !== "pending") {
+            echo json_encode(array("status" => "error", "message" => "Only pending reports can be edited"));
             exit();
         }
 
@@ -191,8 +191,8 @@ try {
         }
 
         $report = $checkResult->fetch_assoc();
-        if ($report["status"] === "matched") {
-            echo json_encode(array("status" => "error", "message" => "Matched reports cannot be edited"));
+        if ($report["status"] !== "pending") {
+            echo json_encode(array("status" => "error", "message" => "Only pending reports can be edited"));
             exit();
         }
 
@@ -228,8 +228,8 @@ try {
         }
 
         $report = $checkResult->fetch_assoc();
-        if ($report["status"] === "matched") {
-            echo json_encode(array("status" => "error", "message" => "Matched reports cannot be edited"));
+        if ($report["status"] !== "pending") {
+            echo json_encode(array("status" => "error", "message" => "Only pending reports can be edited"));
             exit();
         }
 

@@ -17,13 +17,13 @@ class EmailService
         $envPath = __DIR__ . '/../../config/.env';
 
         if (!file_exists($envPath)) {
-            echo json_encode(["env_error" => ".env file NOT found", "path" => $envPath]) . "\n";
+            error_log(json_encode(["env_error" => ".env file NOT found", "path" => $envPath]));
             return;
         }
 
         $lines = file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         if ($lines === false) {
-            echo json_encode(["env_error" => "Failed to read .env file"]) . "\n";
+            error_log(json_encode(["env_error" => "Failed to read .env file"]));
             return;
         }
 
@@ -53,41 +53,41 @@ class EmailService
         $this->envLoaded   = true;
 
         // Diagnostic — never logs actual key value
-        echo json_encode([
+        error_log(json_encode([
             "env_loaded"       => true,
             "api_key_detected" => !empty($this->apiKey),
             "api_key_length"   => strlen($this->apiKey),
             "sender"           => $this->fromAddress,
             "from_name"        => $this->fromName,
-        ]) . "\n";
+        ]));
     }
 
     public function send(string $to, string $subject, string $htmlBody): bool
     {
         $to = filter_var(trim($to), FILTER_VALIDATE_EMAIL);
         if (!$to) {
-            echo json_encode([
+            error_log(json_encode([
                 "error"     => "Invalid recipient",
                 "recipient" => $to,
-            ]) . "\n";
+            ]));
             return false;
         }
 
         $hasApiKey = !empty($this->apiKey);
         if (!$hasApiKey) {
-            echo json_encode([
+            error_log(json_encode([
                 "error"     => "API key missing",
                 "recipient" => $to,
-            ]) . "\n";
+            ]));
             return false;
         }
 
         if (empty($this->fromAddress) || !filter_var($this->fromAddress, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode([
+            error_log(json_encode([
                 "error"     => "Invalid sender address",
                 "recipient" => $to,
                 "sender"    => $this->fromAddress
-            ]) . "\n";
+            ]));
             return false;
         }
 
@@ -132,7 +132,7 @@ class EmailService
         curl_close($ch);
 
         if ($response === false) {
-            echo json_encode([
+            error_log(json_encode([
                 "recipient"        => $to,
                 "sender"           => $this->fromAddress,
                 "api_key_detected" => $hasApiKey,
@@ -140,14 +140,14 @@ class EmailService
                 "curl_error"       => $curlError,
                 "brevo_response"   => null,
                 "executed"         => false
-            ]) . "\n";
+            ]));
             return false;
         }
 
         if ($httpCode >= 200 && $httpCode < 300) {
             return true;
         } else {
-            echo json_encode([
+            error_log(json_encode([
                 "recipient"        => $to,
                 "sender"           => $this->fromAddress,
                 "api_key_detected" => $hasApiKey,
@@ -155,7 +155,7 @@ class EmailService
                 "curl_error"       => $curlError,
                 "brevo_response"   => $response,
                 "executed"         => true
-            ]) . "\n";
+            ]));
             return false;
         }
     }

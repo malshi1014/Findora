@@ -106,10 +106,10 @@ try {
 
     $report = $checkResult->fetch_assoc();
 
-    if ($report["status"] === "matched") {
+    if ($report["status"] !== "pending") {
         echo json_encode(array(
             "status" => "error",
-            "message" => "Matched reports cannot be deleted"
+            "message" => "Only pending reports can be deleted"
         ));
         exit();
     }

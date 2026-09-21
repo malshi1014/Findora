@@ -3,6 +3,7 @@
 // Secure PHP session handling.
 class SessionManager
 {
+    //encapsulation
     private const SESSION_NAME = "findora_session";
     private const IDLE_TIMEOUT_SECONDS = 1800;
     private const REGENERATE_SECONDS = 900;

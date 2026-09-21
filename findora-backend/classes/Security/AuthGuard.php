@@ -126,7 +126,10 @@ class AuthGuard
         }
 
         if (isset($claims["user_id"]) && (int) $claims["user_id"] !== $sessionUserId) {
-            self::deny(403, "You cannot access another user's data");
+            $path = str_replace("\\", "/", $_SERVER["SCRIPT_NAME"] ?? "");
+            if ($sessionRole !== "admin" || !str_contains($path, "/admin/")) {
+                self::deny(403, "You cannot access another user's data");
+            }
         }
 
         if (isset($claims["admin_id"])) {
